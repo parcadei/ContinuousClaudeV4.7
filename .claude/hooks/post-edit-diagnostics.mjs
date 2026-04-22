@@ -9,7 +9,7 @@
  * Falls through silently if tldr not installed or diagnostics unavailable.
  */
 import { readFileSync } from 'fs';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { extname, basename } from 'path';
 
 const ENABLED_EXTENSIONS = new Set([
@@ -31,32 +31,30 @@ function main() {
   const ext = extname(filePath);
   if (!ENABLED_EXTENSIONS.has(ext)) { console.log('{}'); return; }
 
-  // Run tldr diagnostics on the file
-  let result;
-  try {
-    result = execSync(`tldr diagnostics "${filePath}" --format json`, {
-      encoding: 'utf-8', timeout: 15000, stdio: ['pipe', 'pipe', 'pipe'],
-    });
-  } catch { console.log('{}'); return; }
+  // tldr exits non-zero when diagnostics are found — use spawnSync to capture stdout regardless.
+  const proc = spawnSync('tldr', ['diagnostics', filePath, '--format', 'json'], {
+    encoding: 'utf-8', timeout: 15000,
+  });
+  if (proc.error || !proc.stdout) { console.log('{}'); return; }
 
   let diag;
-  try { diag = JSON.parse(result); } catch { console.log('{}'); return; }
+  try { diag = JSON.parse(proc.stdout); } catch { console.log('{}'); return; }
 
-  // Extract error counts — handle both flat and summary-wrapped formats
-  const summary = diag.summary || diag;
-  const typeErrors = summary.type_errors || 0;
-  const lintIssues = summary.lint_errors || summary.lint_issues || 0;
+  // Rust tldr-cli schema: { diagnostics: [...], summary: { errors, warnings, info, hints, total } }
+  const summary = diag.summary || {};
+  const errorCount = summary.errors || 0;
+  const warningCount = summary.warnings || 0;
 
-  if (typeErrors === 0 && lintIssues === 0) { console.log('{}'); return; }
+  if (errorCount === 0 && warningCount === 0) { console.log('{}'); return; }
 
-  // Build error summary
-  const lines = [`Diagnostics: ${typeErrors} type errors, ${lintIssues} lint issues`];
-  const errors = diag.errors || [];
-  for (const err of errors.slice(0, 5)) {
-    const loc = err.column ? `${basename(err.file || filePath)}:${err.line}:${err.column}` : `${basename(err.file || filePath)}:${err.line}`;
-    lines.push(`   - ${loc}: ${err.message}`);
+  const issues = diag.diagnostics || [];
+  const lines = [`Diagnostics: ${errorCount} errors, ${warningCount} warnings`];
+  for (const d of issues.slice(0, 5)) {
+    const loc = d.column ? `${basename(d.file || filePath)}:${d.line}:${d.column}` : `${basename(d.file || filePath)}:${d.line}`;
+    const src = d.source ? `[${d.source}] ` : '';
+    lines.push(`   - ${loc}: ${src}${d.message}`);
   }
-  if (errors.length > 5) lines.push(`   ... and ${errors.length - 5} more`);
+  if (issues.length > 5) lines.push(`   ... and ${issues.length - 5} more`);
 
   console.log(JSON.stringify({
     hookSpecificOutput: {
