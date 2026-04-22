@@ -43,7 +43,7 @@ Python sandbox (ouros) for executing code with built-in tool access. Use for res
 tools/ouros_harness.py --file /tmp/script.py
 
 # With session persistence (variables survive across executions)
-tools/ouros_harness.py --file /tmp/script.py --session my-task --storage thoughts/shared/dives
+tools/ouros_harness.py --file /tmp/script.py --session my-task --storage continuum/research/my-task/ouros
 
 # Load a previous session and continue
 tools/ouros_harness.py --file /tmp/script.py --session my-task --load

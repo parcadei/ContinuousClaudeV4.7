@@ -90,7 +90,7 @@ Worker prompt — structured JSON, same shape as /autonomous:
     },
     "bounds": {
       "ouros_session": "attention-scale",
-      "ouros_storage": "continuum/research/attention-scale",
+      "ouros_storage": "continuum/research/attention-scale/ouros",
       "ouros_load": false,
       "ouros_fork": "attention-scale-H001",
       "max_sources": 5,
@@ -187,7 +187,7 @@ STATE
     artifacts/                per-hypothesis per-iteration evidence files
     reports/                  worker reports (compact JSON)
     validation/               iteration validation results
-    ouros session state       REPL heap (all raw data, persisted by harness)
+    ouros/                    REPL heap (.bin files — all raw data, persisted by harness)
 
 
 RESUME

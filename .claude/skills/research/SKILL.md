@@ -13,23 +13,23 @@ Ouros is a sandboxed Python REPL that persists variables across executions, supp
 ```bash
 # Execute research code in a named session
 python tools/ouros_harness.py --file /tmp/research.py \
-  --session {topic} --storage continuum/research
+  --session {topic} --storage continuum/research/{topic}/ouros
 
 # Resume a previous session (loads saved state, then runs new code)
 python tools/ouros_harness.py --file /tmp/next-step.py \
-  --session {topic} --storage continuum/research --load
+  --session {topic} --storage continuum/research/{topic}/ouros --load
 
 # Fork a session for parallel exploration
 python tools/ouros_harness.py --session {topic} \
-  --storage continuum/research --fork {topic}-branch-a
+  --storage continuum/research/{topic}/ouros --fork {topic}-branch-a
 
 # Inspect session state
 python tools/ouros_harness.py --session {topic} \
-  --storage continuum/research --list-vars
+  --storage continuum/research/{topic}/ouros --list-vars
 
 # Extract a variable as JSON
 python tools/ouros_harness.py --session {topic} \
-  --storage continuum/research --get-var findings
+  --storage continuum/research/{topic}/ouros --get-var findings
 ```
 
 **Available functions inside the REPL:**
@@ -109,8 +109,9 @@ print(synthesis)
 continuum/research/
   {topic}/
     findings.md          ← telegraphic artifact (what others consume)
-    session state         ← serialized REPL (auto-saved by ouros)
+    ouros/               ← serialized REPL state (.bin files, one per session)
 ```
+Pass `--storage continuum/research/{topic}/ouros` so REPL `.bin` files stay in their own subdir and don't clutter the artifact folder.
 
 **When to fork:** Fork when you want to explore two hypotheses in parallel without them contaminating each other's variable space. Each fork gets an independent copy of all accumulated state.
 

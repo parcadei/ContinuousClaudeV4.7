@@ -10,7 +10,7 @@ Usage:
     python ouros_harness.py --file /tmp/agent-code.py
 
     # With session persistence
-    python ouros_harness.py --file code.py --session dive-auth --storage thoughts/shared/dives
+    python ouros_harness.py --file code.py --session dive-auth --storage continuum/research/dive-auth/ouros
 
     # Load a previous session and continue
     python ouros_harness.py --file code.py --session dive-auth --load
@@ -892,7 +892,7 @@ def parse_args():
     p.add_argument("--code", "-c", help="Python code to execute")
     p.add_argument("--file", "-f", help="Python file to execute")
     p.add_argument("--session", "-s", help="Session ID for persistence")
-    p.add_argument("--storage", default=None, help="Storage directory (default: thoughts/shared/dives)")
+    p.add_argument("--storage", default=None, help="Storage directory (default: continuum/research/<session>/ouros)")
     p.add_argument("--load", action="store_true", help="Load a saved session before executing")
     p.add_argument("--list-vars", action="store_true", help="List variables in a session")
     p.add_argument("--get-var", help="Get a variable as JSON")
@@ -903,7 +903,9 @@ def parse_args():
 def main():
     _load_env()
     args = parse_args()
-    storage = args.storage or "thoughts/shared/dives"
+    storage = args.storage or (
+        f"continuum/research/{args.session}/ouros" if args.session else "continuum/research/_adhoc/ouros"
+    )
 
     if args.list_vars:
         if not args.session:
