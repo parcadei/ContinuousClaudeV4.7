@@ -1,4 +1,4 @@
-# Continuous Claude v4
+# Continuous Claude v4.7
 
 Autonomous software development pipeline. Skills orchestrate; workers build; the project improves with every task.
 
@@ -7,6 +7,7 @@ Autonomous software development pipeline. Skills orchestrate; workers build; the
 | Skill | What it does |
 |-------|-------------|
 | `/autonomous` | Full SDLC: assess, plan, premortem, prepare, execute, validate, evolve |
+| `/autonomous-research` | Looping research pipeline via Ouros — EVOLVE loops back to PLAN |
 | `/research` | Open-ended exploration via Ouros REPL with persistent state |
 | `/premortem` | Failure analysis gate — risk identification before implementation |
 | `/bootup` | Assess project readiness, route to research/autonomous/review |
@@ -24,13 +25,15 @@ Autonomous software development pipeline. Skills orchestrate; workers build; the
 
 ## Hooks
 
-Three hooks form a context safety loop (wired in `.claude/settings.json`):
+Five hooks (all `.mjs` — cross-platform) wired in `.claude/settings.json`:
 
 | Hook | Event | What it does |
 |------|-------|-------------|
-| `status.py` | statusLine | Status line: context %, git info, goal from latest handoff |
-| `pre-compact.py` | PreCompact | Parses transcript, writes auto-handoff before compaction |
-| `auto-handoff-stop.py` | Stop | Blocks at 85% context, suggests `/create_handoff` |
+| `status.mjs` | statusLine | Status line: context %, git info, goal from latest handoff |
+| `tldr-read.mjs` | PreToolUse:Read | Injects structural nav map for large code files, truncates |
+| `post-edit-diagnostics.mjs` | PostToolUse:Edit\|Write\|MultiEdit\|Update | Type errors + lint after edits |
+| `pre-compact.mjs` | PreCompact | Parses transcript, writes auto-handoff before compaction |
+| `auto-handoff-stop.mjs` | Stop | Blocks at 85% context, suggests `/create_handoff` |
 
 Flow: status tracks context % (writes to temp file) -> stop reads it and blocks at threshold -> pre-compact saves session state before compaction.
 
@@ -103,7 +106,7 @@ Sandbox enforces deny-by-default: `read_file` only reads project + `/tmp/ouros`,
 
 ## Editing
 
-A PreToolUse hook redirects the built-in `Edit` tool to FastEdit when available (`pip install fastedits[mcp]`). FastEdit uses a 1.7B merge model for 10x fewer tokens per edit. If FastEdit isn't installed, Edit falls through normally.
+A PreToolUse hook redirects the built-in `Edit` tool to FastEdit when available (`pip install fastedits`). FastEdit uses a merge model for 10x fewer tokens per edit. If FastEdit isn't installed, Edit falls through normally.
 
 Prefer FastEdit tools directly when available: `fast_edit`, `fast_batch_edit`, `fast_read`, `fast_search`, `fast_delete`, `fast_move`, `fast_rename`, `fast_diff`, `fast_undo`.
 
@@ -112,9 +115,9 @@ Prefer FastEdit tools directly when available: `fast_edit`, `fast_batch_edit`, `
 | Tool | What it does |
 |------|-------------|
 | [bloks](https://github.com/parcadei/bloks) | Library knowledge cards — API docs, taste, corrections |
-| [tldr](https://github.com/parcadei/tldr) | Token-efficient code analysis (AST, call graphs, impact) |
+| [tldr](https://github.com/parcadei/tldr-code) | Token-efficient code analysis (AST, call graphs, impact) |
 | [ouros](https://github.com/parcadei/ouros) | Sandboxed Python REPL with fork/save/resume |
-| [fastedit](https://github.com/parcadei/fastedit) | Fast code editing via 1.7B merge model (MCP server) |
+| [fastedit](https://github.com/parcadei/fastedit) | Fast code editing via merge model (`pip install fastedits`) |
 
 ## Project structure (created at runtime)
 
