@@ -58,9 +58,22 @@ Hooks that use `tldr` (tldr-read, post-edit-diagnostics) fall through silently i
 | Tool | Install | What it does |
 |------|---------|-------------|
 | [bloks](https://github.com/parcadei/bloks) | `cargo install bloks` | Library knowledge cards — API docs, taste, corrections |
-| [tldr](https://github.com/parcadei/tldr-code) | `cargo install tldr-code` | Token-efficient code analysis (AST, call graphs, impact, diagnostics) |
-| [ouros](https://github.com/parcadei/ouros) | `cargo install ouros` | Sandboxed Python REPL with fork/save/resume |
+| [tldr](https://github.com/parcadei/tldr-code) | `cargo install --git https://github.com/parcadei/tldr-code tldr-cli` | Token-efficient code analysis (AST, call graphs, impact, diagnostics) |
+| [ouros](https://github.com/parcadei/ouros) | `python -m pip install ouros` | Sandboxed Python REPL with fork/save/resume |
 | [fastedit](https://github.com/parcadei/fastedit) | `pip install fastedits` | Fast code editing via merge model — 10x fewer tokens per edit |
+
+Two notes on those installs. `tldr` is published from the `tldr-cli` workspace member rather than
+as a `tldr-code` crate, and its releases carry no Windows asset, so the git build above is the only
+path on Windows. `ouros` is a Python module, not a cargo binary — `tools/ouros_harness.py` imports
+it directly — and PyPI ships wheels for CPython 3.10 through 3.13 only, so install it into an
+interpreter in that range.
+
+Install it with `python -m pip`, not a bare `pip`, and use the same interpreter that runs the
+harness. A bare `pip` can belong to a different interpreter than `python`, in which case the install
+succeeds and `python tools/ouros_harness.py` still fails on `import ouros`. Where several versions
+are present, name one on both sides — on Windows `py -3.13 -m pip install ouros` alongside
+`py -3.13 tools/ouros_harness.py`; elsewhere `python3.13 -m pip install ouros`. A 3.14 default
+interpreter has no wheel and will fail regardless.
 
 ### Optional (API keys in .env)
 
