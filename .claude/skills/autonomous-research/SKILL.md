@@ -132,7 +132,7 @@ Report — uniform JSON, same principle as /autonomous (every field filled):
     "synthesis_preview": "3 papers support specialization increasing with scale...",
     "confidence_delta": +0.3,
     "new_questions": ["Does this hold for MoE architectures?"],
-    "bloks_written": ["bloks learn transformers \"attention heads specialize linearly with log(params)\""],
+    "bloks_written": ["bloks new rule \"transformers: attention heads specialize linearly with log(params)\" --tags transformers"],
     "corrections": [],
     "ouros_vars_created": ["papers_H001", "synthesis_H001", "sources_H001"]
   }
@@ -161,7 +161,7 @@ EVOLVE — THE LOOP
   3. Score progress: % of hypotheses at confidence >= 0.6.
   4. Generate new hypotheses from workers' new_questions.
   5. Mark superseded hypotheses.
-  6. Write discoveries to bloks: bloks learn {topic} "{finding}"
+  6. Write discoveries to bloks: bloks new rule "{finding}" --tags {topic}
   7. Bloks ack/nack on cards consumed in PREPARE.
 
 Decision gate:
@@ -207,6 +207,6 @@ Primary sources — papers, docs, repos. Not blogs, not LLM summaries.
 Confidence is earned — evidence count + quality justifies the score
 Knowledge accumulates — Ouros session grows, orchestrator context stays flat
 Each iteration deeper not wider — wider = new hypotheses, deeper = more evidence
-Write to bloks — future sessions benefit: bloks learn {topic} "{finding}"
+Write to bloks — future sessions benefit: bloks new rule "{finding}" --tags {topic}
 Budget-aware — synthesize at 75% context, hard stop at 85%
 Max iterations: focused 5, exploratory 10, comparative 7. Then force-synthesize.

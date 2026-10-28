@@ -182,10 +182,15 @@ Load-bearing: #[N] — if this breaks, everything downstream fails.
 After each significant finding, write it to bloks so future sessions benefit. One finding = one card.
 
 ```bash
-bloks learn {lib} "{finding}"
-# Example: bloks learn fastapi "Depends() runs per-request, use @lru_cache for singletons"
-# Example: bloks learn reqwest "blocking::Client must be created outside tokio runtime"
+bloks new rule "{finding}" --tags {lib}
+# Example: bloks new rule "fastapi: Depends() runs per-request, use @lru_cache for singletons" --tags fastapi
+# Example: bloks new rule "reqwest: blocking::Client must be created outside tokio runtime" --tags reqwest
 ```
+
+Use kind `rule`. `bloks context` — the command PREPARE reads cards back with — emits
+only `rule` and `taste` cards, so a `correction` (what `bloks learn` writes by default)
+is stored and never read. `bloks learn` also refuses any library it has not indexed
+from npm/PyPI/crates.io, which rules out findings about build tools or platform behaviour.
 
 If you discovered something is wrong in an existing card, report it:
 ```bash
@@ -201,7 +206,7 @@ Don't batch findings into one card. Atomic cards compose; monoliths rot.
 3. **State confidence** — be honest about uncertainty
 4. **Official docs first** — then community sources
 5. **Always write to file** — don't just return text
-6. **Write to bloks** — one finding = one `bloks learn` call. Close the knowledge loop.
+6. **Write to bloks** — one finding = one `bloks new rule` call. Close the knowledge loop.
 7. **Respect mode** — Sandbox mode = sandbox tools only, Clone mode = local exploration only
 8. **Check recency** — default to last 2-3 years, flag old sources
 9. **Invert** — for every finding, consider the counterargument

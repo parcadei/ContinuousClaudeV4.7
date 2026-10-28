@@ -104,9 +104,13 @@ implement:
 
 research:
   Decompose unknowns to primary sources. Synthesize into compact card — signatures, constraints, gotchas.
-  Write findings to bloks: bloks learn {lib} "{finding}" or bloks new card "{title}" --tags {tags}.
+  Write findings to bloks: bloks new rule "{finding}" --tags {tags}.
+  Use kind `rule`: bloks context only emits rule and taste cards, so a correction
+  (what bloks learn writes by default) is stored but never read back by PREPARE.
+  bloks learn also refuses any library it has not indexed from npm/PyPI/crates.io,
+  so findings about build tools or platform behaviour cannot be recorded with it.
   One finding = one bloks card. "app.listen returns http.Server" is one card. Don't batch.
-  If you discovered 5 things, call bloks learn 5 times. Atomic cards compose; monoliths rot.
+  If you discovered 5 things, call bloks new rule 5 times. Atomic cards compose; monoliths rot.
   "Decompose" = analytical breakdown. "Primary sources" = docs/source, not blogs.
   "Synthesize" = compress. "Signatures, constraints, gotchas" = structural output.
   "Write to bloks" = close the knowledge loop. Future workers consume what this worker discovered.
@@ -192,7 +196,7 @@ Report — exact JSON, every field filled:
       {"card": "motion-v12", "helpful": false, "reason": "animate() renamed to motion()"}
     ],
     "corrections": [{"block": "motion-v12", "issue": "animate() renamed to motion()"}],
-    "discoveries": [{"lib": "express", "finding": "app.listen returns http.Server", "bloks_cmd": "bloks learn express \"app.listen returns http.Server\""}],
+    "discoveries": [{"lib": "express", "finding": "app.listen returns http.Server", "bloks_cmd": "bloks new rule \"express: app.listen returns http.Server\" --tags express"}],
     "issues": [{"severity": "non-blocking", "description": "flaky test auth.test.ts:42"}],
     "conventions": ["single quotes not double", "API handlers return {data, error}"]
   }
@@ -200,7 +204,7 @@ Report — exact JSON, every field filled:
 Last 5 fields — bloks_used, corrections, discoveries, issues, conventions — are EVOLVE inputs.
 bloks_used → EVOLVE runs ack on helpful cards, nack + report on unhelpful ones
 corrections → bloks report (card self-correction)
-discoveries → bloks learn/new (research workers write directly, EVOLVE verifies they landed)
+discoveries → bloks new rule (research workers write directly, EVOLVE verifies they landed)
 issues → surface to user
 conventions → enforcement tiers
 
@@ -237,8 +241,8 @@ Present recommendations via AskUserQuestion:
 User approves. Worker applies only approved changes. Then run this checklist in order:
 
   1. corrections → bloks report {lib} {error_type} "{description}" for each worker correction
-  2. discoveries → verify each bloks learn/new from research workers landed (check bloks deck)
-  3. new patterns → bloks learn {lib} "{convention}" or bloks new {kind} "{title}" --tags {tags}
+  2. discoveries → verify each bloks new rule from research workers landed (bloks context .)
+  3. new patterns → bloks new rule "{convention}" --tags {tags}
   4. issues → surface blocking items, create follow-ups
   5. bloks ack/nack — MANDATORY. For each card injected during PREPARE:
      - Worker used it and it was correct → bloks ack {card-id}
