@@ -32,6 +32,16 @@ import os
 import sys
 from pathlib import Path
 
+# Sandbox output is arbitrary text - search results routinely contain emoji. A
+# Windows console defaults to cp1252, so printing them raises UnicodeEncodeError
+# and kills the run after the work is already done. Force UTF-8 and never fail on
+# a character we cannot represent.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 
 # ---------------------------------------------------------------------------
 # External function registry

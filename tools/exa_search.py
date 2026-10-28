@@ -50,6 +50,16 @@ import os
 import sys
 from pathlib import Path
 
+# Search results routinely contain emoji and zero-width characters. A Windows
+# console defaults to cp1252, so printing them raises UnicodeEncodeError and
+# kills the run after the request has already been made. Force UTF-8 and never
+# fail on a character we cannot represent.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 EXA_API_URL = "https://api.exa.ai"
 
 
