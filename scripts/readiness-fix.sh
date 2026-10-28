@@ -21,7 +21,8 @@ FIXED=0; SKIPPED=0
 # ── Run readiness check first ─────────────────────────────────
 echo -e "${BOLD}Running readiness check...${NC}"
 REPORT_JSON=$("$SCRIPT_DIR/readiness.sh" "$TARGET" 2>/dev/null)
-LANG_DETECTED=$(echo "$REPORT_JSON" | python3 -c "import json,sys; print(json.load(sys.stdin)['language'])")
+# tr -d: native Windows python writes CRLF, and a trailing \r breaks every `case` match below
+LANG_DETECTED=$(echo "$REPORT_JSON" | python3 -c "import json,sys; print(json.load(sys.stdin)['language'])" | tr -d '\r')
 
 # Extract failing criteria
 FAILURES=$(echo "$REPORT_JSON" | python3 -c "
@@ -30,7 +31,7 @@ d=json.load(sys.stdin)
 for k,v in d['report'].items():
     if v['numerator'] == 0:
         print(k)
-")
+" | tr -d '\r')
 
 if [[ -z "$FAILURES" ]]; then
   echo -e "${GREEN}All criteria passing — nothing to fix.${NC}"
@@ -39,6 +40,15 @@ fi
 
 FAIL_COUNT=$(echo "$FAILURES" | wc -l | tr -d ' ')
 echo -e "${BOLD}Found $FAIL_COUNT failing criteria. Fixing what's automatable...${NC}"
+
+# Every language-gated fixer skips when detect_lang() returns "unknown", which it
+# does for any directory without a manifest file. Say so once, up front, instead of
+# emitting a wall of per-criterion SKIPs that read like missing features.
+if [[ "$LANG_DETECTED" == "unknown" ]]; then
+  echo -e "  ${YELLOW}NOTE${NC} No language detected: readiness.sh keys off a manifest file"
+  echo -e "       (pyproject.toml, package.json, Cargo.toml, go.mod, ...). Without one,"
+  echo -e "       every language-specific fixer below will skip. Seed one first."
+fi
 echo ""
 
 # ── Helpers ───────────────────────────────────────────────────
@@ -423,15 +433,18 @@ HOOK
         fi
         ;;
       python)
+        # Hook revs go stale silently: a project scaffolded today would lint under
+        # ruff 0.8.0 (Nov 2024) while its developers run a current ruff, and the two
+        # disagree. Run `pre-commit autoupdate` after generating to track upstream.
         write_file ".pre-commit-config.yaml" 'repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.0
+    rev: v0.16.8
     hooks:
       - id: ruff
         args: [--fix]
       - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.13.0
+    rev: v2.3.1
     hooks:
       - id: mypy' "pre-commit config with ruff + mypy"
         ;;

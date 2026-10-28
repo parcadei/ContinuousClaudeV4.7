@@ -35,7 +35,9 @@ record() {
 has_file()  { [[ -f "$TARGET/$1" ]]; }
 has_dir()   { [[ -d "$TARGET/$1" ]]; }
 has_glob()  { compgen -G "$TARGET/$1" > /dev/null 2>&1; }
-has_any()   { for f in "$@"; do has_file "$f" && return 0; has_glob "$f" && return 0; done; return 1; }
+# A "dir/" entry is checked as a directory: compgen -G returns 0 for any
+# trailing-slash pattern, so globbing one is a guaranteed false positive.
+has_any()   { for f in "$@"; do has_file "$f" && return 0; if [[ "$f" == */ ]]; then has_dir "${f%/}" && return 0; else has_glob "$f" && return 0; fi; done; return 1; }
 file_grep() { grep -q "$1" "$TARGET/$2" 2>/dev/null; }
 
 detect_lang() {
@@ -115,6 +117,9 @@ fi
 
 if has_any ".prettierrc*" "prettier.config.*" "biome.json"; then
   record "formatter" "pass" "Formatter config found" "$CAT"
+elif has_any "ruff.toml" ".ruff.toml"; then
+  # readiness-fix.sh writes a standalone ruff.toml; ruff format ships with it
+  record "formatter" "pass" "Ruff formatter configured" "$CAT"
 elif file_grep "black" "pyproject.toml" || file_grep "ruff" "pyproject.toml"; then
   record "formatter" "pass" "Python formatter configured" "$CAT"
 elif has_any ".php-cs-fixer.dist.php" ".php-cs-fixer.php"; then
@@ -146,8 +151,11 @@ fi
 # ════════════════════════════════════════════════════════════════
 CAT="Build System"
 
+# poetry.lock was the only Python entry, so pip- and uv-managed projects could
+# never pass this - including the uv-based projects readiness-fix.sh scaffolds.
 if has_any "package-lock.json" "yarn.lock" "pnpm-lock.yaml" "bun.lockb" "poetry.lock" "Cargo.lock" "go.sum" \
-          "composer.lock" "Gemfile.lock" "mix.lock" "gradle.lockfile" "packages.lock.json"; then
+          "composer.lock" "Gemfile.lock" "mix.lock" "gradle.lockfile" "packages.lock.json" \
+          "uv.lock" "pdm.lock" "requirements.txt" "requirements.lock"; then
   record "deps_pinned" "pass" "Lockfile committed" "$CAT"
 else
   record "deps_pinned" "fail" "No lockfile found" "$CAT"
@@ -216,7 +224,9 @@ else
   record "test_config" "fail" "No test runner configuration" "$CAT"
 fi
 
-if has_dir "coverage" || has_file ".nycrc" || has_file "codecov.yml"; then
+# .coveragerc is what readiness-fix.sh writes for Python; the other three are JS-ecosystem
+if has_dir "coverage" || has_file ".nycrc" || has_file "codecov.yml" \
+   || has_file ".coveragerc" || file_grep "\[tool.coverage" "pyproject.toml"; then
   record "coverage" "pass" "Coverage reports/config present" "$CAT"
 else
   record "coverage" "fail" "No coverage configuration" "$CAT"
@@ -492,7 +502,8 @@ report = {
         'skipped': $SKIP,
         'deterministicConstraints': '$CONSTRAINTS/$MAX_CONSTRAINTS'
     },
-    'report': {$REPORT_ITEMS}
+    # json.loads, not a Python literal: SKIP criteria emit `null`, which Python can't parse
+    'report': json.loads('''{$REPORT_ITEMS}''')
 }
 print(json.dumps(report, indent=2))
 "
