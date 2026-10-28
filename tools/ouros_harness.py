@@ -802,8 +802,19 @@ def execute_in_sandbox(code, session_id=None, storage_dir=None, load_session=Fal
 
     session = ouros.Session(manager=sm, session_id=sid)
 
+    # Each execute()/resume() returns only the stdout produced since the previous
+    # pause. Collect every segment; keeping only the last one silently drops
+    # anything printed before a later external-function call.
+    chunks = []
+
+    def _collect(r):
+        out = r.get("stdout")
+        if out:
+            chunks.append(out)
+        return r
+
     # Execute — may pause at external function calls
-    result = session.execute(code)
+    result = _collect(session.execute(code))
 
     # Pause/resume loop
     while not result.get("is_complete", True):
@@ -819,9 +830,9 @@ def execute_in_sandbox(code, session_id=None, storage_dir=None, load_session=Fal
         # Call real API
         handler = EXTERNAL_FUNCTIONS.get(func_name)
         if not handler:
-            result = session.resume(call_id, {
+            result = _collect(session.resume(call_id, {
                 "error": f"Unknown function: {func_name}"
-            })
+            }))
             continue
 
         try:
@@ -829,7 +840,7 @@ def execute_in_sandbox(code, session_id=None, storage_dir=None, load_session=Fal
         except Exception as e:
             api_result = {"error": f"{func_name} failed: {e}"}
 
-        result = session.resume(call_id, api_result)
+        result = _collect(session.resume(call_id, api_result))
 
     # Save session
     if session_id and storage_dir:
@@ -838,6 +849,8 @@ def execute_in_sandbox(code, session_id=None, storage_dir=None, load_session=Fal
         except Exception:
             pass
 
+    result = dict(result)
+    result["stdout"] = "".join(chunks)
     return result
 
 
