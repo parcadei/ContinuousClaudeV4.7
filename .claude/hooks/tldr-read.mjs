@@ -15,9 +15,16 @@
  *  - Files under .claude/hooks/ or .claude/skills/
  *  - Targeted reads (offset/limit already set)
  */
-import { readFileSync, statSync } from 'fs';
-import { execSync } from 'child_process';
+import { readFileSync, statSync, existsSync } from 'fs';
+import { spawnSync } from 'child_process';
 import { extname, basename } from 'path';
+import { homedir } from 'os';
+import { join } from 'path';
+
+// Resolve tldr by absolute path first: a Claude Code process started before
+// ~/.cargo/bin joined PATH can't find it by name, and the failure is silent.
+const CARGO_TLDR = join(homedir(), '.cargo', 'bin', process.platform === 'win32' ? 'tldr.exe' : 'tldr');
+const TLDR = existsSync(CARGO_TLDR) ? CARGO_TLDR : 'tldr';
 
 const CODE_EXTENSIONS = new Set([
   '.py', '.ts', '.tsx', '.js', '.jsx', '.mjs',
@@ -116,12 +123,11 @@ function main() {
 
   // Run tldr extract — falls through if tldr not installed
   let info;
-  try {
-    const out = execSync(`tldr extract "${filePath}" --format json`, {
-      encoding: 'utf-8', timeout: 10000, stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    info = JSON.parse(out);
-  } catch { console.log('{}'); return; }
+  const proc = spawnSync(TLDR, ['extract', filePath, '--format', 'json'], {
+    encoding: 'utf-8', timeout: 10000,
+  });
+  if (proc.error || !proc.stdout) { console.log('{}'); return; }
+  try { info = JSON.parse(proc.stdout); } catch { console.log('{}'); return; }
 
   // Build nav map
   const fileName = basename(filePath);
