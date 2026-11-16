@@ -1,0 +1,30 @@
+name: extend_literal_extensions
+pattern: extend_literal
+language: php
+original_code: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class SupportedExtensions
+  {
+      public const EXTENSIONS = ['.php', '.phtml', '.inc'];
+  }
+snippet: |
+  public const EXTENSIONS = ['.php', '.phtml', '.inc', '.php8', '.module'];
+expected_output: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class SupportedExtensions
+  {
+      public const EXTENSIONS = ['.php', '.phtml', '.inc', '.php8', '.module'];
+  }
+target_kind: replace
+target_name: SupportedExtensions
+authoring_notes: |
+  Extend an array literal held as a class constant. Tests single-line
+  replacement inside a class body where the literal is the only thing
+  that changes. Uses modern PHP 8+ typed class constant style (via
+  declare(strict_types=1) header).

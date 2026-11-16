@@ -1,0 +1,51 @@
+name: wrap_block_with_match
+pattern: wrap_block
+language: rust
+original_code: |
+  fn load_config(path: &str) -> Config {
+      let raw = std::fs::read_to_string(path).unwrap();
+      serde_json::from_str(&raw).unwrap()
+  }
+snippet: |
+  fn load_config(path: &str) -> Result<Config, ConfigError> {
+      match (|| -> Result<Config, ConfigError> {
+          let raw = std::fs::read_to_string(path).unwrap();
+          serde_json::from_str(&raw).unwrap()
+      })() {
+          Ok(cfg) => Ok(cfg),
+          Err(e) => Err(e),
+      }
+  }
+expected_output: |
+  fn load_config(path: &str) -> Result<Config, ConfigError> {
+      match (|| -> Result<Config, ConfigError> {
+          let raw = std::fs::read_to_string(path).unwrap();
+          serde_json::from_str(&raw).unwrap()
+      })() {
+          Ok(cfg) => Ok(cfg),
+          Err(e) => Err(e),
+      }
+  }
+target_kind: replace
+target_name: load_config
+authoring_notes: |
+  Wraps the existing function body in an immediately-invoked closure
+  whose result is matched — a realistic refactor from `.unwrap()`
+  chains toward a `Result`-returning API without rewriting the inner
+  reads.
+
+  Style A annotation (post-M13): the snippet inlines the two unchanged
+  read/parse lines at the new DEEPER closure-body indent (8 spaces)
+  rather than using a `// ... existing code ...` marker. This exercises
+  the FastEdit deterministic text-match's context-anchor indent
+  re-shift (FASTEDIT-M13) — the two read/parse lines appear lexically
+  in both original and snippet but at different indent levels, and
+  text_match now re-indents them to the snippet's deeper depth on
+  emit. Runs at 0 model tokens through `chunked_merge`'s direct-swap
+  replace fast path.
+
+  Prior annotation (M9/M12): `target_kind: none` with a marker-based
+  snippet. That version fell through to the model (114 tokens) and the
+  model produced a mangled body, so it was the sole benchmark failure.
+  The upstream M13 text_match patch re-indents context-anchor lines so
+  Style A now merges deterministically and byte-exactly.

@@ -1,0 +1,25 @@
+name: ex_replace_block_total
+pattern: replace_block
+language: elixir
+original_code: |
+  defmodule Math do
+    def total(items) do
+      Enum.reduce(items, 0, fn i, acc -> acc + i end)
+    end
+  end
+snippet: |
+  def total(items) do
+    Enum.sum(items)
+  end
+expected_output: |
+  defmodule Math do
+    def total(items) do
+      Enum.sum(items)
+    end
+  end
+target_kind: replace
+target_name: total
+authoring_notes: |
+  P6 replace_block: replace the explicit Enum.reduce accumulator with
+  the idiomatic Enum.sum/1 call. Full body swap (single line in, single
+  line out) but semantically a block replacement.

@@ -1,0 +1,40 @@
+name: add_at_end_logger
+pattern: add_at_end
+language: cpp
+original_code: |
+  #include <string>
+  #include <iostream>
+
+  std::string process(const std::string& input) {
+      std::string result;
+      result.reserve(input.size());
+      for (char c : input) {
+          result.push_back(std::toupper(static_cast<unsigned char>(c)));
+      }
+      return result;
+  }
+snippet: |
+  std::string process(const std::string& input) {
+      // ... existing code ...
+      std::cerr << "process: produced " << result.size() << " chars\n";
+      return result;
+  }
+expected_output: |
+  #include <string>
+  #include <iostream>
+
+  std::string process(const std::string& input) {
+      std::string result;
+      result.reserve(input.size());
+      for (char c : input) {
+          result.push_back(std::toupper(static_cast<unsigned char>(c)));
+      }
+      std::cerr << "process: produced " << result.size() << " chars\n";
+      return result;
+  }
+target_kind: replace
+target_name: process
+authoring_notes: |
+  insert_after_symbol flavor — add a logging line just before the final
+  return. Marker is the leading preservation, then new line, then the
+  original return is repeated. Adapter must not duplicate the return.

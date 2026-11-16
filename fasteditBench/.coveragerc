@@ -1,0 +1,7 @@
+[run]
+source = src
+omit = tests/*
+
+[report]
+show_missing = true
+fail_under = 70

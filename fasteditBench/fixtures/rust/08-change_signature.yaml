@@ -1,0 +1,30 @@
+name: change_signature_add_lifetime
+pattern: change_signature
+language: rust
+original_code: |
+  fn first_word(s: String) -> String {
+      s.split_whitespace()
+          .next()
+          .unwrap_or("")
+          .to_string()
+  }
+snippet: |
+  fn first_word<'a>(s: &'a str) -> &'a str {
+      // ... existing code ...
+  }
+expected_output: |
+  fn first_word<'a>(s: &'a str) -> &'a str {
+      s.split_whitespace()
+          .next()
+          .unwrap_or("")
+          .to_string()
+  }
+target_kind: replace
+target_name: first_word
+authoring_notes: |
+  Signature-only change: introduces a lifetime parameter and switches
+  from owned `String` to borrowed `&'a str`. The body is preserved via
+  marker — intentionally, this case does NOT ask the adapter to also
+  fix the body to drop the `.to_string()`; that would be the job of a
+  `full_replace` case, not `change_signature`. Tests pure signature
+  edits without body-level cascading.

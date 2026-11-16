@@ -1,0 +1,136 @@
+{
+  "milestone": "infra",
+  "status": "passed",
+  "tasks": {
+    "A_openrouter_client": {
+      "status": "completed",
+      "commit_sha": "0b0a30a",
+      "follow_up_commit_sha": "dd4751b",
+      "assertion": "VAL-100",
+      "notes": [
+        "OpenRouterClient + OpenRouterResponse + BudgetState implemented in src/fasteditbench/backends/openrouter_client.py with async invoke(tools=...), tool-call JSON-parse with _parse_error fallback, budget soft-warn-once + hard-stop raises.",
+        "tests/test_openrouter_client.py (5 tests) covers success, malformed args, soft warn, hard stop, missing key. Uses asyncio.run + httpx.MockTransport to avoid pytest-asyncio dep.",
+        "Ruff F401 on unused `field` import fixed in dd4751b."
+      ]
+    },
+    "B_schema_extension": {
+      "status": "completed",
+      "commit_sha": "d306751",
+      "assertion": "VAL-101",
+      "notes": [
+        "CaseRow extended with 7 bench-02 fields (input_tokens, output_tokens, latency_ms, tool_call_count, retry_count, input_tokens_native, output_tokens_native). Defaults keep legacy constructors valid.",
+        "reporting.aggregate / _finalize / _init_lang_accum extended with nullable-safe means (_safe_mean -> None when no data). Comparator fields recorded on success + error rows.",
+        "scripts/migrate_historical_runs.py writes *.migrated.jsonl non-destructively; tier1 round-trip verified with hard SystemExit if drift.",
+        "Migration on results/fastedit/20260422-181127.jsonl: tier1 1.0 preserved, mean_latency_ms=null.",
+        "tests/test_schema_migration.py (8 tests) + test_runner.py EXPECTED_FIELDS extended to 19 fields."
+      ]
+    },
+    "C_per_model_smoke": {
+      "status": "completed",
+      "commit_sha": "73d2ef7",
+      "assertion": "VAL-102",
+      "notes": [
+        "scripts/smoke_test_models.py: 4 models x 1 trivial edit = 4 API calls, $0.0098 total.",
+        "All 4 models passed — no drops. Matrix remains full-strength.",
+        "Tokenizer proxy (tiktoken o200k_base) shows >5% discrepancy on every model -> CaseRow must carry both reported + native. Already supported via VAL-101 schema.",
+        "Opus input_discrepancy of 519% explained by Anthropic provider-side injection of tool schema + system headers before billing metering. Billing reality, not defect."
+      ]
+    },
+    "D_template_pilot": {
+      "status": "completed",
+      "commit_sha": "becd213",
+      "assertion": "VAL-102.5",
+      "notes": [
+        "scripts/template_pilot.py: 10 fixtures x 2 templates x 2 models = 40 API calls, $0.2628 total.",
+        "Results: opus A=8 B=9 (var 10.0pp), gpt A=8 B=7 (var 10.0pp). Both exceed 5pp threshold.",
+        "Decision: per_model_registry. anthropic/* -> Template B (Markdown); openai/* -> Template A (XML); default -> Template A.",
+        "src/fasteditbench/prompts/templates.py exposes get_template(model_id) + render_user(). Clean ruff (fixed UP035 Callable import + N802 function-name casing without suppressions).",
+        "tests/test_prompts.py adds 6 unit tests; suite now 102 passed."
+      ]
+    },
+    "E_milestone_validation": {
+      "status": "completed",
+      "assertion": "milestone=infra",
+      "notes": [
+        "validation/infra.json written with full evidence block per assertion.",
+        "contract.json updated: milestones[infra].status=passed; VAL-100..102.5 all status=passed with worker + evidence.",
+        "pytest: 102 passed, 0 failed. ruff: clean.",
+        "Final commit forthcoming in this task."
+      ]
+    }
+  },
+  "completed_commit_shas": [
+    "0b0a30a",
+    "d306751",
+    "dd4751b",
+    "73d2ef7",
+    "becd213"
+  ],
+  "per_model_smoke_outcome": {
+    "moonshotai/kimi-k2.6": "passed",
+    "anthropic/claude-opus-4.7": "passed",
+    "z-ai/glm-5.1": "passed",
+    "openai/gpt-5.4": "passed"
+  },
+  "dropped_models": [],
+  "tokenizer_discrepancy_table": [
+    {"model": "moonshotai/kimi-k2.6",         "input_pct": 6.9,   "output_pct": 174.5, "needs_both_fields": true},
+    {"model": "anthropic/claude-opus-4.7",    "input_pct": 519.3, "output_pct": 78.6,  "needs_both_fields": true},
+    {"model": "z-ai/glm-5.1",                 "input_pct": 71.7,  "output_pct": 8.8,   "needs_both_fields": true},
+    {"model": "openai/gpt-5.4",               "input_pct": 11.7,  "output_pct": 42.4,  "needs_both_fields": true}
+  ],
+  "template_pilot_variance_table": [
+    {"model": "anthropic/claude-opus-4.7", "template_A_passes": 8, "template_B_passes": 9, "variance_pp": 10.0, "total_per_template": 10},
+    {"model": "openai/gpt-5.4",            "template_A_passes": 8, "template_B_passes": 7, "variance_pp": 10.0, "total_per_template": 10}
+  ],
+  "template_pilot_decision": {
+    "decision": "per_model_registry",
+    "registry": {
+      "anthropic/*": "Template B (Markdown)",
+      "openai/*":    "Template A (XML)",
+      "default":     "Template A"
+    },
+    "reason": "Both variances = 10.0pp > 5pp threshold. Opus favors B by 1/10; GPT favors A by 1/10.",
+    "caveat": "n=10 per cell: single-case flips move variance by 10pp. Weak signal; methodology (VAL-401) must disclose."
+  },
+  "total_m1_api_cost_usd": 0.27263465,
+  "budget_remaining_usd": 4.72736535,
+  "bloks_used": [],
+  "corrections": [
+    {
+      "file": "src/fasteditbench/backends/openrouter_client.py",
+      "from": "from dataclasses import dataclass, field",
+      "to":   "from dataclasses import dataclass",
+      "reason": "ruff F401 — `field` imported but unused."
+    },
+    {
+      "file": "src/fasteditbench/prompts/templates.py",
+      "from": "from typing import Callable + def TEMPLATE_A_USER_FMT(...)",
+      "to":   "from collections.abc import Callable + def template_a_user_fmt(...) + module-level uppercase aliases",
+      "reason": "ruff UP035 (typing.Callable -> collections.abc.Callable) + N802 (uppercase function name). Fixed properly rather than suppressed — contract-style uppercase names retained as module aliases."
+    }
+  ],
+  "discoveries": [
+    "All 4 models exceed 5% tokenizer discrepancy vs o200k_base proxy. Contract's T-003 wording assumed some subset; in practice every row needs both fields. Fortunately VAL-101 already added both columns.",
+    "Opus input_discrepancy 519%: Anthropic meters tokens AFTER provider-side expansion of tool schema + system headers. Billing reality. Matrix report should cite OpenRouter-reported as authoritative.",
+    "Both pilot variances landed exactly at 10.0pp (one case flip each direction). Weak statistical signal; methodology section (VAL-401) must document n=10 caveat.",
+    "No models were dropped in smoke — matrix remains at full 4-model strength.",
+    "uv sync still broken due to fastedit/fastedits package-name mismatch (pre-existing). `uv run --no-sync` workaround holds for all M1 work."
+  ],
+  "issues": [
+    {
+      "severity": "info",
+      "description": "Template pilot sample size is small (n=10 per cell). Per-model registry decision could flip with n=50. Recommend revisiting after VAL-300 matrix run, where per-model 156-case totals will give authoritative variance."
+    },
+    {
+      "severity": "info",
+      "description": "uv sync package-name mismatch (fastedit vs fastedits) unresolved — orthogonal to bench-02. Separate task recommended."
+    }
+  ],
+  "conventions": [
+    "Per-model prompt registry lives in src/fasteditbench/prompts/templates.py. Future model families added as startswith-prefix rules in get_template.",
+    "Tokenizer discrepancy: always log both OpenRouter-reported AND native proxy counts. Report methodology discloses primary choice.",
+    "Nullable aggregates surface as `null` in JSON rather than 0.0 to preserve 'no data' signal (critical for historical FastEdit runs).",
+    "Scripts live in scripts/ not tests/ — pilots are re-runnable artifacts, not unit tests."
+  ]
+}

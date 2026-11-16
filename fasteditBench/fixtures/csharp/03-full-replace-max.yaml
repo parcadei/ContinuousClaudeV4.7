@@ -1,0 +1,43 @@
+name: full_replace_max_with_linq
+pattern: full_replace
+language: csharp
+original_code: |
+  using System.Collections.Generic;
+
+  public static class Statistics
+  {
+      public static int Largest(IList<int> items)
+      {
+          var best = items[0];
+          for (int i = 1; i < items.Count; i++)
+          {
+              if (items[i] > best)
+              {
+                  best = items[i];
+              }
+          }
+          return best;
+      }
+  }
+snippet: |
+  public static int Largest(IList<int> items)
+  {
+      return items.Max();
+  }
+expected_output: |
+  using System.Collections.Generic;
+
+  public static class Statistics
+  {
+      public static int Largest(IList<int> items)
+      {
+          return items.Max();
+      }
+  }
+target_kind: replace
+target_name: Statistics
+authoring_notes: |
+  Full-body replacement of an imperative max loop with LINQ `.Max()`. The
+  signature is preserved; only the body changes. Namespace using at the
+  top is untouched (the LINQ import would be added manually in real use;
+  for fixture purposes we keep the diff minimal on the body only).

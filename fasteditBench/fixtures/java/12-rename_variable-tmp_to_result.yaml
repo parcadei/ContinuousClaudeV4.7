@@ -1,0 +1,42 @@
+name: rename_variable_tmp_to_result
+pattern: rename_variable
+language: java
+original_code: |
+  public class Pipeline {
+      public int run(java.util.List<Integer> xs) {
+          int tmp = 0;
+          for (int x : xs) {
+              tmp = tmp + x;
+          }
+          tmp = tmp * 2;
+          return tmp;
+      }
+  }
+snippet: |
+  public int run(java.util.List<Integer> xs) {
+      int result = 0;
+      for (int x : xs) {
+          result = result + x;
+      }
+      result = result * 2;
+      return result;
+  }
+expected_output: |
+  public class Pipeline {
+      public int run(java.util.List<Integer> xs) {
+          int result = 0;
+          for (int x : xs) {
+              result = result + x;
+          }
+          result = result * 2;
+          return result;
+      }
+  }
+target_kind: replace
+target_name: run
+authoring_notes: |
+  Rename the local variable `tmp` to `result` at every occurrence inside
+  `run` (5 call sites: declaration, loop body, post-loop multiply, and
+  final return). Snippet shows the entire body. Tests that the adapter
+  handles whole-body rewrites that don't change structure — only symbol
+  names.

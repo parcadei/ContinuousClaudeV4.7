@@ -1,0 +1,39 @@
+name: add_line_log_before_write
+pattern: add_line
+language: go
+original_code: |
+  package store
+
+  import "log"
+
+  func Save(key string, data []byte) error {
+      validated := validate(data)
+      return write(key, validated)
+  }
+
+  func validate(b []byte) []byte { return b }
+  func write(k string, b []byte) error { _ = log.Writer(); return nil }
+snippet: |
+  func Save(key string, data []byte) error {
+      validated := validate(data)
+      log.Printf("saving key=%s bytes=%d", key, len(validated))
+      return write(key, validated)
+  }
+expected_output: |
+  package store
+
+  import "log"
+
+  func Save(key string, data []byte) error {
+      validated := validate(data)
+      log.Printf("saving key=%s bytes=%d", key, len(validated))
+      return write(key, validated)
+  }
+
+  func validate(b []byte) []byte { return b }
+  func write(k string, b []byte) error { _ = log.Writer(); return nil }
+target_kind: replace
+target_name: Save
+authoring_notes: |
+  Insert exactly one `log.Printf` line between two existing anchors. The
+  surrounding file (sibling helpers below) must survive untouched.

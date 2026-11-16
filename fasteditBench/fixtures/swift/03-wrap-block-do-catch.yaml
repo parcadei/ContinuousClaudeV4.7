@@ -1,0 +1,41 @@
+name: wrap_block_do_catch_file_load
+pattern: wrap_block
+language: swift
+original_code: |
+  func load(_ path: String) -> Data? {
+      let url = URL(fileURLWithPath: path)
+      let data = try Data(contentsOf: url)
+      return data
+  }
+snippet: |
+  func load(_ path: String) -> Data? {
+      do {
+          // ... existing code ...
+      } catch {
+          return nil
+      }
+  }
+expected_output: |
+  func load(_ path: String) -> Data? {
+      do {
+          let url = URL(fileURLWithPath: path)
+          let data = try Data(contentsOf: url)
+          return data
+      } catch {
+          return nil
+      }
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Wrap existing body in a do/catch so the 'try' expression is handled.
+  The snippet uses a single '... existing code ...' marker inside the
+  do-block; the catch branch is entirely new. Note the body as written
+  is not strictly valid Swift without the do/catch because of the 'try'
+  — but tree-sitter only checks grammar, and the expected_output is
+  well-formed. This mirrors Python's P4 wrap_block fixture style.
+
+  target_kind=none: same wrap_block body-indent issue as cpp/02 et al.
+  Preserved gap lines keep their ORIGINAL indent but need to be
+  indented one level deeper inside the `do` block. Legacy marker path
+  (model-driven) handles this.

@@ -1,0 +1,55 @@
+name: wrap_block_fopen_with_errno_check
+pattern: wrap_block
+language: c
+original_code: |
+  #include <stdio.h>
+  #include <stdlib.h>
+
+  char *read_file_contents(const char *path, size_t *out_len) {
+      FILE *fp = fopen(path, "rb");
+      fseek(fp, 0, SEEK_END);
+      long size = ftell(fp);
+      rewind(fp);
+      char *buf = (char *)malloc((size_t)size + 1);
+      fread(buf, 1, (size_t)size, fp);
+      buf[size] = '\0';
+      fclose(fp);
+      *out_len = (size_t)size;
+      return buf;
+  }
+snippet: |
+  char *read_file_contents(const char *path, size_t *out_len) {
+      FILE *fp = fopen(path, "rb");
+      if (fp == NULL) {
+          *out_len = 0;
+          return NULL;
+      }
+      // ... existing code ...
+  }
+expected_output: |
+  #include <stdio.h>
+  #include <stdlib.h>
+
+  char *read_file_contents(const char *path, size_t *out_len) {
+      FILE *fp = fopen(path, "rb");
+      if (fp == NULL) {
+          *out_len = 0;
+          return NULL;
+      }
+      fseek(fp, 0, SEEK_END);
+      long size = ftell(fp);
+      rewind(fp);
+      char *buf = (char *)malloc((size_t)size + 1);
+      fread(buf, 1, (size_t)size, fp);
+      buf[size] = '\0';
+      fclose(fp);
+      *out_len = (size_t)size;
+      return buf;
+  }
+target_kind: replace
+target_name: read_file_contents
+authoring_notes: |
+  Wraps (well, prefixes with an error branch — a common C-idiomatic
+  way to "wrap" a body without try/catch). The marker preserves the
+  entire original body after the new `if (fp == NULL)` early-return
+  block.

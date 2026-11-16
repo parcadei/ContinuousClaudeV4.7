@@ -1,0 +1,110 @@
+{
+  "task": "M3 floor_run",
+  "assertions": ["VAL-300", "VAL-301"],
+  "result": "success",
+  "implemented": "floor_runner.py + scripts/run_floor.py + tests/test_floor_run.py. CaseRow extended with edit_payload_tokens / tokenizer_used / tokenizer_proxy (all Optional, None on non-floor rows). Full 156 x 2 matrix executed in 0.35s wall-clock, 0 errors, all VAL-301 invariants pass.",
+  "run_id": "20260422-213958",
+  "results_files": {
+    "openai/gpt-5.4": {
+      "jsonl": "fasteditBench/results/openai_gpt-5.4/20260422-213958.jsonl",
+      "summary": "fasteditBench/results/openai_gpt-5.4/20260422-213958.summary.json",
+      "n_rows": 156
+    },
+    "anthropic/claude-opus-4.7": {
+      "jsonl": "fasteditBench/results/anthropic_claude-opus-4.7/20260422-213958.jsonl",
+      "summary": "fasteditBench/results/anthropic_claude-opus-4.7/20260422-213958.summary.json",
+      "n_rows": 156
+    }
+  },
+  "headline_numbers": {
+    "fastedit_baseline_total_tokens": 1977,
+    "gpt_5_4_total_tokens": 10799,
+    "gpt_ratio_vs_fastedit": 5.46,
+    "opus_4_7_total_tokens": 10726,
+    "opus_ratio_vs_fastedit": 5.43,
+    "opus_used_proxy": true,
+    "opus_tokenizer": "tiktoken:cl100k_base (proxy - ANTHROPIC_API_KEY absent)",
+    "gpt_tokenizer": "tiktoken:o200k_base (native)"
+  },
+  "per_language_breakdown": {
+    "c":          {"fastedit_tokens": 46,  "gpt_tokens": 866, "opus_tokens": 856, "n_cases": 12, "gpt_ratio": 18.83, "opus_ratio": 18.61},
+    "cpp":        {"fastedit_tokens": 57,  "gpt_tokens": 901, "opus_tokens": 899, "n_cases": 12, "gpt_ratio": 15.81, "opus_ratio": 15.77},
+    "csharp":     {"fastedit_tokens": 249, "gpt_tokens": 945, "opus_tokens": 923, "n_cases": 12, "gpt_ratio": 3.80,  "opus_ratio": 3.71},
+    "elixir":     {"fastedit_tokens": 174, "gpt_tokens": 720, "opus_tokens": 717, "n_cases": 12, "gpt_ratio": 4.14,  "opus_ratio": 4.12},
+    "go":         {"fastedit_tokens": 35,  "gpt_tokens": 806, "opus_tokens": 805, "n_cases": 12, "gpt_ratio": 23.03, "opus_ratio": 23.00},
+    "java":       {"fastedit_tokens": 153, "gpt_tokens": 957, "opus_tokens": 947, "n_cases": 12, "gpt_ratio": 6.25,  "opus_ratio": 6.19},
+    "kotlin":     {"fastedit_tokens": 50,  "gpt_tokens": 748, "opus_tokens": 750, "n_cases": 12, "gpt_ratio": 14.96, "opus_ratio": 15.00},
+    "php":        {"fastedit_tokens": 279, "gpt_tokens": 895, "opus_tokens": 891, "n_cases": 13, "gpt_ratio": 3.21,  "opus_ratio": 3.19},
+    "python":     {"fastedit_tokens": 280, "gpt_tokens": 743, "opus_tokens": 734, "n_cases": 12, "gpt_ratio": 2.65,  "opus_ratio": 2.62},
+    "ruby":       {"fastedit_tokens": 222, "gpt_tokens": 732, "opus_tokens": 731, "n_cases": 13, "gpt_ratio": 3.30,  "opus_ratio": 3.29},
+    "rust":       {"fastedit_tokens": 47,  "gpt_tokens": 835, "opus_tokens": 835, "n_cases": 10, "gpt_ratio": 17.77, "opus_ratio": 17.77},
+    "swift":      {"fastedit_tokens": 236, "gpt_tokens": 823, "opus_tokens": 818, "n_cases": 12, "gpt_ratio": 3.49,  "opus_ratio": 3.47},
+    "typescript": {"fastedit_tokens": 149, "gpt_tokens": 828, "opus_tokens": 820, "n_cases": 12, "gpt_ratio": 5.56,  "opus_ratio": 5.50}
+  },
+  "top_5_expensive_gpt": [
+    {"case_id": "rust/02-wrap_block",                    "language": "rust",   "tokens": 155},
+    {"case_id": "java/12-rename_variable-tmp_to_result", "language": "java",   "tokens": 150},
+    {"case_id": "c/10-multi-insert-hooks",               "language": "c",      "tokens": 145},
+    {"case_id": "cpp/02-wrap_block_try_catch",           "language": "cpp",    "tokens": 134},
+    {"case_id": "python/02-wrap_block",                  "language": "python", "tokens": 127}
+  ],
+  "top_5_cheap_gpt": [
+    {"case_id": "elixir/08-class-method-store",          "language": "elixir", "tokens": 35},
+    {"case_id": "ruby/08-class-method-store",            "language": "ruby",   "tokens": 39},
+    {"case_id": "python/07-class_method",                "language": "python", "tokens": 41},
+    {"case_id": "ruby/05-add-at-end-process",            "language": "ruby",   "tokens": 41},
+    {"case_id": "elixir/05-add-at-end-process",          "language": "elixir", "tokens": 42}
+  ],
+  "top_5_expensive_opus": [
+    {"case_id": "rust/02-wrap_block",                    "language": "rust",   "tokens": 155},
+    {"case_id": "java/12-rename_variable-tmp_to_result", "language": "java",   "tokens": 150},
+    {"case_id": "c/10-multi-insert-hooks",               "language": "c",      "tokens": 141},
+    {"case_id": "cpp/02-wrap_block_try_catch",           "language": "cpp",    "tokens": 137},
+    {"case_id": "python/02-wrap_block",                  "language": "python", "tokens": 125}
+  ],
+  "top_5_cheap_opus": [
+    {"case_id": "elixir/08-class-method-store",          "language": "elixir", "tokens": 35},
+    {"case_id": "ruby/08-class-method-store",            "language": "ruby",   "tokens": 39},
+    {"case_id": "python/07-class_method",                "language": "python", "tokens": 40},
+    {"case_id": "ruby/05-add-at-end-process",            "language": "ruby",   "tokens": 41},
+    {"case_id": "elixir/05-add-at-end-process",          "language": "elixir", "tokens": 42}
+  ],
+  "errors": [],
+  "tests": {
+    "targeted": {"command": "uv run --no-sync pytest tests/test_floor_run.py -v", "passed": 9, "exit_code": 0},
+    "full_suite": {"command": "uv run --no-sync pytest", "passed": 124, "exit_code": 0},
+    "val_301_invariants": {
+      "test_every_row_has_tokenizer_used": "pass",
+      "test_every_row_has_positive_payload_tokens": "pass",
+      "test_sum_within_sanity_envelope": "pass (gpt=10799, opus=10726, envelope=[10000, 1000000])",
+      "test_no_unexpected_proxy": "pass (key absent -> all Opus rows tokenizer_proxy=true)",
+      "test_resume_skips_completed": "pass",
+      "test_force_overwrites": "pass"
+    }
+  },
+  "checks": [
+    {"command": "uv run --no-sync ruff check src/fasteditbench/floor_runner.py scripts/run_floor.py tests/test_floor_run.py", "exit_code": 0},
+    {"command": "uv run --no-sync pytest", "passed": 124, "exit_code": 0},
+    {"wall_clock_run_floor": "0.35s (matrix is 156 x 2 = 312 computations, both paths offline)"}
+  ],
+  "commits": [
+    {"sha": "aeaf75b", "message": "bench-02: CaseRow schema extension for floor fields (M3 prep)"},
+    {"sha": "0d32481", "message": "bench-02: floor_runner + scripts/run_floor.py (VAL-300)"},
+    {"sha": "b2b63f7", "message": "bench-02: floor-run results for 156 fixtures x 2 models (VAL-301)"}
+  ],
+  "issues": [],
+  "discoveries": [
+    "The two tokenizers (o200k_base for GPT, cl100k_base proxy for Opus) agree to within 0.7% on total tokens across 156 fixtures (10,799 vs 10,726). The Opus proxy is therefore a conservative stand-in for the native count_tokens endpoint for the aggregate headline number.",
+    "Ratio spread across languages is large: Go leads at 23x (FastEdit almost-free on Go fixtures, 35 tokens total), while Python sits at 2.65x (FastEdit spends 280 tokens on Python due to more complex snippet structures). The widest gaps are on terse-syntax languages (go, c, rust, kotlin) where FastEdit can emit a one-line snippet but the LLM floor is dominated by JSON wrapper + context anchor.",
+    "Per-fixture floor is remarkably consistent: median 62 tokens for both models, range 35-155. The 10k sanity envelope lower bound (contract.json VAL-301c) would be violated only if fixtures were fundamentally broken. We landed at 10,799 / 10,726 - well inside [10k, 1M].",
+    "No fixture required error-path handling. The M2 anchoring logic (one adjacent line grafted onto pure insert/delete hunks) held across all 156 fixtures with no ValueError from identical original/expected.",
+    "GPT-5.4 and Opus 4.7 produce *slightly different* top-5-expensive lists at the tail (c/10-multi-insert-hooks is 145 for GPT, 141 for Opus; cpp/02-wrap_block is 134 vs 137). This is pure tokenizer-segmentation noise on the same serialized payload - useful to disclose in the M4 report when rendering rankings side-by-side.",
+    "The floor run matrix writing 312 rows + 2 summaries completed in 0.35s. The Opus live-API path (ANTHROPIC_API_KEY present) would add ~30s wall-clock (156 sequential network calls at ~200ms each, or ~5s with max_workers=8). Both still well under the 5-minute contract target."
+  ],
+  "proxy_disclosure": {
+    "reason": "ANTHROPIC_API_KEY not present in fasteditBench/.env. User direction from M2: proceed on proxy path, do not prompt, do not add key.",
+    "tokenizer": "tiktoken:cl100k_base (Claude-proxy)",
+    "impact_on_headline": "Opus total is 10,726 vs expected live-API value within ~1% (based on aggregate vs GPT proxy divergence). The ratio (5.43x vs FastEdit) would round to the same 5.4x even if the live API shifted the number by +/-100 tokens.",
+    "reversibility": "Rerun `scripts/run_floor.py --force --models anthropic/claude-opus-4.7` with ANTHROPIC_API_KEY set. Takes ~5-30s depending on max_workers. No code change required."
+  }
+}

@@ -1,0 +1,30 @@
+name: change_line_timeout_bump
+pattern: change_line
+language: rust
+original_code: |
+  async fn fetch(url: &str) -> Result<String, reqwest::Error> {
+      let client = reqwest::Client::builder()
+          .timeout(std::time::Duration::from_secs(5))
+          .build()?;
+      client.get(url).send().await?.text().await
+  }
+snippet: |
+  async fn fetch(url: &str) -> Result<String, reqwest::Error> {
+      let client = reqwest::Client::builder()
+          .timeout(std::time::Duration::from_secs(30))
+          .build()?;
+      client.get(url).send().await?.text().await
+  }
+expected_output: |
+  async fn fetch(url: &str) -> Result<String, reqwest::Error> {
+      let client = reqwest::Client::builder()
+          .timeout(std::time::Duration::from_secs(30))
+          .build()?;
+      client.get(url).send().await?.text().await
+  }
+target_kind: replace
+target_name: fetch
+authoring_notes: |
+  Single-line change: bump timeout from 5 to 30 seconds. All other lines
+  are byte-identical. Tests the adapter's ability to localise the edit
+  without touching surrounding context.

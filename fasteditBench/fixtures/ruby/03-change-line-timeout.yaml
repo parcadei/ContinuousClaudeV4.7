@@ -1,0 +1,23 @@
+name: rb_change_line_timeout
+pattern: change_line
+language: ruby
+original_code: |
+  class HttpClient
+    def fetch(url)
+      Net::HTTP.get(URI(url), read_timeout: 5)
+    end
+  end
+snippet: |
+  def fetch(url)
+    Net::HTTP.get(URI(url), read_timeout: 30)
+  end
+expected_output: |
+  class HttpClient
+    def fetch(url)
+      Net::HTTP.get(URI(url), read_timeout: 30)
+    end
+  end
+target_kind: replace
+target_name: fetch
+authoring_notes: |
+  P3 change_line: bump timeout from 5 to 30.

@@ -1,0 +1,141 @@
+name: kotlin_add_guard_sync_with_remote
+pattern: add_guard
+language: kotlin
+original_code: |
+  suspend fun syncWithRemote(): SyncReport = coroutineScope {
+      val snapshot = localStore.currentSnapshot()
+      val pulled = mutableListOf<RemoteRecord>()
+      val pushed = mutableListOf<LocalRecord>()
+      val conflicts = mutableListOf<ConflictResolution>()
+
+      val remoteChanges = try {
+          remoteAPI.changesSince(snapshot.remoteCursor)
+      } catch (e: RemoteUnavailable) {
+          logger.warn("remote unavailable; sync aborted", e)
+          return@coroutineScope SyncReport.skipped(snapshot)
+      }
+
+      for (change in remoteChanges) {
+          val local = localStore.localFor(change.id)
+          if (local == null) {
+              localStore.insert(change.toLocal())
+              pulled += change
+              continue
+          }
+
+          when {
+              local.updatedAt < change.updatedAt -> {
+                  localStore.update(change.toLocal())
+                  pulled += change
+              }
+              local.updatedAt > change.updatedAt -> {
+                  val resolution = conflictResolver.resolve(local, change)
+                  when (resolution) {
+                      is ConflictResolution.KeepLocal -> pushed += local
+                      is ConflictResolution.KeepRemote -> {
+                          localStore.update(change.toLocal())
+                          pulled += change
+                      }
+                      is ConflictResolution.Merge -> {
+                          localStore.update(resolution.merged)
+                          pushed += resolution.merged
+                      }
+                  }
+                  conflicts += resolution
+              }
+          }
+      }
+
+      val pending = localStore.pendingSince(snapshot.remoteCursor)
+      for (record in pending) {
+          try {
+              remoteAPI.push(record)
+              pushed += record
+          } catch (e: RemoteConflict) {
+              remoteAPI.forcePush(record)
+              pushed += record
+          }
+      }
+
+      localStore.updateCursor(remoteChanges.lastOrNull()?.cursor ?: snapshot.remoteCursor)
+      SyncReport(pulled = pulled, pushed = pushed, conflicts = conflicts)
+  }
+snippet: |
+  suspend fun syncWithRemote(): SyncReport = coroutineScope {
+      if (!networkMonitor.isOnline()) {
+          logger.info("sync.skipped reason=offline")
+          return@coroutineScope SyncReport.offline()
+      }
+      val snapshot = localStore.currentSnapshot()
+      val pulled = mutableListOf<RemoteRecord>()
+      // ... existing code ...
+expected_output: |
+  suspend fun syncWithRemote(): SyncReport = coroutineScope {
+      if (!networkMonitor.isOnline()) {
+          logger.info("sync.skipped reason=offline")
+          return@coroutineScope SyncReport.offline()
+      }
+      val snapshot = localStore.currentSnapshot()
+      val pulled = mutableListOf<RemoteRecord>()
+      val pushed = mutableListOf<LocalRecord>()
+      val conflicts = mutableListOf<ConflictResolution>()
+
+      val remoteChanges = try {
+          remoteAPI.changesSince(snapshot.remoteCursor)
+      } catch (e: RemoteUnavailable) {
+          logger.warn("remote unavailable; sync aborted", e)
+          return@coroutineScope SyncReport.skipped(snapshot)
+      }
+
+      for (change in remoteChanges) {
+          val local = localStore.localFor(change.id)
+          if (local == null) {
+              localStore.insert(change.toLocal())
+              pulled += change
+              continue
+          }
+
+          when {
+              local.updatedAt < change.updatedAt -> {
+                  localStore.update(change.toLocal())
+                  pulled += change
+              }
+              local.updatedAt > change.updatedAt -> {
+                  val resolution = conflictResolver.resolve(local, change)
+                  when (resolution) {
+                      is ConflictResolution.KeepLocal -> pushed += local
+                      is ConflictResolution.KeepRemote -> {
+                          localStore.update(change.toLocal())
+                          pulled += change
+                      }
+                      is ConflictResolution.Merge -> {
+                          localStore.update(resolution.merged)
+                          pushed += resolution.merged
+                      }
+                  }
+                  conflicts += resolution
+              }
+          }
+      }
+
+      val pending = localStore.pendingSince(snapshot.remoteCursor)
+      for (record in pending) {
+          try {
+              remoteAPI.push(record)
+              pushed += record
+          } catch (e: RemoteConflict) {
+              remoteAPI.forcePush(record)
+              pushed += record
+          }
+      }
+
+      localStore.updateCursor(remoteChanges.lastOrNull()?.cursor ?: snapshot.remoteCursor)
+      SyncReport(pulled = pulled, pushed = pushed, conflicts = conflicts)
+  }
+target_kind: replace
+target_name: syncWithRemote
+authoring_notes: |
+  Realistic ~55-line Kotlin RepositoryImpl.syncWithRemote with coroutine
+  scope + conflict resolution + pull/push cursors. Edit adds a 4-line
+  offline-short-circuit guard at the top. FastEdit payload = guard + 2
+  anchors + marker; native-edit must echo the whole sync pipeline to anchor.

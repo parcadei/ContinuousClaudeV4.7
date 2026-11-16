@@ -1,0 +1,92 @@
+name: extend_literal_feature_flags
+pattern: extend_literal
+language: python
+original_code: |
+  def build_feature_flags(user, organization, request_context):
+      """Construct the feature-flag map for a single request."""
+      flags = {
+          "experimental_search": False,
+          "dark_mode": user.preferences.get("dark_mode", False),
+          "beta_checkout": organization.tier in ("pro", "enterprise"),
+          "ai_suggestions": (
+              organization.tier == "enterprise"
+              and user.role in ("admin", "editor")
+          ),
+          "csv_export": organization.tier != "free",
+          "audit_log": organization.tier == "enterprise",
+          "sso_login": organization.has_sso,
+          "bulk_import": organization.tier in ("pro", "enterprise"),
+          "api_v2": request_context.client_version >= (2, 0, 0),
+          "legacy_dashboard": (
+              organization.created_at < LEGACY_CUTOFF
+              and not organization.opted_into_new_dashboard
+          ),
+          "slack_integration": organization.has_slack_workspace,
+          "github_integration": organization.has_github_app,
+          "webhook_retries": organization.tier == "enterprise",
+          "advanced_rbac": organization.tier == "enterprise",
+      }
+
+      if user.is_staff:
+          flags["internal_tools"] = True
+          flags["debug_overlay"] = True
+
+      return flags
+snippet: |
+  def build_feature_flags(user, organization, request_context):
+      """Construct the feature-flag map for a single request."""
+      flags = {
+          "experimental_search": False,
+          # ... existing code ...
+          "advanced_rbac": organization.tier == "enterprise",
+          "realtime_collab": organization.tier == "enterprise" and user.role != "viewer",
+          "ai_code_review": organization.tier == "enterprise" and user.preferences.get("ai_review_opt_in", False),
+          "custom_domains": organization.has_verified_domain,
+      }
+
+      if user.is_staff:
+          flags["internal_tools"] = True
+          flags["debug_overlay"] = True
+
+      return flags
+expected_output: |
+  def build_feature_flags(user, organization, request_context):
+      """Construct the feature-flag map for a single request."""
+      flags = {
+          "experimental_search": False,
+          "dark_mode": user.preferences.get("dark_mode", False),
+          "beta_checkout": organization.tier in ("pro", "enterprise"),
+          "ai_suggestions": (
+              organization.tier == "enterprise"
+              and user.role in ("admin", "editor")
+          ),
+          "csv_export": organization.tier != "free",
+          "audit_log": organization.tier == "enterprise",
+          "sso_login": organization.has_sso,
+          "bulk_import": organization.tier in ("pro", "enterprise"),
+          "api_v2": request_context.client_version >= (2, 0, 0),
+          "legacy_dashboard": (
+              organization.created_at < LEGACY_CUTOFF
+              and not organization.opted_into_new_dashboard
+          ),
+          "slack_integration": organization.has_slack_workspace,
+          "github_integration": organization.has_github_app,
+          "webhook_retries": organization.tier == "enterprise",
+          "advanced_rbac": organization.tier == "enterprise",
+          "realtime_collab": organization.tier == "enterprise" and user.role != "viewer",
+          "ai_code_review": organization.tier == "enterprise" and user.preferences.get("ai_review_opt_in", False),
+          "custom_domains": organization.has_verified_domain,
+      }
+
+      if user.is_staff:
+          flags["internal_tools"] = True
+          flags["debug_overlay"] = True
+
+      return flags
+target_kind: replace
+target_name: build_feature_flags
+authoring_notes: |
+  Realistic feature-flag builder (~15 flag entries across multi-tier billing
+  logic). Edit appends 3 new flag entries to the dict literal. FastEdit's
+  minimal payload is the 3 new lines + marker; native-edit must echo the
+  full dict to anchor the insertion point.

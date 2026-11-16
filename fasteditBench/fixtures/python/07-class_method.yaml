@@ -1,0 +1,50 @@
+name: class_method_switch_storage_backend
+pattern: class_method
+language: python
+original_code: |
+  class SessionStore:
+      def __init__(self, ttl=3600):
+          self.ttl = ttl
+          self._data = {}
+
+      def get(self, key):
+          return self._data.get(key)
+
+      def set(self, key, value):
+          self._data[key] = value
+
+      def clear(self):
+          self._data.clear()
+snippet: |
+  class SessionStore:
+      def __init__(self, ttl=3600):
+          self.ttl = ttl
+          self._data = OrderedDict()
+      # ... existing code ...
+expected_output: |
+  class SessionStore:
+      def __init__(self, ttl=3600):
+          self.ttl = ttl
+          self._data = OrderedDict()
+
+      def get(self, key):
+          return self._data.get(key)
+
+      def set(self, key, value):
+          self._data[key] = value
+
+      def clear(self):
+          self._data.clear()
+target_kind: none
+target_name: null
+authoring_notes: |
+  Edits only __init__; the other three methods (get/set/clear) are preserved
+  via the class-level '# ... existing code ...' marker. Tests whether the
+  adapter keeps the blank lines between methods (Python style) and does not
+  leak the marker line into the output.
+
+  target_kind=none: annotating replace=__init__ via a single-element
+  batch trips deterministic_edit's "full body replace" path which
+  retains the old `self._data = {}` line alongside the new
+  `self._data = OrderedDict()`. Legacy markers-only path handles the
+  whole-class edit correctly.

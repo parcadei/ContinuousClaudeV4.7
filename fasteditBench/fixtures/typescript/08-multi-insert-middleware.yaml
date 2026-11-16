@@ -1,0 +1,30 @@
+name: ts_multi_insert_middleware
+pattern: multi_insert
+language: typescript
+original_code: |
+  export function setupApp(app: Express): void {
+    app.init();
+    app.listen(3000);
+  }
+snippet: |
+  export function setupApp(app: Express): void {
+    app.init();
+    app.use(cors());
+    app.use(authMiddleware);
+    app.use(requestLogger);
+    app.listen(3000);
+  }
+expected_output: |
+  export function setupApp(app: Express): void {
+    app.init();
+    app.use(cors());
+    app.use(authMiddleware);
+    app.use(requestLogger);
+    app.listen(3000);
+  }
+target_kind: replace
+target_name: setupApp
+authoring_notes: |
+  Insert three consecutive middleware-registration calls between two
+  anchors (`app.init()` and `app.listen(3000)`). Tests that the
+  adapter does not collapse multi-line inserts or reorder them.

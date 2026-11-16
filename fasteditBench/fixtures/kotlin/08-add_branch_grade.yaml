@@ -1,0 +1,35 @@
+name: add_branch_grade
+pattern: add_branch
+language: kotlin
+original_code: |
+  fun grade(score: Int): String {
+      return when {
+          score >= 90 -> "A"
+          score >= 80 -> "B"
+          else -> "F"
+      }
+  }
+snippet: |
+  fun grade(score: Int): String {
+      return when {
+          score >= 90 -> "A"
+          score >= 80 -> "B"
+          score >= 70 -> "C"
+          else -> "F"
+      }
+  }
+expected_output: |
+  fun grade(score: Int): String {
+      return when {
+          score >= 90 -> "A"
+          score >= 80 -> "B"
+          score >= 70 -> "C"
+          else -> "F"
+      }
+  }
+target_kind: replace
+target_name: grade
+authoring_notes: |
+  Adds a new arm to a Kotlin `when` block, which is the idiomatic
+  equivalent of `elif` chains in Python. The new arm must be inserted
+  between the existing `score >= 80` arm and the `else` arm.

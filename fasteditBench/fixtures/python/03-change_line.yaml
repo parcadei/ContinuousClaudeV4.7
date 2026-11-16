@@ -1,0 +1,27 @@
+name: change_line_http_timeout
+pattern: change_line
+language: python
+original_code: |
+  def fetch_user(session, user_id):
+      url = f"https://api.example.com/users/{user_id}"
+      response = session.get(url, timeout=5)
+      response.raise_for_status()
+      return response.json()
+snippet: |
+  def fetch_user(session, user_id):
+      url = f"https://api.example.com/users/{user_id}"
+      response = session.get(url, timeout=30)
+      response.raise_for_status()
+      return response.json()
+expected_output: |
+  def fetch_user(session, user_id):
+      url = f"https://api.example.com/users/{user_id}"
+      response = session.get(url, timeout=30)
+      response.raise_for_status()
+      return response.json()
+target_kind: replace
+target_name: fetch_user
+authoring_notes: |
+  Single-line change (timeout=5 -> timeout=30). No markers used; the snippet
+  is the full function. This is the canonical single-line-edit case — a
+  working adapter produces minimality_ratio ~= 1.0 and hunk_count == 1.

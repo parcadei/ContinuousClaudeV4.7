@@ -1,0 +1,40 @@
+name: change_signature_add_out_len
+pattern: change_signature
+language: c
+original_code: |
+  #include <stddef.h>
+
+  extern char *malloc_buf(size_t n);
+  extern void copy_bytes(char *dst, const char *src, size_t n);
+
+  char *duplicate_buffer(const char *src, size_t n) {
+      char *dst = malloc_buf(n);
+      copy_bytes(dst, src, n);
+      return dst;
+  }
+snippet: |
+  char *duplicate_buffer(const char *src, size_t n, size_t *out_written) {
+      char *dst = malloc_buf(n);
+      copy_bytes(dst, src, n);
+      return dst;
+  }
+expected_output: |
+  #include <stddef.h>
+
+  extern char *malloc_buf(size_t n);
+  extern void copy_bytes(char *dst, const char *src, size_t n);
+
+  char *duplicate_buffer(const char *src, size_t n, size_t *out_written) {
+      char *dst = malloc_buf(n);
+      copy_bytes(dst, src, n);
+      return dst;
+  }
+target_kind: replace
+target_name: duplicate_buffer
+authoring_notes: |
+  Adds a third `size_t *out_written` parameter to the signature while
+  preserving the entire original body. Forward decls are present in the
+  original so the full TU parses. M8: rewritten as Style A (full-function
+  replacement, no markers) and forward decls moved to original_code (from
+  the expected_output append-tail) so FastEdit's direct-swap fast path
+  captures the change with zero model tokens in a single operation.

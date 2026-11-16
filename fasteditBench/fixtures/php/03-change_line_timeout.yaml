@@ -1,0 +1,40 @@
+name: change_line_timeout
+pattern: change_line
+language: php
+original_code: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class HttpFetcher
+  {
+      public function fetch(string $url): string
+      {
+          $client = new \GuzzleHttp\Client(['timeout' => 5]);
+          return (string) $client->get($url)->getBody();
+      }
+  }
+snippet: |
+  public function fetch(string $url): string
+  {
+      $client = new \GuzzleHttp\Client(['timeout' => 30]);
+      return (string) $client->get($url)->getBody();
+  }
+expected_output: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class HttpFetcher
+  {
+      public function fetch(string $url): string
+      {
+          $client = new \GuzzleHttp\Client(['timeout' => 30]);
+          return (string) $client->get($url)->getBody();
+      }
+  }
+target_kind: replace
+target_name: HttpFetcher
+authoring_notes: |
+  Single line change: `'timeout' => 5` becomes `'timeout' => 30`. The
+  surrounding return and class scaffolding must remain byte-identical.

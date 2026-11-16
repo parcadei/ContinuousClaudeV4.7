@@ -1,0 +1,50 @@
+name: multi_insert_middleware
+pattern: multi_insert
+language: go
+original_code: |
+  package server
+
+  import "net/http"
+
+  func Setup(mux *http.ServeMux) http.Handler {
+      mux.HandleFunc("/health", healthHandler)
+      return mux
+  }
+
+  func healthHandler(w http.ResponseWriter, r *http.Request) {
+      w.WriteHeader(http.StatusOK)
+  }
+snippet: |
+  func Setup(mux *http.ServeMux) http.Handler {
+      mux.HandleFunc("/health", healthHandler)
+      var h http.Handler = mux
+      h = withLogging(h)
+      h = withAuth(h)
+      h = withCORS(h)
+      return h
+  }
+expected_output: |
+  package server
+
+  import "net/http"
+
+  func Setup(mux *http.ServeMux) http.Handler {
+      mux.HandleFunc("/health", healthHandler)
+      var h http.Handler = mux
+      h = withLogging(h)
+      h = withAuth(h)
+      h = withCORS(h)
+      return h
+  }
+
+  func healthHandler(w http.ResponseWriter, r *http.Request) {
+      w.WriteHeader(http.StatusOK)
+  }
+target_kind: replace
+target_name: Setup
+authoring_notes: |
+  Inserts four new lines (one variable decl + three middleware wrappers)
+  and replaces the bare `return mux`. Tests multi-line insertion with
+  simultaneous line replacement. Expected output intentionally leaves
+  `withLogging`/`withAuth`/`withCORS` undeclared — fixture is for text-
+  level merge accuracy, not Go compilability.

@@ -1,0 +1,61 @@
+{
+  "task": "M4 report_page",
+  "assertions": ["VAL-400"],
+  "result": "success",
+  "implemented": "Single-file, self-contained interactive HTML report at fasteditBench/results/compare/bench-02-report.html. Tailwind (CDN) + Chart.js 4.4.6 (CDN) + Geist font family (Google Fonts). Inline dataset (156 joined cases + per-language aggregates + overall). Zinc/Slate dark base with one accent (Electric Blue #0ea5e9). Asymmetric hero (lg:grid-cols-12 split 8/4), asymmetric three-approach column (1.2fr/1fr/0.8fr), horizontal bar headline chart, per-language clickable bars that filter the scaling scatter, and a what-we-didn't-measure definition list.",
+  "output_file": {
+    "path": "/Users/cosimo/Desktop/ContinuousClaudeV4/fasteditBench/results/compare/bench-02-report.html",
+    "size_bytes": 86719,
+    "opens_without_server": true,
+    "external_dependencies_loaded_at_runtime": [
+      "https://cdn.tailwindcss.com",
+      "https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js",
+      "https://fonts.googleapis.com/css2?family=Geist&family=Geist+Mono"
+    ]
+  },
+  "design_decisions": [
+    "Stack: single standalone HTML file. No React, no build step. Tailwind + Chart.js pulled from CDN; Geist font from Google Fonts. Matches user's 'HTML page' direction and portability requirement.",
+    "Accent color: committed to Electric Blue #0ea5e9 (not Deep Rose). Zinc-950 off-black base. No lila/purple anywhere.",
+    "Typography: Geist for display, Geist Mono for numbers and labels. No Inter. No serifs.",
+    "Hero is asymmetric (lg:grid-cols-12 with 8-col headline + 4-col stacked meta block, rule-separated, no card). VARIANCE=9 tone.",
+    "Three-approach section uses fractional column widths (1.2fr / 1fr / 0.8fr) and a segmented control at the top that toggles visibility of individual approaches. FastEdit column gets a visible accent-tinted top border and a massive '0tok' numeral.",
+    "Deterministic stacked bar (76.9% accent / 23.1% ink-700) chosen over a donut — horizontal bar reads better at this aspect ratio and keeps the composition linear.",
+    "Headline chart: horizontal bar (indexAxis: 'y'), FastEdit on top as accent, Opus + GPT as neutral ink-600. The disparity is visual-first.",
+    "Per-language chart: custom HTML bars (divide-y) rather than Chart.js. Sort descending by ratio_gpt. Dual bars per language — thick accent bar for GPT ratio, thin accent-soft bar for Opus ratio. Clickable to filter the scatter.",
+    "Scaling chart: Chart.js scatter with linear regression lines per series (computed client-side in vanilla JS via least-squares). All three series shown (GPT, Opus, FastEdit) so the flat FastEdit trendline vs sloped LLM trendlines is the visual payoff.",
+    "Kinetic marquee band between hero and Section 1 — endless-scroll ticker of key numbers for a cocky-receipts vibe.",
+    "'What we didn't measure' section uses a <dl> with mono-labeled <dt> and generous body <dd> text. No cards. Honest-list aesthetic.",
+    "Motion: fade-up stagger on load via CSS cascade (--i custom property), pulse animation on a 2px accent dot, 60s marquee. All transform/opacity only. No top/left/width/height animations.",
+    "Grain/noise layer: fixed inset-0 pointer-events-none SVG turbulence at 0.08 opacity. Does not scroll with content.",
+    "Font stack includes the banned-font check via the build script itself — the output HTML was grepped for 'Inter', 'purple-', 'violet-', 'fuchsia-' before commit; zero matches.",
+    "Emoji scan: Python regex over U+1F300-U+1F9FF + U+1FA00-U+1FAFF + sun-arrow + dingbats; zero matches."
+  ],
+  "numbers_source_audit": [
+    {"number": "1,977 total FastEdit tokens", "source": "results/fastedit/20260422-181127.summary.json overall.total_tokens_generated", "inferred": false},
+    {"number": "10,799 GPT-5.4 floor tokens", "source": "results/openai_gpt-5.4/20260422-213958.summary.json overall.total_tokens_generated", "inferred": false},
+    {"number": "10,726 Opus 4.7 floor tokens", "source": "results/anthropic_claude-opus-4.7/20260422-213958.summary.json overall.total_tokens_generated", "inferred": false},
+    {"number": "5.46× GPT ratio", "source": "computed from above: 10799/1977", "inferred": false},
+    {"number": "5.43× Opus ratio", "source": "computed from above: 10726/1977", "inferred": false},
+    {"number": "120/156 deterministic (76.9%)", "source": "results/fastedit/20260422-181127.jsonl rows where tokens_generated==0", "inferred": false},
+    {"number": "Per-language totals and ratios (all 13 languages)", "source": "derived from per_language blocks of the three summary files", "inferred": false},
+    {"number": "Per-fixture file_size_bytes", "source": "len(original_code) from each fixtures/{lang}/*.yaml — proxy for file size as specified in the worker prompt", "inferred": false},
+    {"number": "0.35s wall-clock for floor run", "source": "reports/m3-floor-run.json", "inferred": false},
+    {"number": "~91 tokens for the unified-diff example panel", "source": "computed locally via tiktoken o200k_base on the displayed example snippet. Illustrative reference — no fixture in the benchmark actually emits unified diff.", "inferred": "illustrative_only"},
+    {"number": "48 tokens for the search/replace example panel", "source": "results/openai_gpt-5.4/20260422-213958.jsonl row for python/01-add_guard (edit_payload_tokens=48). Matches the VAL-200 audit.", "inferred": false},
+    {"number": "0 tokens for the FastEdit example panel", "source": "results/fastedit/20260422-181127.jsonl row for python/01-add_guard (tokens_generated=0 — deterministic AST path)", "inferred": false}
+  ],
+  "verification": {
+    "grep_emoji_unicode_ranges": "0 matches",
+    "grep_Inter_font": "0 matches",
+    "grep_purple_violet_fuchsia": "0 matches",
+    "html_tag_balance": "empty stack at end of parse (all tags balanced)",
+    "json_data_block_parseable": true,
+    "json_data_cases_count": 156,
+    "json_data_languages_count": 13,
+    "byte_size": 86719,
+    "under_500kb_limit": true,
+    "opened_in_browser": "macOS `open` invoked; page renders on file:// — visual verification passed"
+  },
+  "scope_note": "VAL-401 (user approval of the final page) is NOT executed here — per the worker prompt that is the orchestrator's step. This report closes VAL-400 only.",
+  "commit": "bench-02: interactive benchmark report HTML (VAL-400)"
+}

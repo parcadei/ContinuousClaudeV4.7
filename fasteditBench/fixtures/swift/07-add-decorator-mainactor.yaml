@@ -1,0 +1,25 @@
+name: add_decorator_mainactor_refresh
+pattern: add_decorator
+language: swift
+original_code: |
+  func refreshUI(_ text: String) {
+      label.text = text
+      label.setNeedsDisplay()
+  }
+snippet: |
+  @MainActor
+  func refreshUI(_ text: String) {
+      // ... existing code ...
+  }
+expected_output: |
+  @MainActor
+  func refreshUI(_ text: String) {
+      label.text = text
+      label.setNeedsDisplay()
+  }
+target_kind: replace
+target_name: refreshUI
+authoring_notes: |
+  Swift's equivalent of a Python decorator is an attribute like
+  '@MainActor' above a function. The snippet preserves the body via
+  a marker so the merger only has to splice in the new attribute line.

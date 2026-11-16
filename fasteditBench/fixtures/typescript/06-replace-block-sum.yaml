@@ -1,0 +1,33 @@
+name: ts_replace_block_sum
+pattern: replace_block
+language: typescript
+original_code: |
+  export function total(items: readonly number[]): number {
+    let acc = 0;
+    for (const x of items) {
+      acc += x;
+    }
+    return acc;
+  }
+snippet: |
+  export function total(items: readonly number[]): number {
+    return items.reduce((a, b) => a + b, 0);
+  }
+expected_output: |
+  export function total(items: readonly number[]): number {
+    return items.reduce((a, b) => a + b, 0);
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Replace the entire loop body with a single `reduce` call. This
+  overlaps conceptually with full_replace but is classified as
+  replace_block because the signature line is explicitly present in
+  the snippet (not just anchoring via marker). Uses `readonly number[]`
+  to exercise TS-specific modifiers.
+
+  target_kind=none: under replace=total the deterministic path
+  over-matches the snippet's trailing `}` against the nested
+  `for { ... }` closing brace, leaving orphan `return acc;` lines
+  after the replacement. Legacy model path produces correct output
+  (M3 baseline: tier1 PASS 38 tokens).

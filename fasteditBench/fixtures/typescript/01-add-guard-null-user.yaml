@@ -1,0 +1,29 @@
+name: ts_add_guard_null_user
+pattern: add_guard
+language: typescript
+original_code: |
+  export function getDisplayName(user: User): string {
+    return user.firstName + " " + user.lastName;
+  }
+snippet: |
+  export function getDisplayName(user: User): string {
+    if (user == null) {
+      return "Anonymous";
+    }
+    return user.firstName + " " + user.lastName;
+  }
+expected_output: |
+  export function getDisplayName(user: User): string {
+    if (user == null) {
+      return "Anonymous";
+    }
+    return user.firstName + " " + user.lastName;
+  }
+target_kind: replace
+target_name: getDisplayName
+authoring_notes: |
+  Classic early-return guard for a nullable parameter. Uses
+  idiomatic TypeScript: exported function, typed parameter, explicit
+  return type. Snippet is a "full rewrite" style (no marker) since the
+  body is short — exercises the text-match / full-replace fast path
+  rather than marker resolution.

@@ -1,0 +1,29 @@
+name: full_replace_sum_to_iter
+pattern: full_replace
+language: rust
+original_code: |
+  fn sum_positive(xs: &[i32]) -> i32 {
+      let mut acc = 0;
+      for x in xs {
+          if *x > 0 {
+              acc += *x;
+          }
+      }
+      acc
+  }
+snippet: |
+  fn sum_positive(xs: &[i32]) -> i32 {
+      xs.iter().filter(|x| **x > 0).sum()
+  }
+expected_output: |
+  fn sum_positive(xs: &[i32]) -> i32 {
+      xs.iter().filter(|x| **x > 0).sum()
+  }
+target_kind: replace
+target_name: sum_positive
+authoring_notes: |
+  Entire function body is replaced with an iterator chain. Signature is
+  preserved. Treated as the Rust analogue of FastEdit's `replace_fn`
+  pattern — `full_replace` is the taxonomy slug that captures
+  "body-only rewrite". A correct adapter should not leak any of the
+  original loop state into the result.

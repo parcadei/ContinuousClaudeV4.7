@@ -1,0 +1,31 @@
+name: wrap_block_try_except_config_load
+pattern: wrap_block
+language: python
+original_code: |
+  def load_config(path):
+      raw = Path(path).read_text(encoding="utf-8")
+      data = json.loads(raw)
+      return Config(**data)
+snippet: |
+  def load_config(path):
+      try:
+          # ... existing code ...
+      except (OSError, json.JSONDecodeError) as exc:
+          logger.warning("config load failed: %s", exc)
+          return Config()
+expected_output: |
+  def load_config(path):
+      try:
+          raw = Path(path).read_text(encoding="utf-8")
+          data = json.loads(raw)
+          return Config(**data)
+      except (OSError, json.JSONDecodeError) as exc:
+          logger.warning("config load failed: %s", exc)
+          return Config()
+target_kind: replace
+target_name: load_config
+authoring_notes: |
+  Wraps a 3-line body inside a try/except. The marker sits inside the try block.
+  A correct adapter must re-indent the 3 existing lines by 4 spaces (from body
+  to inside-try). Tests whether the adapter handles indentation shifts on
+  preserved content.

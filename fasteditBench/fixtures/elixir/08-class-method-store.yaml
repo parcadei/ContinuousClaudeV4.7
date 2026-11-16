@@ -1,0 +1,48 @@
+name: ex_class_method_store
+pattern: class_method
+language: elixir
+original_code: |
+  defmodule Store do
+    def new do
+      []
+    end
+
+    def get(store, k) do
+      Enum.at(store, k)
+    end
+
+    def put(store, k, v) do
+      List.replace_at(store, k, v)
+    end
+  end
+snippet: |
+  defmodule Store do
+    def new do
+      %{}
+    end
+
+    # ... existing code ...
+  end
+expected_output: |
+  defmodule Store do
+    def new do
+      %{}
+    end
+
+    def get(store, k) do
+      Enum.at(store, k)
+    end
+
+    def put(store, k, v) do
+      List.replace_at(store, k, v)
+    end
+  end
+target_kind: batch
+target_name: null
+target_batch:
+- kind: replace
+  name: new
+  snippet: "def new do\n  %{}\nend\n"
+authoring_notes: |
+  P9 class_method: change `new/0` to return an empty map instead of an
+  empty list; preserve the other two functions in the module via marker.

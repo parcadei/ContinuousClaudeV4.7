@@ -1,0 +1,42 @@
+name: change_line_timeout
+pattern: change_line
+language: cpp
+original_code: |
+  #include <chrono>
+
+  class HttpClient {
+  public:
+      HttpClient() : timeout_(std::chrono::seconds(5)) {}
+      std::chrono::seconds timeout() const { return timeout_; }
+  private:
+      std::chrono::seconds timeout_;
+  };
+snippet: |
+  class HttpClient {
+  public:
+      HttpClient() : timeout_(std::chrono::seconds(30)) {}
+      // ... existing code ...
+  };
+expected_output: |
+  #include <chrono>
+
+  class HttpClient {
+  public:
+      HttpClient() : timeout_(std::chrono::seconds(30)) {}
+      std::chrono::seconds timeout() const { return timeout_; }
+  private:
+      std::chrono::seconds timeout_;
+  };
+target_kind: none
+target_name: null
+authoring_notes: |
+  Single-line change inside a constructor member-initializer list.
+  The marker covers the rest of the class body so member functions and
+  private section are preserved untouched.
+
+  target_kind=none: snippet defines the class shell + the constructor
+  ctor-init-list line + a marker for the remaining body. Under
+  replace=HttpClient the _extract_snippet_names guard in chunked_merge
+  sees the inline `timeout()` method on the ctor-init-list line and
+  rejects the single-symbol scope (multi-symbol snippet). Legacy
+  markers-only path sidesteps the guard and handles the edit.

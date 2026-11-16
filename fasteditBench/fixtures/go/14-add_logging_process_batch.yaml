@@ -1,0 +1,141 @@
+name: go_add_logging_process_batch
+pattern: add_line
+language: go
+original_code: |
+  func (p *BatchProcessor) ProcessBatch(ctx context.Context, batch *Batch) (*BatchResult, error) {
+      if batch == nil {
+          return nil, ErrNilBatch
+      }
+      if len(batch.Items) == 0 {
+          return &BatchResult{Status: StatusEmpty}, nil
+      }
+
+      tx, err := p.db.BeginTx(ctx, nil)
+      if err != nil {
+          return nil, fmt.Errorf("begin tx: %w", err)
+      }
+      defer func() {
+          if err != nil {
+              _ = tx.Rollback()
+          }
+      }()
+
+      result := &BatchResult{
+          BatchID:   batch.ID,
+          Processed: make([]string, 0, len(batch.Items)),
+          Failed:    make(map[string]string),
+      }
+
+      for _, item := range batch.Items {
+          select {
+          case <-ctx.Done():
+              return nil, ctx.Err()
+          default:
+          }
+
+          if err := p.validator.Validate(item); err != nil {
+              result.Failed[item.ID] = fmt.Sprintf("validation: %v", err)
+              continue
+          }
+
+          if err := p.store.Persist(ctx, tx, item); err != nil {
+              if errors.Is(err, ErrDuplicate) {
+                  result.Failed[item.ID] = "duplicate"
+                  continue
+              }
+              return nil, fmt.Errorf("persist item %s: %w", item.ID, err)
+          }
+
+          if err := p.enqueueDownstream(ctx, tx, item); err != nil {
+              return nil, fmt.Errorf("enqueue item %s: %w", item.ID, err)
+          }
+
+          result.Processed = append(result.Processed, item.ID)
+      }
+
+      if err := tx.Commit(); err != nil {
+          return nil, fmt.Errorf("commit tx: %w", err)
+      }
+
+      p.metrics.RecordBatchCompleted(batch.ID, len(result.Processed), len(result.Failed))
+      return result, nil
+  }
+snippet: |
+  func (p *BatchProcessor) ProcessBatch(ctx context.Context, batch *Batch) (*BatchResult, error) {
+      if batch == nil {
+          return nil, ErrNilBatch
+      }
+      if len(batch.Items) == 0 {
+          return &BatchResult{Status: StatusEmpty}, nil
+      }
+      p.logger.InfoContext(ctx, "batch.start", "batch_id", batch.ID, "size", len(batch.Items))
+
+      tx, err := p.db.BeginTx(ctx, nil)
+      // ... existing code ...
+expected_output: |
+  func (p *BatchProcessor) ProcessBatch(ctx context.Context, batch *Batch) (*BatchResult, error) {
+      if batch == nil {
+          return nil, ErrNilBatch
+      }
+      if len(batch.Items) == 0 {
+          return &BatchResult{Status: StatusEmpty}, nil
+      }
+      p.logger.InfoContext(ctx, "batch.start", "batch_id", batch.ID, "size", len(batch.Items))
+
+      tx, err := p.db.BeginTx(ctx, nil)
+      if err != nil {
+          return nil, fmt.Errorf("begin tx: %w", err)
+      }
+      defer func() {
+          if err != nil {
+              _ = tx.Rollback()
+          }
+      }()
+
+      result := &BatchResult{
+          BatchID:   batch.ID,
+          Processed: make([]string, 0, len(batch.Items)),
+          Failed:    make(map[string]string),
+      }
+
+      for _, item := range batch.Items {
+          select {
+          case <-ctx.Done():
+              return nil, ctx.Err()
+          default:
+          }
+
+          if err := p.validator.Validate(item); err != nil {
+              result.Failed[item.ID] = fmt.Sprintf("validation: %v", err)
+              continue
+          }
+
+          if err := p.store.Persist(ctx, tx, item); err != nil {
+              if errors.Is(err, ErrDuplicate) {
+                  result.Failed[item.ID] = "duplicate"
+                  continue
+              }
+              return nil, fmt.Errorf("persist item %s: %w", item.ID, err)
+          }
+
+          if err := p.enqueueDownstream(ctx, tx, item); err != nil {
+              return nil, fmt.Errorf("enqueue item %s: %w", item.ID, err)
+          }
+
+          result.Processed = append(result.Processed, item.ID)
+      }
+
+      if err := tx.Commit(); err != nil {
+          return nil, fmt.Errorf("commit tx: %w", err)
+      }
+
+      p.metrics.RecordBatchCompleted(batch.ID, len(result.Processed), len(result.Failed))
+      return result, nil
+  }
+target_kind: replace
+target_name: ProcessBatch
+authoring_notes: |
+  Realistic ~55-line batch processor with tx, ctx-cancel polling, per-item
+  validate/persist/enqueue, and metrics. Edit inserts a single structured-
+  log line after the guards. Native-edit tool must echo a multi-line anchor
+  region; FastEdit emits just the log line + marker.

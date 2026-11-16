@@ -1,0 +1,142 @@
+name: ts_add_guard_use_authenticated_query
+pattern: add_guard
+language: typescript
+original_code: |
+  export function useAuthenticatedQuery<T>(
+    key: string,
+    fetcher: (token: string) => Promise<T>,
+    options: UseAuthenticatedQueryOptions<T> = {},
+  ): QueryResult<T> {
+    const auth = useAuth();
+    const [data, setData] = useState<T | null>(options.initialData ?? null);
+    const [error, setError] = useState<Error | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [refetchIndex, setRefetchIndex] = useState(0);
+    const abortRef = useRef<AbortController | null>(null);
+
+    useEffect(() => {
+      let cancelled = false;
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setLoading(true);
+
+      (async () => {
+        try {
+          let token = await auth.getAccessToken();
+          let attempt = 0;
+          while (attempt < (options.maxRetries ?? 2)) {
+            try {
+              const result = await fetcher(token);
+              if (cancelled) return;
+              setData(result);
+              setError(null);
+              options.onSuccess?.(result);
+              return;
+            } catch (err) {
+              if (err instanceof UnauthorizedError && attempt === 0) {
+                token = await auth.refreshAccessToken();
+                attempt += 1;
+                continue;
+              }
+              throw err;
+            }
+          }
+        } catch (err) {
+          if (cancelled) return;
+          const normalized = err instanceof Error ? err : new Error(String(err));
+          setError(normalized);
+          options.onError?.(normalized);
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
+      })();
+
+      return () => {
+        cancelled = true;
+        controller.abort();
+      };
+    }, [key, refetchIndex]);
+
+    const refetch = useCallback(() => setRefetchIndex((i) => i + 1), []);
+    return { data, error, loading, refetch };
+  }
+snippet: |
+  export function useAuthenticatedQuery<T>(
+    key: string,
+    fetcher: (token: string) => Promise<T>,
+    options: UseAuthenticatedQueryOptions<T> = {},
+  ): QueryResult<T> {
+    if (!key) {
+      throw new Error("useAuthenticatedQuery: key must be a non-empty string");
+    }
+    const auth = useAuth();
+    // ... existing code ...
+expected_output: |
+  export function useAuthenticatedQuery<T>(
+    key: string,
+    fetcher: (token: string) => Promise<T>,
+    options: UseAuthenticatedQueryOptions<T> = {},
+  ): QueryResult<T> {
+    if (!key) {
+      throw new Error("useAuthenticatedQuery: key must be a non-empty string");
+    }
+    const auth = useAuth();
+    const [data, setData] = useState<T | null>(options.initialData ?? null);
+    const [error, setError] = useState<Error | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [refetchIndex, setRefetchIndex] = useState(0);
+    const abortRef = useRef<AbortController | null>(null);
+
+    useEffect(() => {
+      let cancelled = false;
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setLoading(true);
+
+      (async () => {
+        try {
+          let token = await auth.getAccessToken();
+          let attempt = 0;
+          while (attempt < (options.maxRetries ?? 2)) {
+            try {
+              const result = await fetcher(token);
+              if (cancelled) return;
+              setData(result);
+              setError(null);
+              options.onSuccess?.(result);
+              return;
+            } catch (err) {
+              if (err instanceof UnauthorizedError && attempt === 0) {
+                token = await auth.refreshAccessToken();
+                attempt += 1;
+                continue;
+              }
+              throw err;
+            }
+          }
+        } catch (err) {
+          if (cancelled) return;
+          const normalized = err instanceof Error ? err : new Error(String(err));
+          setError(normalized);
+          options.onError?.(normalized);
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
+      })();
+
+      return () => {
+        cancelled = true;
+        controller.abort();
+      };
+    }, [key, refetchIndex]);
+
+    const refetch = useCallback(() => setRefetchIndex((i) => i + 1), []);
+    return { data, error, loading, refetch };
+  }
+target_kind: replace
+target_name: useAuthenticatedQuery
+authoring_notes: |
+  Realistic ~60-line React hook that orchestrates token fetch, 401 refresh,
+  retry, and abort-on-unmount. The edit adds a 3-line null-key guard at the
+  top. FastEdit's 0.2.5 payload is just the guard + short marker; native
+  must echo most of the hook body to anchor the insertion point.

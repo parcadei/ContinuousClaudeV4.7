@@ -1,0 +1,27 @@
+name: change_line_timeout
+pattern: change_line
+language: kotlin
+original_code: |
+  suspend fun fetch(url: String): String {
+      return withTimeout(5_000) {
+          client.get(url).bodyAsText()
+      }
+  }
+snippet: |
+  suspend fun fetch(url: String): String {
+      return withTimeout(30_000) {
+          client.get(url).bodyAsText()
+      }
+  }
+expected_output: |
+  suspend fun fetch(url: String): String {
+      return withTimeout(30_000) {
+          client.get(url).bodyAsText()
+      }
+  }
+target_kind: replace
+target_name: fetch
+authoring_notes: |
+  One-line numeric literal change inside a suspend function. Exercises
+  coroutine-ish code path without introducing new syntax. Only the
+  timeout constant changes; context lines are identical.

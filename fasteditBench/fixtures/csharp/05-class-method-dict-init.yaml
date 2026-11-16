@@ -1,0 +1,69 @@
+name: class_method_store_init
+pattern: class_method
+language: csharp
+original_code: |
+  using System.Collections.Generic;
+
+  public class Store
+  {
+      private List<string> _items;
+
+      public Store()
+      {
+          _items = new List<string>();
+      }
+
+      public string Get(int index)
+      {
+          return _items[index];
+      }
+
+      public void Set(int index, string value)
+      {
+          _items[index] = value;
+      }
+  }
+snippet: |
+  public class Store
+  {
+      private Dictionary<int, string> _items;
+
+      public Store()
+      {
+          _items = new Dictionary<int, string>();
+      }
+      // ... existing code ...
+  }
+expected_output: |
+  using System.Collections.Generic;
+
+  public class Store
+  {
+      private Dictionary<int, string> _items;
+
+      public Store()
+      {
+          _items = new Dictionary<int, string>();
+      }
+
+      public string Get(int index)
+      {
+          return _items[index];
+      }
+
+      public void Set(int index, string value)
+      {
+          _items[index] = value;
+      }
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Changes the backing store from List<string> to Dictionary<int,string>
+  and its constructor initialisation; leaves Get/Set methods intact via
+  the marker. Classic class-body partial edit.
+
+  target_kind=none: under replace=Store, _extract_snippet_names rejects
+  the snippet as multi-symbol (Store + Get + Set via marker expansion).
+  Legacy markers-only model path handles this partial class edit
+  (M3 baseline: tier1 PASS 83 tokens).

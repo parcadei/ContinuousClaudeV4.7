@@ -1,0 +1,14 @@
+name: extend_literal_supported_exts
+pattern: extend_literal
+language: rust
+original_code: |
+  const SUPPORTED_EXTS: &[&str] = &[".rs", ".toml", ".md"];
+snippet: |
+  const SUPPORTED_EXTS: &[&str] = &[".rs", ".toml", ".md", ".lock", ".yaml"];
+expected_output: |
+  const SUPPORTED_EXTS: &[&str] = &[".rs", ".toml", ".md", ".lock", ".yaml"];
+target_kind: replace
+target_name: SUPPORTED_EXTS
+authoring_notes: |
+  Extends a static slice literal with two more entries. Item-level edit
+  on a one-line declaration — no surrounding context to preserve.

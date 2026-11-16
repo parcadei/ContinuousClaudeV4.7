@@ -1,0 +1,28 @@
+name: add_guard_zero_divisor
+pattern: add_guard
+language: rust
+original_code: |
+  fn divide(a: f64, b: f64) -> f64 {
+      a / b
+  }
+snippet: |
+  fn divide(a: f64, b: f64) -> f64 {
+      if b == 0.0 {
+          return f64::NAN;
+      }
+      a / b
+  }
+expected_output: |
+  fn divide(a: f64, b: f64) -> f64 {
+      if b == 0.0 {
+          return f64::NAN;
+      }
+      a / b
+  }
+target_kind: replace
+target_name: divide
+authoring_notes: |
+  Guard-clause insertion before the single-expression body. The snippet
+  shows the full intended body (no marker) since the original is trivially
+  short. A correct adapter recognises the added early-return and preserves
+  `a / b` as the tail expression.

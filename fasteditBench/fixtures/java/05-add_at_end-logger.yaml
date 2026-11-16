@@ -1,0 +1,37 @@
+name: add_at_end_logger
+pattern: add_at_end
+language: java
+original_code: |
+  public class Processor {
+      private static final java.util.logging.Logger LOG =
+          java.util.logging.Logger.getLogger("Processor");
+
+      public int process(int x) {
+          int y = x * 2 + 1;
+          return y;
+      }
+  }
+snippet: |
+  public int process(int x) {
+      // ... existing code ...
+      LOG.info("done");
+      return y;
+  }
+expected_output: |
+  public class Processor {
+      private static final java.util.logging.Logger LOG =
+          java.util.logging.Logger.getLogger("Processor");
+
+      public int process(int x) {
+          int y = x * 2 + 1;
+          LOG.info("done");
+          return y;
+      }
+  }
+target_kind: replace
+target_name: process
+authoring_notes: |
+  Append a log line just before the final `return`. The marker preserves
+  the initial computation of `y`; the new line is inserted before the
+  return which appears verbatim in the snippet as the trailing anchor.
+  Tests recognition of trailing-anchor preserve-until patterns.

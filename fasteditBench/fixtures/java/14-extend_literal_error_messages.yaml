@@ -1,0 +1,85 @@
+name: java_extend_literal_error_messages
+pattern: extend_literal
+language: java
+original_code: |
+  public static Map<String, String> buildLocalizedErrorMessages(Locale locale) {
+      Map<String, String> messages = new LinkedHashMap<>();
+      messages.put("account.locked", I18n.translate(locale, "account.locked",
+              "Your account has been locked. Contact support."));
+      messages.put("account.suspended", I18n.translate(locale, "account.suspended",
+              "Your account is suspended pending review."));
+      messages.put("account.not_found", I18n.translate(locale, "account.not_found",
+              "We couldn't find an account matching those credentials."));
+      messages.put("payment.declined", I18n.translate(locale, "payment.declined",
+              "Your payment was declined by the card issuer."));
+      messages.put("payment.insufficient_funds", I18n.translate(locale, "payment.insufficient_funds",
+              "Insufficient funds for this transaction."));
+      messages.put("payment.expired_card", I18n.translate(locale, "payment.expired_card",
+              "The card on file has expired. Please update your payment method."));
+      messages.put("shipping.address_invalid", I18n.translate(locale, "shipping.address_invalid",
+              "The shipping address could not be validated."));
+      messages.put("shipping.unsupported_region", I18n.translate(locale, "shipping.unsupported_region",
+              "We do not currently ship to your region."));
+      messages.put("inventory.out_of_stock", I18n.translate(locale, "inventory.out_of_stock",
+              "The requested item is out of stock."));
+      messages.put("inventory.backorder_exceeded", I18n.translate(locale, "inventory.backorder_exceeded",
+              "Backorder limits have been reached for this item."));
+      messages.put("rate_limit.exceeded", I18n.translate(locale, "rate_limit.exceeded",
+              "You have exceeded the allowed request rate. Please try again later."));
+      return Collections.unmodifiableMap(messages);
+  }
+snippet: |
+  public static Map<String, String> buildLocalizedErrorMessages(Locale locale) {
+      Map<String, String> messages = new LinkedHashMap<>();
+      // ... existing code ...
+      messages.put("rate_limit.exceeded", I18n.translate(locale, "rate_limit.exceeded",
+              "You have exceeded the allowed request rate. Please try again later."));
+      messages.put("verification.code_expired", I18n.translate(locale, "verification.code_expired",
+              "This verification code has expired. Request a new one."));
+      messages.put("verification.too_many_attempts", I18n.translate(locale, "verification.too_many_attempts",
+              "Too many verification attempts. Please wait 15 minutes."));
+      messages.put("refund.window_closed", I18n.translate(locale, "refund.window_closed",
+              "The refund window for this order has closed."));
+      return Collections.unmodifiableMap(messages);
+  }
+expected_output: |
+  public static Map<String, String> buildLocalizedErrorMessages(Locale locale) {
+      Map<String, String> messages = new LinkedHashMap<>();
+      messages.put("account.locked", I18n.translate(locale, "account.locked",
+              "Your account has been locked. Contact support."));
+      messages.put("account.suspended", I18n.translate(locale, "account.suspended",
+              "Your account is suspended pending review."));
+      messages.put("account.not_found", I18n.translate(locale, "account.not_found",
+              "We couldn't find an account matching those credentials."));
+      messages.put("payment.declined", I18n.translate(locale, "payment.declined",
+              "Your payment was declined by the card issuer."));
+      messages.put("payment.insufficient_funds", I18n.translate(locale, "payment.insufficient_funds",
+              "Insufficient funds for this transaction."));
+      messages.put("payment.expired_card", I18n.translate(locale, "payment.expired_card",
+              "The card on file has expired. Please update your payment method."));
+      messages.put("shipping.address_invalid", I18n.translate(locale, "shipping.address_invalid",
+              "The shipping address could not be validated."));
+      messages.put("shipping.unsupported_region", I18n.translate(locale, "shipping.unsupported_region",
+              "We do not currently ship to your region."));
+      messages.put("inventory.out_of_stock", I18n.translate(locale, "inventory.out_of_stock",
+              "The requested item is out of stock."));
+      messages.put("inventory.backorder_exceeded", I18n.translate(locale, "inventory.backorder_exceeded",
+              "Backorder limits have been reached for this item."));
+      messages.put("rate_limit.exceeded", I18n.translate(locale, "rate_limit.exceeded",
+              "You have exceeded the allowed request rate. Please try again later."));
+      messages.put("verification.code_expired", I18n.translate(locale, "verification.code_expired",
+              "This verification code has expired. Request a new one."));
+      messages.put("verification.too_many_attempts", I18n.translate(locale, "verification.too_many_attempts",
+              "Too many verification attempts. Please wait 15 minutes."));
+      messages.put("refund.window_closed", I18n.translate(locale, "refund.window_closed",
+              "The refund window for this order has closed."));
+      return Collections.unmodifiableMap(messages);
+  }
+target_kind: replace
+target_name: buildLocalizedErrorMessages
+authoring_notes: |
+  Realistic localized error-message builder (~11 existing entries). Edit
+  appends 3 new entries before the return. FastEdit's 0.2.5 middle-insert
+  preserves the leading 11 entries via marker; payload is just the 3 new
+  multi-line entries + anchor. Native-edit must echo the full 22-line
+  dictionary to anchor the insertion.

@@ -1,0 +1,64 @@
+name: class_method_data_class
+pattern: class_method
+language: kotlin
+original_code: |
+  class Store {
+      private val items: MutableList<String> = mutableListOf()
+
+      fun add(item: String) {
+          items.add(item)
+      }
+
+      fun get(index: Int): String {
+          return items[index]
+      }
+
+      fun size(): Int {
+          return items.size
+      }
+  }
+snippet: |
+  class Store {
+      private val items: MutableMap<Int, String> = mutableMapOf()
+  }
+expected_output: |
+  class Store {
+      private val items: MutableMap<Int, String> = mutableMapOf()
+
+      fun add(item: String) {
+          items.add(item)
+      }
+
+      fun get(index: Int): String {
+          return items[index]
+      }
+
+      fun size(): Int {
+          return items.size
+      }
+  }
+target_kind: batch
+target_name: null
+target_batch:
+  - kind: replace
+    name: Store
+    preserve_siblings: true
+    snippet: |
+      class Store {
+          private val items: MutableMap<Int, String> = mutableMapOf()
+      }
+authoring_notes: |
+  Change a Kotlin class's field type in place; three unchanged methods
+  (`add` / `get` / `size`) must be preserved. Note that the resulting
+  code is not type-correct (a Map doesn't have `.add`), but it is
+  syntactically valid Kotlin — VAL-101 only parses for structure.
+
+  M12: re-annotated as a single-entry target_batch with
+  preserve_siblings=true. FastEdit's chunked_merge resolves `Store`,
+  enumerates the three methods via tldr, and splices them back into
+  the new class body. Byte-exact, 0 model tokens.
+
+  Prior history: M9 accepted as algorithm-limit because Kotlin fields
+  aren't exposed as resolvable top-level symbols. preserve_siblings
+  sidesteps the problem — the snippet is the minimal new class shell
+  and the unchanged methods are preserved deterministically.

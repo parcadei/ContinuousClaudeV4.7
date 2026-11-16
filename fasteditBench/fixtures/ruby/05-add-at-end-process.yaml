@@ -1,0 +1,32 @@
+name: rb_add_at_end_process
+pattern: add_at_end
+language: ruby
+original_code: |
+  class Processor
+    def process(x)
+      y = transform(x)
+      y
+    end
+  end
+snippet: |
+  def process(x)
+    y = transform(x)
+    logger.info("done")
+    y
+  end
+expected_output: |
+  class Processor
+    def process(x)
+      y = transform(x)
+      logger.info("done")
+      y
+    end
+  end
+target_kind: replace
+target_name: process
+authoring_notes: |
+  P5 add_at_end: append log line before the final returned expression.
+  Style A (full replacement): the 1-char return expression `y` is below
+  _MIN_ANCHOR_LENGTH=4 for text_match, so a marker-based snippet
+  classifies it as "new" and duplicates it. Realistic agents send the
+  complete 4-line new body under replace=process instead.

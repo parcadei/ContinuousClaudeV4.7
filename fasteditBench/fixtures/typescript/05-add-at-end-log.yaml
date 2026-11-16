@@ -1,0 +1,28 @@
+name: ts_add_at_end_log
+pattern: add_at_end
+language: typescript
+original_code: |
+  export function transformOrder(order: Order): TransformedOrder {
+    const normalized = normalize(order);
+    const enriched = enrich(normalized);
+    return enriched;
+  }
+snippet: |
+  export function transformOrder(order: Order): TransformedOrder {
+    // ... existing code ...
+    logger.info("order transformed", { id: order.id });
+    return enriched;
+  }
+expected_output: |
+  export function transformOrder(order: Order): TransformedOrder {
+    const normalized = normalize(order);
+    const enriched = enrich(normalized);
+    logger.info("order transformed", { id: order.id });
+    return enriched;
+  }
+target_kind: replace
+target_name: transformOrder
+authoring_notes: |
+  Insert a log line just before the existing `return` using a top
+  marker + explicit trailing return as anchor. Tests "insert after the
+  symbol prefix but before the tail" variant of add_at_end.

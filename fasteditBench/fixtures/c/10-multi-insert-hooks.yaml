@@ -1,0 +1,78 @@
+name: multi_insert_middleware_hooks
+pattern: multi_insert
+language: c
+original_code: |
+  #include <stdbool.h>
+
+  struct app;
+
+  bool app_bootstrap(struct app *a) {
+      app_init(a);
+      app_run(a);
+      return true;
+  }
+snippet: |
+  bool app_bootstrap(struct app *a) {
+      app_init(a);
+      app_register_hook(a, "cors");
+      app_register_hook(a, "auth");
+      app_register_hook(a, "logging");
+      app_run(a);
+      return true;
+  }
+expected_output: |
+  #include <stdbool.h>
+
+  struct app;
+
+  bool app_bootstrap(struct app *a) {
+      app_init(a);
+      app_register_hook(a, "cors");
+      app_register_hook(a, "auth");
+      app_register_hook(a, "logging");
+      app_run(a);
+      return true;
+  }
+
+  extern void app_init(struct app *a);
+  extern void app_run(struct app *a);
+  extern void app_register_hook(struct app *a, const char *name);
+target_kind: batch
+target_name: null
+target_batch:
+  - kind: replace
+    name: app_bootstrap
+    snippet: |
+      bool app_bootstrap(struct app *a) {
+          app_init(a);
+          app_register_hook(a, "cors");
+          app_register_hook(a, "auth");
+          app_register_hook(a, "logging");
+          app_run(a);
+          return true;
+      }
+  - kind: after
+    name: app_bootstrap
+    snippet: |
+      extern void app_init(struct app *a);
+      extern void app_run(struct app *a);
+      extern void app_register_hook(struct app *a, const char *name);
+authoring_notes: |
+  Inserts three consecutive `app_register_hook` statements between the
+  `app_init` and `app_run` anchors AND appends three `extern` prototypes
+  at the end of the file. Demonstrates ordered multi-line insertion
+  paired with a second symbol-anchored append.
+
+  M12: re-annotated as a two-entry target_batch. (1) replace= swaps
+  the `app_bootstrap` body; (2) after= inserts the extern prototypes
+  after `app_bootstrap`. Both entries take FastEdit's deterministic
+  fast paths (text-match for replace, AST-splice for after), producing
+  byte-exact output at 0 model tokens.
+
+  Prior history: M9 accepted as algorithm-limit because (a) tldr's C
+  analyzer treated `struct app` as a struct definition, tripping the
+  extras guard, and (b) the tail externs in expected_output weren't
+  representable via a single snippet. The upstream tldr C-grammar fix
+  removed blocker (a); expressing the edit as a two-entry batch
+  sidesteps blocker (b) since batch is the fast_batch_edit MCP surface
+  an agent would naturally use here.

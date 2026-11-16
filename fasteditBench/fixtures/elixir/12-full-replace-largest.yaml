@@ -1,0 +1,28 @@
+name: ex_full_replace_largest
+pattern: full_replace
+language: elixir
+original_code: |
+  defmodule Picker do
+    def largest(items) do
+      [head | tail] = items
+
+      Enum.reduce(tail, head, fn x, best ->
+        if x > best, do: x, else: best
+      end)
+    end
+  end
+snippet: |
+  def largest(items) do
+    Enum.max(items)
+  end
+expected_output: |
+  defmodule Picker do
+    def largest(items) do
+      Enum.max(items)
+    end
+  end
+target_kind: replace
+target_name: largest
+authoring_notes: |
+  P12 full_replace: collapse an explicit Enum.reduce/3 max-finder into
+  the idiomatic Enum.max/1. Signature preserved; body wholly rewritten.

@@ -1,0 +1,121 @@
+name: swift_add_logging_sync_remote
+pattern: add_line
+language: swift
+original_code: |
+  func syncWithRemote() async throws -> SyncReport {
+      let snapshot = try await store.currentSnapshot()
+      var pulled: [RemoteRecord] = []
+      var pushed: [LocalRecord] = []
+      var conflicts: [ConflictResolution] = []
+
+      let remoteChanges = try await remoteAPI.changes(since: snapshot.remoteCursor)
+      for change in remoteChanges {
+          let local = try await store.local(for: change.id)
+          if local == nil {
+              try await store.insert(change.asLocalRecord())
+              pulled.append(change)
+              continue
+          }
+
+          guard let existing = local else { continue }
+          if existing.updatedAt < change.updatedAt {
+              try await store.update(change.asLocalRecord())
+              pulled.append(change)
+          } else if existing.updatedAt > change.updatedAt {
+              let resolution = try conflictResolver.resolve(local: existing, remote: change)
+              switch resolution {
+              case .keepLocal:
+                  pushed.append(existing)
+              case .keepRemote:
+                  try await store.update(change.asLocalRecord())
+                  pulled.append(change)
+              case .merge(let merged):
+                  try await store.update(merged)
+                  pushed.append(merged)
+              }
+              conflicts.append(resolution)
+          }
+      }
+
+      let localPending = try await store.pendingSince(snapshot.remoteCursor)
+      for record in localPending {
+          do {
+              try await remoteAPI.push(record)
+              pushed.append(record)
+          } catch RemoteError.conflict {
+              try await remoteAPI.forcePush(record)
+              pushed.append(record)
+          }
+      }
+
+      try await store.updateCursor(remoteChanges.last?.cursor ?? snapshot.remoteCursor)
+      return SyncReport(pulled: pulled, pushed: pushed, conflicts: conflicts)
+  }
+snippet: |
+  func syncWithRemote() async throws -> SyncReport {
+      logger.info("sync.begin")
+      let snapshot = try await store.currentSnapshot()
+      var pulled: [RemoteRecord] = []
+      // ... existing code ...
+expected_output: |
+  func syncWithRemote() async throws -> SyncReport {
+      logger.info("sync.begin")
+      let snapshot = try await store.currentSnapshot()
+      var pulled: [RemoteRecord] = []
+      var pushed: [LocalRecord] = []
+      var conflicts: [ConflictResolution] = []
+
+      let remoteChanges = try await remoteAPI.changes(since: snapshot.remoteCursor)
+      for change in remoteChanges {
+          let local = try await store.local(for: change.id)
+          if local == nil {
+              try await store.insert(change.asLocalRecord())
+              pulled.append(change)
+              continue
+          }
+
+          guard let existing = local else { continue }
+          if existing.updatedAt < change.updatedAt {
+              try await store.update(change.asLocalRecord())
+              pulled.append(change)
+          } else if existing.updatedAt > change.updatedAt {
+              let resolution = try conflictResolver.resolve(local: existing, remote: change)
+              switch resolution {
+              case .keepLocal:
+                  pushed.append(existing)
+              case .keepRemote:
+                  try await store.update(change.asLocalRecord())
+                  pulled.append(change)
+              case .merge(let merged):
+                  try await store.update(merged)
+                  pushed.append(merged)
+              }
+              conflicts.append(resolution)
+          }
+      }
+
+      let localPending = try await store.pendingSince(snapshot.remoteCursor)
+      for record in localPending {
+          do {
+              try await remoteAPI.push(record)
+              pushed.append(record)
+          } catch RemoteError.conflict {
+              try await remoteAPI.forcePush(record)
+              pushed.append(record)
+          }
+      }
+
+      try await store.updateCursor(remoteChanges.last?.cursor ?? snapshot.remoteCursor)
+      return SyncReport(pulled: pulled, pushed: pushed, conflicts: conflicts)
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Realistic ~50-line bi-directional sync (remote pull -> conflict resolve
+  -> local push). Edit inserts a single logger.info at the top. FastEdit's
+  payload is the log line + 2 anchors + marker; native must echo the whole
+  sync pipeline.
+
+  target_kind=none: same Swift AST limitation as swift/01 and swift/13 —
+  ``let``/``var`` declarations inside the body are misinterpreted as
+  top-level symbols. Routes through the legacy full-file merge path.

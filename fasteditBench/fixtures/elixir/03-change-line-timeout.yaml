@@ -1,0 +1,24 @@
+name: ex_change_line_timeout
+pattern: change_line
+language: elixir
+original_code: |
+  defmodule Client do
+    def fetch(url) do
+      HTTPoison.get(url, [], timeout: 5_000)
+    end
+  end
+snippet: |
+  def fetch(url) do
+    HTTPoison.get(url, [], timeout: 30_000)
+  end
+expected_output: |
+  defmodule Client do
+    def fetch(url) do
+      HTTPoison.get(url, [], timeout: 30_000)
+    end
+  end
+target_kind: replace
+target_name: fetch
+authoring_notes: |
+  P3 change_line: swap timeout 5_000 -> 30_000 on the HTTPoison call.
+  One-line delta, surrounding context preserved.

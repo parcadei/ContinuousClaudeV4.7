@@ -1,0 +1,26 @@
+name: change_signature_default_param
+pattern: change_signature
+language: kotlin
+original_code: |
+  fun greet(name: String): String {
+      val greeting = "Hello, ${'$'}name"
+      return greeting
+  }
+snippet: |
+  fun greet(name: String, punctuation: String = "!"): String {
+      val greeting = "Hello, ${'$'}name"
+      return greeting
+  }
+expected_output: |
+  fun greet(name: String, punctuation: String = "!"): String {
+      val greeting = "Hello, ${'$'}name"
+      return greeting
+  }
+target_kind: replace
+target_name: greet
+authoring_notes: |
+  Signature change only — adds a defaulted parameter; body stays as-is.
+  Tests that the adapter does not hallucinate new body lines that
+  reference the new parameter. M8: rewritten as Style A (full-function
+  replacement, no markers) so FastEdit's direct-swap fast path captures
+  it with zero model tokens.

@@ -1,0 +1,52 @@
+name: add_decorator_attribute
+pattern: add_decorator
+language: php
+original_code: |
+  <?php
+
+  declare(strict_types=1);
+
+  namespace App\Http;
+
+  final class UserController
+  {
+      public function show(int $id): Response
+      {
+          return new Response(['id' => $id]);
+      }
+  }
+snippet: |
+  #[Route('/users/{id}', methods: ['GET'])]
+  #[Cache(ttl: 60)]
+  public function show(int $id): Response
+  {
+      // ... existing code ...
+  }
+expected_output: |
+  <?php
+
+  declare(strict_types=1);
+
+  namespace App\Http;
+
+  final class UserController
+  {
+      #[Route('/users/{id}', methods: ['GET'])]
+      #[Cache(ttl: 60)]
+      public function show(int $id): Response
+      {
+          return new Response(['id' => $id]);
+      }
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  PHP 8 attributes are the language's equivalent of decorators. Adds
+  two attributes (#[Route] and #[Cache]) above a method. Uses named
+  arguments (methods:, ttl:) inside attribute arguments — a modern
+  PHP 8+ idiom. Body preserved via marker.
+
+  target_kind=none: under replace=UserController, the class shell
+  isn't in the snippet, so deterministic_edit can't anchor onto it.
+  Legacy markers-only model path handles decorator-above-method
+  correctly (M3 baseline: tier1 PASS 65 tokens).

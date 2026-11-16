@@ -1,0 +1,52 @@
+name: add_branch_grade_match
+pattern: add_branch
+language: php
+original_code: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class Grader
+  {
+      public function grade(int $score): string
+      {
+          return match (true) {
+              $score >= 90 => 'A',
+              $score >= 80 => 'B',
+              default => 'F',
+          };
+      }
+  }
+snippet: |
+  public function grade(int $score): string
+  {
+      return match (true) {
+          $score >= 90 => 'A',
+          $score >= 80 => 'B',
+          $score >= 70 => 'C',
+          default => 'F',
+      };
+  }
+expected_output: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class Grader
+  {
+      public function grade(int $score): string
+      {
+          return match (true) {
+              $score >= 90 => 'A',
+              $score >= 80 => 'B',
+              $score >= 70 => 'C',
+              default => 'F',
+          };
+      }
+  }
+target_kind: replace
+target_name: Grader
+authoring_notes: |
+  Add a new arm to a PHP 8 match expression. Tests branch insertion
+  inside a structured conditional, where ordering matters (new arm must
+  land above `default`). Modern PHP 8+ match-expression idiom.

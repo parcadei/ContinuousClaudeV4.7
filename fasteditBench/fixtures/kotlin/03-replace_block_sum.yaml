@@ -1,0 +1,25 @@
+name: replace_block_sum
+pattern: replace_block
+language: kotlin
+original_code: |
+  fun total(items: List<Int>): Int {
+      var acc = 0
+      for (i in items) {
+          acc += i
+      }
+      return acc
+  }
+snippet: |
+  fun total(items: List<Int>): Int {
+      return items.sum()
+  }
+expected_output: |
+  fun total(items: List<Int>): Int {
+      return items.sum()
+  }
+target_kind: replace
+target_name: total
+authoring_notes: |
+  Full-body replacement with no markers — the snippet is the whole new
+  function body. Tests the adapter's ability to detect no-marker-needed
+  replacements and avoid splicing old lines back in.

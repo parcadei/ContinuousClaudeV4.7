@@ -1,0 +1,73 @@
+{
+  "models": [
+    {
+      "model": "moonshotai/kimi-k2.6",
+      "status": "passed",
+      "tool_call_sample": {
+        "file_path": "greet.py",
+        "old_string": "def greet(name):",
+        "new_string": "def greet(name: str):"
+      },
+      "openrouter_input_tokens": 135,
+      "openrouter_output_tokens": 140,
+      "native_input_tokens": 145,
+      "native_output_tokens": 51,
+      "input_discrepancy_pct": 6.9,
+      "output_discrepancy_pct": 174.5,
+      "cost_usd": 0.00068825,
+      "latency_ms": 1905.9
+    },
+    {
+      "model": "anthropic/claude-opus-4.7",
+      "status": "passed",
+      "tool_call_sample": {
+        "file_path": "greet.py",
+        "old_string": "def greet(name):",
+        "new_string": "def greet(name: str):"
+      },
+      "openrouter_input_tokens": 898,
+      "openrouter_output_tokens": 125,
+      "native_input_tokens": 145,
+      "native_output_tokens": 70,
+      "input_discrepancy_pct": 519.3,
+      "output_discrepancy_pct": 78.6,
+      "cost_usd": 0.007615,
+      "latency_ms": 1452.0
+    },
+    {
+      "model": "z-ai/glm-5.1",
+      "status": "passed",
+      "tool_call_sample": {
+        "file_path": "greet.py",
+        "old_string": "def greet(name):",
+        "new_string": "def greet(name: str):"
+      },
+      "openrouter_input_tokens": 249,
+      "openrouter_output_tokens": 62,
+      "native_input_tokens": 145,
+      "native_output_tokens": 68,
+      "input_discrepancy_pct": 71.7,
+      "output_discrepancy_pct": 8.8,
+      "cost_usd": 0.0006214,
+      "latency_ms": 1082.9
+    },
+    {
+      "model": "openai/gpt-5.4",
+      "status": "passed",
+      "tool_call_sample": {
+        "file_path": "greet.py",
+        "old_string": "def greet(name):",
+        "new_string": "def greet(name: str):"
+      },
+      "openrouter_input_tokens": 128,
+      "openrouter_output_tokens": 38,
+      "native_input_tokens": 145,
+      "native_output_tokens": 66,
+      "input_discrepancy_pct": 11.7,
+      "output_discrepancy_pct": 42.4,
+      "cost_usd": 0.00089,
+      "latency_ms": 1138.4
+    }
+  ],
+  "cumulative_usd": 0.00981465
+}

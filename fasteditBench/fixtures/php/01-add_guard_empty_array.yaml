@@ -1,0 +1,47 @@
+name: add_guard_empty_array
+pattern: add_guard
+language: php
+original_code: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class Averager
+  {
+      public function average(array $nums): float
+      {
+          $total = array_sum($nums);
+          return $total / count($nums);
+      }
+  }
+snippet: |
+  public function average(array $nums): float
+  {
+      if (empty($nums)) {
+          return 0.0;
+      }
+      $total = array_sum($nums);
+      // ... existing code ...
+  }
+expected_output: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class Averager
+  {
+      public function average(array $nums): float
+      {
+          if (empty($nums)) {
+              return 0.0;
+          }
+          $total = array_sum($nums);
+          return $total / count($nums);
+      }
+  }
+target_kind: replace
+target_name: Averager
+authoring_notes: |
+  Classic guard-clause insertion at the top of a method body. Uses the
+  '// ... existing code ...' marker to preserve the arithmetic tail.
+  A correct adapter keeps `return $total / count($nums);` verbatim.

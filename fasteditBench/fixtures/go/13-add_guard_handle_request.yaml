@@ -1,0 +1,141 @@
+name: go_add_guard_handle_request
+pattern: add_guard
+language: go
+original_code: |
+  func HandleRequest(w http.ResponseWriter, r *http.Request, deps *HandlerDeps) {
+      ctx := r.Context()
+      traceID := r.Header.Get("X-Trace-ID")
+      if traceID == "" {
+          traceID = uuid.NewString()
+      }
+      ctx = context.WithValue(ctx, contextKeyTraceID, traceID)
+
+      start := time.Now()
+      defer func() {
+          deps.Metrics.RecordLatency(r.URL.Path, time.Since(start))
+      }()
+
+      user, err := deps.Authenticator.Authenticate(r)
+      if err != nil {
+          writeError(w, http.StatusUnauthorized, "auth_failed", err, traceID)
+          return
+      }
+
+      if !deps.Authorizer.Authorize(user, r.Method, r.URL.Path) {
+          writeError(w, http.StatusForbidden, "forbidden", nil, traceID)
+          return
+      }
+
+      allowed, retryAfter := deps.RateLimiter.Check(user.ID, r.URL.Path)
+      if !allowed {
+          w.Header().Set("Retry-After", strconv.Itoa(retryAfter))
+          writeError(w, http.StatusTooManyRequests, "rate_limited", nil, traceID)
+          return
+      }
+
+      body, err := io.ReadAll(io.LimitReader(r.Body, maxBodyBytes))
+      if err != nil {
+          writeError(w, http.StatusBadRequest, "read_body_failed", err, traceID)
+          return
+      }
+      defer r.Body.Close()
+
+      route, ok := deps.Router.Match(r.Method, r.URL.Path)
+      if !ok {
+          writeError(w, http.StatusNotFound, "not_found", nil, traceID)
+          return
+      }
+
+      resp, err := route.Handler(ctx, user, body)
+      if err != nil {
+          var domainErr *DomainError
+          if errors.As(err, &domainErr) {
+              writeError(w, domainErr.HTTPStatus, domainErr.Code, domainErr, traceID)
+              return
+          }
+          deps.ErrorReporter.Capture(err, traceID)
+          writeError(w, http.StatusInternalServerError, "internal", nil, traceID)
+          return
+      }
+
+      writeJSON(w, http.StatusOK, resp, traceID)
+  }
+snippet: |
+  func HandleRequest(w http.ResponseWriter, r *http.Request, deps *HandlerDeps) {
+      if r.Method != http.MethodPost && r.Method != http.MethodGet && r.Method != http.MethodPut && r.Method != http.MethodDelete {
+          writeError(w, http.StatusMethodNotAllowed, "method_not_allowed", nil, "")
+          return
+      }
+      ctx := r.Context()
+      // ... existing code ...
+expected_output: |
+  func HandleRequest(w http.ResponseWriter, r *http.Request, deps *HandlerDeps) {
+      if r.Method != http.MethodPost && r.Method != http.MethodGet && r.Method != http.MethodPut && r.Method != http.MethodDelete {
+          writeError(w, http.StatusMethodNotAllowed, "method_not_allowed", nil, "")
+          return
+      }
+      ctx := r.Context()
+      traceID := r.Header.Get("X-Trace-ID")
+      if traceID == "" {
+          traceID = uuid.NewString()
+      }
+      ctx = context.WithValue(ctx, contextKeyTraceID, traceID)
+
+      start := time.Now()
+      defer func() {
+          deps.Metrics.RecordLatency(r.URL.Path, time.Since(start))
+      }()
+
+      user, err := deps.Authenticator.Authenticate(r)
+      if err != nil {
+          writeError(w, http.StatusUnauthorized, "auth_failed", err, traceID)
+          return
+      }
+
+      if !deps.Authorizer.Authorize(user, r.Method, r.URL.Path) {
+          writeError(w, http.StatusForbidden, "forbidden", nil, traceID)
+          return
+      }
+
+      allowed, retryAfter := deps.RateLimiter.Check(user.ID, r.URL.Path)
+      if !allowed {
+          w.Header().Set("Retry-After", strconv.Itoa(retryAfter))
+          writeError(w, http.StatusTooManyRequests, "rate_limited", nil, traceID)
+          return
+      }
+
+      body, err := io.ReadAll(io.LimitReader(r.Body, maxBodyBytes))
+      if err != nil {
+          writeError(w, http.StatusBadRequest, "read_body_failed", err, traceID)
+          return
+      }
+      defer r.Body.Close()
+
+      route, ok := deps.Router.Match(r.Method, r.URL.Path)
+      if !ok {
+          writeError(w, http.StatusNotFound, "not_found", nil, traceID)
+          return
+      }
+
+      resp, err := route.Handler(ctx, user, body)
+      if err != nil {
+          var domainErr *DomainError
+          if errors.As(err, &domainErr) {
+              writeError(w, domainErr.HTTPStatus, domainErr.Code, domainErr, traceID)
+              return
+          }
+          deps.ErrorReporter.Capture(err, traceID)
+          writeError(w, http.StatusInternalServerError, "internal", nil, traceID)
+          return
+      }
+
+      writeJSON(w, http.StatusOK, resp, traceID)
+  }
+target_kind: replace
+target_name: HandleRequest
+authoring_notes: |
+  Realistic ~60-line HTTP handler with trace ID propagation, auth, authz,
+  rate limiting, body limit, router, and domain-error unwrap. Edit adds a
+  5-line method-allowlist guard at the top. FastEdit's minimal payload is
+  the guard + anchor (ctx := r.Context()) + marker; native-edit must echo
+  the whole handler body.

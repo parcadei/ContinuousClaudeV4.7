@@ -1,0 +1,30 @@
+name: multi_insert_middleware_setup
+pattern: multi_insert
+language: swift
+original_code: |
+  func configure(_ app: Application) {
+      app.initialize()
+      app.start()
+  }
+snippet: |
+  func configure(_ app: Application) {
+      app.initialize()
+      app.register(middleware: CORSMiddleware())
+      app.register(middleware: AuthMiddleware())
+      app.register(middleware: LoggingMiddleware())
+      app.start()
+  }
+expected_output: |
+  func configure(_ app: Application) {
+      app.initialize()
+      app.register(middleware: CORSMiddleware())
+      app.register(middleware: AuthMiddleware())
+      app.register(middleware: LoggingMiddleware())
+      app.start()
+  }
+target_kind: replace
+target_name: configure
+authoring_notes: |
+  Insert three new middleware-registration calls between
+  app.initialize() and app.start(). Mirrors Python P8 multi_insert.
+  No markers; full function is small enough to rewrite verbatim.

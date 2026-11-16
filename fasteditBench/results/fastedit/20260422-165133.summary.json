@@ -1,0 +1,162 @@
+{
+  "adapter": "fastedit",
+  "overall": {
+    "mean_context_lines_preserved": 0.9955913978494624,
+    "mean_hunk_count": 1.2258064516129032,
+    "mean_minimality_ratio": 1.1405893031699483,
+    "median_minimality_ratio": 1.0,
+    "n_cases": 156,
+    "n_errors": 1,
+    "tier1_pass_rate": 0.9551282051282052,
+    "tier2_pass_rate": 0.9551282051282052,
+    "total_tokens_generated": 2530
+  },
+  "per_language": {
+    "c": {
+      "mean_context_lines_preserved": 1.0,
+      "mean_hunk_count": 1.1818181818181819,
+      "mean_minimality_ratio": 1.0404040404040404,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 12,
+      "n_errors": 1,
+      "tier1_pass_rate": 0.9090909090909091,
+      "tier2_pass_rate": 0.9090909090909091,
+      "total_tokens_generated": 180
+    },
+    "cpp": {
+      "mean_context_lines_preserved": 1.0,
+      "mean_hunk_count": 1.0,
+      "mean_minimality_ratio": 1.0,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 12,
+      "n_errors": 0,
+      "tier1_pass_rate": 1.0,
+      "tier2_pass_rate": 1.0,
+      "total_tokens_generated": 57
+    },
+    "csharp": {
+      "mean_context_lines_preserved": 1.0,
+      "mean_hunk_count": 1.0833333333333333,
+      "mean_minimality_ratio": 1.0,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 12,
+      "n_errors": 0,
+      "tier1_pass_rate": 1.0,
+      "tier2_pass_rate": 1.0,
+      "total_tokens_generated": 249
+    },
+    "elixir": {
+      "mean_context_lines_preserved": 1.0,
+      "mean_hunk_count": 1.0833333333333333,
+      "mean_minimality_ratio": 1.0833333333333333,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 12,
+      "n_errors": 0,
+      "tier1_pass_rate": 1.0,
+      "tier2_pass_rate": 1.0,
+      "total_tokens_generated": 174
+    },
+    "go": {
+      "mean_context_lines_preserved": 1.0,
+      "mean_hunk_count": 1.1666666666666667,
+      "mean_minimality_ratio": 1.0,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 12,
+      "n_errors": 0,
+      "tier1_pass_rate": 1.0,
+      "tier2_pass_rate": 1.0,
+      "total_tokens_generated": 35
+    },
+    "java": {
+      "mean_context_lines_preserved": 0.9907407407407408,
+      "mean_hunk_count": 1.4166666666666667,
+      "mean_minimality_ratio": 1.1388888888888888,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 12,
+      "n_errors": 0,
+      "tier1_pass_rate": 0.9166666666666666,
+      "tier2_pass_rate": 0.9166666666666666,
+      "total_tokens_generated": 233
+    },
+    "kotlin": {
+      "mean_context_lines_preserved": 0.9916666666666667,
+      "mean_hunk_count": 1.1666666666666667,
+      "mean_minimality_ratio": 1.1851851851851851,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 12,
+      "n_errors": 0,
+      "tier1_pass_rate": 0.9166666666666666,
+      "tier2_pass_rate": 0.9166666666666666,
+      "total_tokens_generated": 126
+    },
+    "php": {
+      "mean_context_lines_preserved": 1.0,
+      "mean_hunk_count": 1.0,
+      "mean_minimality_ratio": 1.0,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 13,
+      "n_errors": 0,
+      "tier1_pass_rate": 1.0,
+      "tier2_pass_rate": 1.0,
+      "total_tokens_generated": 279
+    },
+    "python": {
+      "mean_context_lines_preserved": 1.0,
+      "mean_hunk_count": 1.25,
+      "mean_minimality_ratio": 1.2583333333333333,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 12,
+      "n_errors": 0,
+      "tier1_pass_rate": 1.0,
+      "tier2_pass_rate": 1.0,
+      "total_tokens_generated": 280
+    },
+    "ruby": {
+      "mean_context_lines_preserved": 1.0,
+      "mean_hunk_count": 1.3846153846153846,
+      "mean_minimality_ratio": 1.2454212454212454,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 13,
+      "n_errors": 0,
+      "tier1_pass_rate": 1.0,
+      "tier2_pass_rate": 1.0,
+      "total_tokens_generated": 222
+    },
+    "rust": {
+      "mean_context_lines_preserved": 1.0,
+      "mean_hunk_count": 1.3,
+      "mean_minimality_ratio": 1.125,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 10,
+      "n_errors": 0,
+      "tier1_pass_rate": 0.9,
+      "tier2_pass_rate": 0.9,
+      "total_tokens_generated": 161
+    },
+    "swift": {
+      "mean_context_lines_preserved": 0.9814814814814815,
+      "mean_hunk_count": 1.5833333333333333,
+      "mean_minimality_ratio": 1.3693181818181819,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 12,
+      "n_errors": 0,
+      "tier1_pass_rate": 0.9166666666666666,
+      "tier2_pass_rate": 0.9166666666666666,
+      "total_tokens_generated": 314
+    },
+    "typescript": {
+      "mean_context_lines_preserved": 0.9791666666666666,
+      "mean_hunk_count": 1.3333333333333333,
+      "mean_minimality_ratio": 1.373809523809524,
+      "median_minimality_ratio": 1.0,
+      "n_cases": 12,
+      "n_errors": 0,
+      "tier1_pass_rate": 0.9166666666666666,
+      "tier2_pass_rate": 0.9166666666666666,
+      "total_tokens_generated": 220
+    }
+  },
+  "run_id": "20260422-165133",
+  "total_cases": 156,
+  "total_languages": 13
+}

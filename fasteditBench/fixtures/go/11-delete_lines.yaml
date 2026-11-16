@@ -1,0 +1,46 @@
+name: delete_lines_debug_prints
+pattern: delete_lines
+language: go
+original_code: |
+  package runner
+
+  import "log"
+
+  func Run() error {
+      log.Println("debug: init starting")
+      initResources()
+      log.Println("debug: init finished")
+      log.Println("debug: work starting")
+      doWork()
+      return nil
+  }
+
+  func initResources() {}
+  func doWork()        {}
+snippet: |
+  func Run() error {
+      initResources()
+      doWork()
+      return nil
+  }
+expected_output: |
+  package runner
+
+  import "log"
+
+  func Run() error {
+      initResources()
+      doWork()
+      return nil
+  }
+
+  func initResources() {}
+  func doWork()        {}
+target_kind: replace
+target_name: Run
+authoring_notes: |
+  Remove three debug log lines without altering the surviving four
+  statements (header, two calls, return). Sibling helper functions
+  below must also be preserved. Note that the `log` import is
+  intentionally left in place — trimming dead imports is out of scope
+  for text-level merge; any Go-aware adapter should leave it alone.

@@ -1,0 +1,42 @@
+name: change_line_http_timeout
+pattern: change_line
+language: go
+original_code: |
+  package httpx
+
+  import (
+      "net/http"
+      "time"
+  )
+
+  func NewClient() *http.Client {
+      return &http.Client{
+          Timeout: 5 * time.Second,
+      }
+  }
+snippet: |
+  func NewClient() *http.Client {
+      return &http.Client{
+          Timeout: 30 * time.Second,
+      }
+  }
+expected_output: |
+  package httpx
+
+  import (
+      "net/http"
+      "time"
+  )
+
+  func NewClient() *http.Client {
+      return &http.Client{
+          Timeout: 30 * time.Second,
+      }
+  }
+target_kind: replace
+target_name: NewClient
+authoring_notes: |
+  Single-line change: bump `Timeout` from 5 to 30 seconds. No marker —
+  the whole (small) function body is shown. Tests that the adapter can
+  change exactly one line without touching the surrounding struct literal
+  or imports.

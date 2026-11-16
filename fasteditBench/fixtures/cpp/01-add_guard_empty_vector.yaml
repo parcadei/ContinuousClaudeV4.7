@@ -1,0 +1,41 @@
+name: add_guard_empty_vector
+pattern: add_guard
+language: cpp
+original_code: |
+  #include <vector>
+
+  double average(const std::vector<double>& nums) {
+      double total = 0.0;
+      for (double n : nums) {
+          total += n;
+      }
+      return total / nums.size();
+  }
+snippet: |
+  double average(const std::vector<double>& nums) {
+      if (nums.empty()) {
+          return 0.0;
+      }
+      double total = 0.0;
+      // ... existing code ...
+  }
+expected_output: |
+  #include <vector>
+
+  double average(const std::vector<double>& nums) {
+      if (nums.empty()) {
+          return 0.0;
+      }
+      double total = 0.0;
+      for (double n : nums) {
+          total += n;
+      }
+      return total / nums.size();
+  }
+target_kind: replace
+target_name: average
+authoring_notes: |
+  Classic guard-clause insertion before a range-for over a std::vector.
+  Exercises marker-based tail preservation on an iteration body. A broken
+  adapter that drops the surviving lines would fail Tier-1 and tank
+  context_lines_preserved.

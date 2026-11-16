@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FastEdit Live — real token savings</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #09090b;
+    --ink: #e4e4e7;
+    --dim: #71717a;
+    --accent: #22d3ee;
+    --accent-dim: #0e7490;
+    --native: #fca5a5;
+    --native-bg: rgba(248, 113, 113, 0.06);
+    --native-edge: rgba(248, 113, 113, 0.22);
+    --fastedit: #86efac;
+    --fastedit-bg: rgba(34, 197, 94, 0.06);
+    --fastedit-edge: rgba(74, 222, 128, 0.22);
+    --hair: rgba(244, 244, 245, 0.07);
+    --hair-strong: rgba(244, 244, 245, 0.14);
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--ink); }
+  body {
+    font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: "ss02", "cv11"; }
+  .accent-text { color: var(--accent); }
+  .accent-bg { background: var(--accent); }
+  .native-text { color: var(--native); }
+  .fastedit-text { color: var(--fastedit); }
+  .dim { color: var(--dim); }
+  .hair { border-color: var(--hair); }
+  .hair-strong { border-color: var(--hair-strong); }
+  .divide-hair > * + * { border-top: 1px solid var(--hair); }
+
+  /* Grain overlay — fixed, pointer-events none, no scroll repaint cost */
+  .grain::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* Fine horizontal rules */
+  .rule-red   { background: linear-gradient(90deg, var(--native), transparent 80%); height: 1px; }
+  .rule-green { background: linear-gradient(90deg, var(--fastedit), transparent 80%); height: 1px; }
+  .rule-cyan  { background: linear-gradient(90deg, var(--accent), transparent 80%); height: 1px; }
+
+  /* Big block-digit-style numerals — Geist Mono heavy + tight tracking */
+  .big-num {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.04em;
+    line-height: 0.88;
+  }
+  .cost-label {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-weight: 700;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+  }
+
+  /* Code blocks */
+  pre.payload {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    color: #e4e4e7;
+    margin: 0;
+  }
+  .tok-key { color: #e4e4e7; }
+  .tok-del { color: #fca5a5; background: rgba(239, 68, 68, 0.07); border-radius: 2px; padding: 0 1px; }
+  .tok-add { color: #86efac; background: rgba(34, 197, 94, 0.07); border-radius: 2px; padding: 0 1px; }
+  .tok-fn  { color: #7dd3fc; }
+  .tok-str { color: #a7f3d0; }
+  .tok-punc { color: #a1a1aa; }
+
+  /* Asymmetric panel frame with clipped corner for edgy feel */
+  .panel-frame {
+    position: relative;
+    border: 1px solid var(--hair-strong);
+    background: #0c0c0e;
+  }
+  .panel-frame.native  { border-color: var(--native-edge);  background: linear-gradient(180deg, var(--native-bg) 0%, #0c0c0e 28%); }
+  .panel-frame.fast    { border-color: var(--fastedit-edge); background: linear-gradient(180deg, var(--fastedit-bg) 0%, #0c0c0e 28%); }
+
+  /* Corner tags */
+  .corner-tl { position: absolute; top: -1px; left: -1px; padding: 6px 12px; font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600; border-right: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
+  .corner-tr { position: absolute; top: -1px; right: -1px; padding: 6px 12px; font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600; border-left: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
+
+  /* Typewriter caret */
+  .caret { display: inline-block; width: 0.55ch; height: 1em; background: currentColor; margin-left: 1px; vertical-align: -0.15em; animation: blink 0.9s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Reveal helpers used by GSAP (inner elements only — sections stay visible) */
+  .will-fade { opacity: 0; transform: translateY(16px); }
+
+  /* Lang marker — big outlined text peeking behind panels */
+  .lang-ghost {
+    position: absolute;
+    font-family: 'Geist', sans-serif;
+    font-weight: 800;
+    font-size: clamp(8rem, 22vw, 20rem);
+    line-height: 0.85;
+    letter-spacing: -0.06em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(244, 244, 245, 0.06);
+    pointer-events: none;
+    z-index: 0;
+    user-select: none;
+  }
+
+  /* Headline huge number */
+  .headline-num {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.06em;
+    line-height: 0.85;
+    font-size: clamp(8rem, 24vw, 22rem);
+    color: var(--accent);
+  }
+
+  /* Progress rail */
+  .rail {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    z-index: 80;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent) var(--p, 0%), transparent var(--p, 0%));
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  /* Sticky chip showing current fixture number */
+  .pos-chip {
+    position: fixed; top: 18px; right: 20px; z-index: 85;
+    font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.24em;
+    text-transform: uppercase; color: var(--dim);
+    display: flex; gap: 12px; align-items: center;
+    background: rgba(9, 9, 11, 0.7); backdrop-filter: blur(8px);
+    border: 1px solid var(--hair); padding: 8px 14px;
+    border-radius: 999px;
+  }
+  .pos-chip .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+  /* No-react table for per-lang grid */
+  .pl-row { transition: background 0.3s; }
+  .pl-row:hover { background: rgba(34, 211, 238, 0.04); }
+
+  /* === Start button — edgy, asymmetric, perpetual arrow shimmer ======= */
+  .start-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    padding: 22px 30px 22px 26px;
+    background: #0e0e11;
+    border: 1px solid var(--accent);
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+    color: var(--ink);
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 13px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+  .start-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.08), transparent);
+    transform: translateX(-120%);
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .start-btn:hover::before { transform: translateX(120%); }
+  .start-btn:hover { transform: translateY(-1px); background: #111115; }
+  .start-btn:active { transform: translateY(1px); }
+  .start-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+  .start-btn .glyph { color: var(--accent); font-size: 18px; line-height: 0; }
+  .start-btn .arrow {
+    width: 28px; height: 1px; background: var(--accent);
+    position: relative;
+  }
+  .start-btn .arrow::after {
+    content: '';
+    position: absolute;
+    right: -1px; top: -3px;
+    width: 7px; height: 7px;
+    border-top: 1px solid var(--accent);
+    border-right: 1px solid var(--accent);
+    transform: rotate(45deg);
+  }
+  .start-btn:not(:disabled) .arrow { animation: arrow-pulse 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+  @keyframes arrow-pulse {
+    0%   { transform: translateX(0);   opacity: 1; }
+    40%  { transform: translateX(6px); opacity: 1; }
+    55%  { transform: translateX(-28px); opacity: 0; }
+    56%  { transform: translateX(-28px); opacity: 0; }
+    100% { transform: translateX(0);   opacity: 1; }
+  }
+  .start-btn.running .label::after {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px; margin-left: 10px;
+    border: 1px solid var(--accent);
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+    vertical-align: -1px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Meta micro-line beneath the button */
+  .start-meta {
+    margin-top: 20px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--dim);
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .start-meta .pip { width: 6px; height: 6px; border-radius: 999px; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+</style>
+</head>
+<body class="grain">
+
+<div class="rail" id="rail"></div>
+<div class="pos-chip"><span class="dot"></span><span id="chip-pos">00 / 10</span><span id="chip-lang" class="accent-text">—</span></div>
+
+<!-- ============================================================= -->
+<!-- HERO -->
+<!-- ============================================================= -->
+<section class="min-h-[100dvh] flex items-end px-8 md:px-16 pb-16 md:pb-24 relative">
+  <div class="w-full max-w-[1500px] mx-auto grid grid-cols-12 gap-6 md:gap-10">
+    <div class="col-span-12 md:col-span-8 md:col-start-2">
+      <div class="mono text-[11px] tracking-[0.24em] uppercase dim mb-8 flex items-center gap-3">
+        <span class="w-10 h-px bg-current"></span>
+        <span class="accent-text">◢</span>
+        <span>FASTEDIT LIVE</span>
+        <span class="dim">·</span>
+        <span>real measurements via openrouter</span>
+      </div>
+      <h1 class="text-5xl md:text-7xl lg:text-8xl font-medium tracking-[-0.04em] leading-[0.9]">
+        Half the tokens.<br/>
+        <span class="accent-text">Same edit.</span>
+      </h1>
+      <p class="mt-8 text-zinc-400 text-lg leading-relaxed max-w-[56ch]">
+        Ten language fixtures — each sent as a native <span class="mono text-zinc-200">edit</span> tool call and then
+        again as a compact <span class="mono text-zinc-200">fast_edit</span> call. Input tokens reported by
+        <span class="mono text-zinc-200">openai/gpt-4o-mini</span> on both requests. Live.
+      </p>
+
+      <div class="mt-14">
+        <button id="start-btn" class="start-btn" type="button">
+          <span class="glyph">◢</span>
+          <span class="label">START TEST</span>
+          <span class="arrow" aria-hidden="true"></span>
+        </button>
+        <div class="start-meta">
+          <span class="pip"></span>
+          <span id="hero-n">—</span>
+          <span>fixtures</span>
+          <span style="color: var(--hair-strong)">·</span>
+          <span>gpt-4o-mini</span>
+          <span style="color: var(--hair-strong)">·</span>
+          <span>~80s</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="absolute top-8 right-10 mono text-[10px] tracking-[0.22em] uppercase text-zinc-600 hidden md:block">bench-02 · 2026-04-23</div>
+</section>
+
+<!-- ============================================================= -->
+<!-- FIXTURE SECTIONS (generated) -->
+<!-- ============================================================= -->
+<div id="fixtures"></div>
+
+<!-- ============================================================= -->
+<!-- HEADLINE -->
+<!-- ============================================================= -->
+<section id="headline" class="min-h-[100dvh] flex items-center px-8 md:px-16 py-20 relative">
+  <div class="w-full max-w-[1500px] mx-auto grid grid-cols-12 gap-6">
+    <div class="col-span-12 md:col-span-7">
+      <div class="mono text-[11px] tracking-[0.22em] uppercase dim mb-6">◤ headline · output token savings</div>
+      <div class="headline-num will-fade" id="headline-pct">—</div>
+      <div class="mt-6 mono text-lg text-zinc-300 will-fade" id="headline-sub">—</div>
+    </div>
+
+    <div class="col-span-12 md:col-span-4 md:col-start-9 md:border-l hair md:pl-6">
+      <div class="mono text-[11px] tracking-[0.22em] uppercase dim mb-5">totals</div>
+      <dl class="divide-hair mono text-sm">
+        <div class="py-3 flex justify-between"><dt class="dim">languages</dt><dd id="tt-n" class="tabular-nums">—</dd></div>
+        <div class="py-3 flex justify-between"><dt class="dim">native</dt><dd id="tt-native" class="tabular-nums native-text">—</dd></div>
+        <div class="py-3 flex justify-between"><dt class="dim">fastedit</dt><dd id="tt-fe" class="tabular-nums fastedit-text">—</dd></div>
+        <div class="py-3 flex justify-between"><dt class="dim">saved</dt><dd id="tt-saved" class="tabular-nums accent-text">—</dd></div>
+        <div class="py-3 flex justify-between"><dt class="dim">ratio</dt><dd id="tt-ratio" class="tabular-nums">—</dd></div>
+      </dl>
+
+      <div class="mt-10 mono text-[11px] tracking-[0.22em] uppercase dim mb-4">per language</div>
+      <div id="pl-grid" class="border hair rounded-sm overflow-hidden"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- FIXTURE TEMPLATE -->
+<!-- ============================================================= -->
+<template id="fixture-template">
+  <section class="fx-section min-h-[100dvh] flex items-center px-6 md:px-12 py-16 relative overflow-hidden" data-idx>
+    <div class="lang-ghost" data-ghost></div>
+    <div class="w-full max-w-[1500px] mx-auto relative z-10">
+
+      <div class="mb-8 md:mb-12 flex items-end justify-between gap-6">
+        <div>
+          <div class="mono text-[11px] tracking-[0.22em] uppercase dim flex items-center gap-3">
+            <span data-idx-label>—</span>
+            <span class="w-8 h-px bg-current"></span>
+            <span class="accent-text" data-pattern>—</span>
+          </div>
+          <div class="mt-3 text-4xl md:text-6xl font-medium tracking-[-0.04em]" data-lang>—</div>
+        </div>
+        <div class="hidden md:block mono text-[10px] tracking-[0.22em] uppercase text-zinc-600 text-right" data-case-id>—</div>
+      </div>
+
+      <div class="grid grid-cols-12 gap-5 md:gap-8 items-stretch">
+        <!-- Native (left, offset slightly up) -->
+        <div class="col-span-12 md:col-span-6 md:-translate-y-4">
+          <div class="panel-frame native p-6 md:p-8 h-[540px] flex flex-col">
+            <div class="corner-tl native-text">◢ NATIVE EDIT</div>
+            <div class="corner-tr dim" data-native-case>—</div>
+            <div class="mt-8 rule-red"></div>
+            <div class="mt-5 flex-1 min-h-0 overflow-hidden">
+              <pre class="payload" data-native-body></pre>
+            </div>
+            <div class="mt-4">
+              <div class="cost-label text-[10px] md:text-[11px] native-text opacity-80 mb-2">COST</div>
+              <div class="big-num text-[64px] md:text-[96px] native-text leading-none" data-native-num>0</div>
+              <div class="cost-label text-[10px] md:text-[11px] native-text opacity-80 mt-2">TOKENS</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fastedit (right, offset slightly down) -->
+        <div class="col-span-12 md:col-span-6 md:translate-y-4">
+          <div class="panel-frame fast p-6 md:p-8 h-[540px] flex flex-col">
+            <div class="corner-tl fastedit-text">◤ FAST_EDIT</div>
+            <div class="corner-tr dim" data-fe-case>—</div>
+            <div class="mt-8 rule-green"></div>
+            <div class="mt-5 flex-1 min-h-0 overflow-hidden">
+              <pre class="payload" data-fe-body></pre>
+            </div>
+            <div class="mt-4">
+              <div class="cost-label text-[10px] md:text-[11px] fastedit-text opacity-80 mb-2">COST</div>
+              <div class="big-num text-[64px] md:text-[96px] fastedit-text leading-none" data-fe-num>0</div>
+              <div class="cost-label text-[10px] md:text-[11px] fastedit-text opacity-80 mt-2">TOKENS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Savings strip -->
+      <div class="mt-10 grid grid-cols-12 gap-5">
+        <div class="col-span-12 md:col-span-4 md:col-start-5 border hair p-6 md:p-8 flex items-center justify-between gap-6" data-savings-card>
+          <div>
+            <div class="cost-label text-[10px] md:text-[11px] accent-text opacity-80 mb-2">SAVED</div>
+            <div class="big-num text-3xl md:text-5xl accent-text" data-saved-pct>—</div>
+          </div>
+          <div class="text-right mono text-sm dim">
+            <div>native <span class="native-text tabular-nums" data-saved-native>—</span></div>
+            <div>fastedit <span class="fastedit-text tabular-nums" data-saved-fe>—</span></div>
+            <div>delta <span class="accent-text tabular-nums" data-saved-tok>—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<!-- ============================================================= -->
+<!-- FOOTER -->
+<!-- ============================================================= -->
+<footer class="border-t hair px-8 md:px-16 py-10">
+  <div class="max-w-[1500px] mx-auto mono text-[11px] tracking-[0.22em] uppercase text-zinc-600 flex justify-between">
+    <span>◢ fastedit live · bench-02</span>
+    <span id="foot-id">—</span>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script>
+/* =============================================================
+ * Render fixture sections from FASTEDIT_DATA
+ * ============================================================= */
+const DATA = window.FASTEDIT_DATA;
+if (!DATA) {
+  document.body.innerHTML = '<div style="padding:40px;font-family:monospace;color:#fca5a5">Missing demo/web/data.js — run <code>uv run --no-sync python demo/web/capture.py</code> first.</div>';
+  throw new Error('no data');
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+}
+
+// Colorize native-edit JSON payload: old_string value → red, new_string value → green
+function tintNative(s) {
+  let out = esc(s);
+  out = out.split('\n').map(line => {
+    if (line.includes('"old_string"')) {
+      const c = line.indexOf(':');
+      return line.slice(0, c + 1) + '<span class="tok-del">' + line.slice(c + 1) + '</span>';
+    }
+    if (line.includes('"new_string"')) {
+      const c = line.indexOf(':');
+      return line.slice(0, c + 1) + '<span class="tok-add">' + line.slice(c + 1) + '</span>';
+    }
+    return line;
+  }).join('\n');
+  return out;
+}
+
+// Colorize fastedit Python-style payload
+function tintFastedit(s) {
+  let out = esc(s);
+  out = out.replace(/('([^'\\]|\\.)*')/g, m => '<span class="tok-str">' + m + '</span>');
+  out = out.replace(/\b(replace|snippet|after|preserve_siblings|fast_edit|fast_delete|fast_batch_edit|fast_move|fast_rename|True|False)\b/g,
+    m => '<span class="tok-fn">' + m + '</span>');
+  out = out.replace(/(#[^\n]*)/g, m => '<span class="tok-str" style="color:#71717a;font-style:italic">' + m + '</span>');
+  out = out.replace(/[()]/g, m => '<span class="tok-punc">' + m + '</span>');
+  return out;
+}
+
+// Truncate a payload to N lines for display (the measurement was on the full string)
+function truncatePayload(s, maxLines = 16) {
+  const lines = s.split('\n');
+  if (lines.length <= maxLines) return s;
+  return lines.slice(0, maxLines - 1).join('\n') + '\n  … +' + (lines.length - maxLines + 1) + ' more lines';
+}
+
+const tpl = document.getElementById('fixture-template');
+const host = document.getElementById('fixtures');
+
+DATA.fixtures.forEach((fx, i) => {
+  const frag = tpl.content.cloneNode(true);
+  const sec = frag.querySelector('section');
+  sec.dataset.idx = i;
+  frag.querySelector('[data-idx-label]').textContent = String(i + 1).padStart(2, '0') + ' / ' + String(DATA.fixtures.length).padStart(2, '0');
+  frag.querySelector('[data-pattern]').textContent = fx.pattern;
+  frag.querySelector('[data-lang]').textContent = fx.lang;
+  frag.querySelector('[data-case-id]').textContent = '[' + fx.case_id + ']';
+  frag.querySelector('[data-ghost]').textContent = fx.lang;
+  frag.querySelector('[data-ghost]').style.top = (i % 2 === 0 ? '8%' : 'auto');
+  frag.querySelector('[data-ghost]').style.bottom = (i % 2 === 0 ? 'auto' : '8%');
+  frag.querySelector('[data-ghost]').style.right = (i % 3 === 0 ? '-4%' : 'auto');
+  frag.querySelector('[data-ghost]').style.left = (i % 3 === 0 ? 'auto' : '-4%');
+
+  frag.querySelector('[data-native-case]').textContent = fx.case_id.split('/')[1] || '';
+  frag.querySelector('[data-fe-case]').textContent = 'replace=' + fx.target;
+
+  frag.querySelector('[data-native-body]').innerHTML = tintNative(truncatePayload(fx.native_payload, 14));
+  frag.querySelector('[data-fe-body]').innerHTML = tintFastedit(truncatePayload(fx.fastedit_payload, 14));
+
+  // token counters start at 0, animate on enter
+  frag.querySelector('[data-native-num]').textContent = '0';
+  frag.querySelector('[data-fe-num]').textContent   = '0';
+
+  frag.querySelector('[data-saved-pct]').textContent    = '0%';
+  frag.querySelector('[data-saved-native]').textContent = fx.native_tok;
+  frag.querySelector('[data-saved-fe]').textContent     = fx.fastedit_tok;
+  frag.querySelector('[data-saved-tok]').textContent    = '−' + fx.saved;
+
+  host.appendChild(frag);
+});
+
+document.getElementById('hero-n').textContent = DATA.fixtures.length;
+document.getElementById('foot-id').textContent = 'model: ' + DATA.model;
+
+/* ----------- GSAP animation setup ----------- */
+gsap.registerPlugin(ScrollTrigger);
+
+const sections = Array.from(document.querySelectorAll('.fx-section'));
+
+// Per-section scroll-triggered timeline
+sections.forEach((sec, i) => {
+  const fx = DATA.fixtures[i];
+  const nativeNum = sec.querySelector('[data-native-num]');
+  const feNum     = sec.querySelector('[data-fe-num]');
+  const savedPct  = sec.querySelector('[data-saved-pct]');
+  const ghost     = sec.querySelector('[data-ghost]');
+  const nativePanel = sec.querySelectorAll('.panel-frame')[0];
+  const fastPanel   = sec.querySelectorAll('.panel-frame')[1];
+  const savingsCard = sec.querySelector('[data-savings-card]');
+
+  gsap.set([nativePanel, fastPanel, savingsCard, ghost], { opacity: 0 });
+  gsap.set(nativePanel, { x: -40 });
+  gsap.set(fastPanel,   { x:  40 });
+  gsap.set(savingsCard, { y: 24 });
+  gsap.set(ghost,       { y: 20 });
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: sec,
+      start: 'top 65%',
+      end: 'bottom 30%',
+      toggleActions: 'play none none reverse',
+      onEnter: () => {
+        document.getElementById('chip-pos').textContent = String(i + 1).padStart(2, '0') + ' / ' + String(DATA.fixtures.length).padStart(2, '0');
+        document.getElementById('chip-lang').textContent = fx.lang;
+      },
+      onEnterBack: () => {
+        document.getElementById('chip-pos').textContent = String(i + 1).padStart(2, '0') + ' / ' + String(DATA.fixtures.length).padStart(2, '0');
+        document.getElementById('chip-lang').textContent = fx.lang;
+      },
+    }
+  });
+
+  // Strict sequence: ghost → native in → native count up → (beat) →
+  // fastedit in → fastedit count up → (beat) → savings + pct.
+  tl.to(ghost,       { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' })
+    .to(nativePanel, { opacity: 1, x: 0, duration: 0.55, ease: 'power3.out' })
+    .to({}, {
+      duration: 1.0,
+      ease: 'power2.out',
+      onUpdate: function () {
+        nativeNum.textContent = Math.round(fx.native_tok * this.progress());
+      },
+      onComplete: () => { nativeNum.textContent = fx.native_tok; }
+    })
+    .to({}, { duration: 0.55 })   // hold native result before fastedit arrives
+    .to(fastPanel, { opacity: 1, x: 0, duration: 0.55, ease: 'power3.out' })
+    .to({}, {
+      duration: 1.0,
+      ease: 'power2.out',
+      onUpdate: function () {
+        feNum.textContent = Math.round(fx.fastedit_tok * this.progress());
+      },
+      onComplete: () => { feNum.textContent = fx.fastedit_tok; }
+    })
+    .to({}, { duration: 0.25 })   // small beat before the savings card
+    .to(savingsCard, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' })
+    .to({}, {
+      duration: 0.7,
+      ease: 'power2.out',
+      onUpdate: function () {
+        savedPct.textContent = (fx.pct * this.progress()).toFixed(1) + '%';
+      },
+      onComplete: () => { savedPct.textContent = fx.pct.toFixed(1) + '%'; }
+    });
+});
+
+/* ----------- HEADLINE animation ----------- */
+const headlineSec = document.getElementById('headline');
+const headlinePct = document.getElementById('headline-pct');
+const headlineSub = document.getElementById('headline-sub');
+
+gsap.to('#headline-pct, #headline-sub', {
+  scrollTrigger: {
+    trigger: headlineSec,
+    start: 'top 60%',
+    toggleActions: 'play none none reverse',
+  },
+  opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.18,
+});
+
+ScrollTrigger.create({
+  trigger: headlineSec,
+  start: 'top 60%',
+  once: true,
+  onEnter: () => {
+    // animate the big percentage
+    const t = { v: 0 };
+    gsap.to(t, {
+      v: DATA.totals.pct,
+      duration: 1.6,
+      ease: 'power3.out',
+      onUpdate: () => { headlinePct.textContent = t.v.toFixed(1) + '%'; }
+    });
+    headlineSub.textContent =
+      `across ${DATA.totals.n} languages · native ${DATA.totals.native.toLocaleString()} tok ` +
+      `→ fastedit ${DATA.totals.fastedit.toLocaleString()} tok · saved ${DATA.totals.saved.toLocaleString()}`;
+
+    document.getElementById('tt-n').textContent      = DATA.totals.n;
+    document.getElementById('tt-native').textContent = DATA.totals.native.toLocaleString() + ' tok';
+    document.getElementById('tt-fe').textContent     = DATA.totals.fastedit.toLocaleString() + ' tok';
+    document.getElementById('tt-saved').textContent  = DATA.totals.saved.toLocaleString() + ' tok';
+    document.getElementById('tt-ratio').textContent  = DATA.totals.ratio + '×';
+
+    // Per-language grid
+    const plHost = document.getElementById('pl-grid');
+    const sorted = DATA.fixtures.slice().sort((a, b) => b.pct - a.pct);
+    plHost.innerHTML = sorted.map(f => {
+      const w = Math.max(4, Math.min(100, f.pct));
+      return `
+        <div class="pl-row grid grid-cols-12 items-center gap-3 px-4 py-2.5 border-b hair last:border-b-0 mono text-xs">
+          <div class="col-span-3 text-zinc-300">${esc(f.lang)}</div>
+          <div class="col-span-2 tabular-nums text-right native-text">${f.native_tok}</div>
+          <div class="col-span-1 text-center dim">→</div>
+          <div class="col-span-2 tabular-nums text-right fastedit-text">${f.fastedit_tok}</div>
+          <div class="col-span-4 relative h-2 bg-white/5 rounded-sm overflow-hidden">
+            <div class="absolute inset-y-0 left-0 accent-bg" style="width:${w}%; opacity:0.75"></div>
+            <div class="absolute inset-y-0 left-0 flex items-center pl-2 text-[10px] accent-text tabular-nums" style="mix-blend-mode:difference">${f.pct}%</div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+});
+
+/* ----------- Progress rail ----------- */
+const rail = document.getElementById('rail');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  const p = h > 0 ? (window.scrollY / h) * 100 : 0;
+  rail.style.setProperty('--p', p + '%');
+}, { passive: true });
+
+/* ----------- Auto-play: START TEST button ----------- */
+const startBtn = document.getElementById('start-btn');
+
+function smoothScrollTo(target, duration = 0.9, offsetY = 80) {
+  return new Promise((resolve) => {
+    gsap.to(window, {
+      duration,
+      scrollTo: { y: target, offsetY },
+      ease: 'power3.inOut',
+      onComplete: resolve,
+    });
+  });
+}
+
+function wait(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function runAutoplay() {
+  startBtn.disabled = true;
+  startBtn.classList.add('running');
+  startBtn.querySelector('.label').textContent = 'RUNNING';
+
+  // Slight settle before we start moving
+  await wait(200);
+
+  // Per-fixture timeline is ~5.3s (ghost .5 + native in .55 + native count 1.0
+  // + hold .55 + fastedit in .55 + fastedit count 1.0 + beat .25 + savings .5
+  // + savings count .7 = 5.6s). Give it room to breathe + a deliberate pause
+  // so the viewer sees the final state before we pull to the next fixture.
+  const ANIM_MS  = 5800;
+  const PAUSE_MS = 1600;
+
+  for (let i = 0; i < sections.length; i++) {
+    await smoothScrollTo(sections[i], 0.9, 90);
+    await wait(ANIM_MS);
+    await wait(PAUSE_MS);
+  }
+
+  // Final pull to the headline
+  await smoothScrollTo('#headline', 1.1, 0);
+  await wait(500);
+
+  startBtn.classList.remove('running');
+  startBtn.querySelector('.label').textContent = 'REPLAY';
+  startBtn.disabled = false;
+}
+
+startBtn.addEventListener('click', () => {
+  if (startBtn.disabled) return;
+  runAutoplay().catch((err) => {
+    console.error(err);
+    startBtn.classList.remove('running');
+    startBtn.disabled = false;
+  });
+});
+
+// If the user manually scrolls after clicking, don't fight them — but we
+// don't add explicit cancel since the autoplay is short enough to finish.
+</script>
+</body>
+</html>

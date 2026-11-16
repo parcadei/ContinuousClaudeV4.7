@@ -1,0 +1,41 @@
+name: ex_add_branch_grade
+pattern: add_branch
+language: elixir
+original_code: |
+  defmodule Grader do
+    def grade(score) do
+      cond do
+        score >= 90 -> "A"
+        score >= 80 -> "B"
+        true -> "F"
+      end
+    end
+  end
+snippet: |
+  def grade(score) do
+    cond do
+      # ... existing code ...
+      score >= 70 -> "C"
+      # ... existing code ...
+    end
+  end
+expected_output: |
+  defmodule Grader do
+    def grade(score) do
+      cond do
+        score >= 90 -> "A"
+        score >= 80 -> "B"
+        score >= 70 -> "C"
+        true -> "F"
+      end
+    end
+  end
+target_kind: replace
+target_name: grade
+authoring_notes: |
+  P13 add_branch: insert a new cond arm for score >= 70 -> "C" between
+  the B and F arms. Elixir's `cond` is the canonical multi-branch form.
+  Uses symmetric markers around the new arm (plus an explicit cond/end
+  frame) so text_match defers to the model — full-replacement Style A
+  trips on Elixir's double-`end` ambiguity (cond-end + do-end both
+  appear and `_AMBIGUOUS_LINES` misclassifies one as a new line).

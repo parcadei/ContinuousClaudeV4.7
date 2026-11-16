@@ -1,0 +1,96 @@
+name: ruby_add_guard_event_dispatch_process
+pattern: add_guard
+language: ruby
+original_code: |
+  def process(event)
+      Rails.logger.info("dispatcher.received id=#{event.id} type=#{event.type}")
+      ActiveRecord::Base.transaction do
+          case event.type
+          when "order.placed"
+              order = Order.find(event.payload.fetch("order_id"))
+              order.reserve_inventory!
+              ShipmentScheduler.new(order).schedule!
+              NotificationJob.perform_later(:order_placed, order.id)
+          when "order.cancelled"
+              order = Order.find(event.payload.fetch("order_id"))
+              order.release_inventory!
+              RefundInitiator.new(order).initiate! if order.paid?
+              NotificationJob.perform_later(:order_cancelled, order.id)
+          when "payment.succeeded"
+              payment = Payment.find(event.payload.fetch("payment_id"))
+              payment.mark_confirmed!
+              payment.order.mark_paid!
+              NotificationJob.perform_later(:payment_confirmed, payment.id)
+          when "payment.failed"
+              payment = Payment.find(event.payload.fetch("payment_id"))
+              payment.mark_failed!(reason: event.payload["reason"])
+              FraudSignals.evaluate(payment)
+              NotificationJob.perform_later(:payment_failed, payment.id)
+          when "customer.signup"
+              customer = Customer.find(event.payload.fetch("customer_id"))
+              Onboarding.new(customer).kickoff!
+              NotificationJob.perform_later(:welcome, customer.id)
+          else
+              Rails.logger.warn("dispatcher.unknown type=#{event.type}")
+              event.mark_unhandled!
+          end
+      end
+      event.mark_processed!
+  end
+snippet: |
+  def process(event)
+      if event.nil? || event.id.nil?
+          Rails.logger.warn("dispatcher.dropping malformed event: #{event.inspect}")
+          return :dropped
+      end
+      Rails.logger.info("dispatcher.received id=#{event.id} type=#{event.type}")
+      ActiveRecord::Base.transaction do
+          # ... existing code ...
+expected_output: |
+  def process(event)
+      if event.nil? || event.id.nil?
+          Rails.logger.warn("dispatcher.dropping malformed event: #{event.inspect}")
+          return :dropped
+      end
+      Rails.logger.info("dispatcher.received id=#{event.id} type=#{event.type}")
+      ActiveRecord::Base.transaction do
+          case event.type
+          when "order.placed"
+              order = Order.find(event.payload.fetch("order_id"))
+              order.reserve_inventory!
+              ShipmentScheduler.new(order).schedule!
+              NotificationJob.perform_later(:order_placed, order.id)
+          when "order.cancelled"
+              order = Order.find(event.payload.fetch("order_id"))
+              order.release_inventory!
+              RefundInitiator.new(order).initiate! if order.paid?
+              NotificationJob.perform_later(:order_cancelled, order.id)
+          when "payment.succeeded"
+              payment = Payment.find(event.payload.fetch("payment_id"))
+              payment.mark_confirmed!
+              payment.order.mark_paid!
+              NotificationJob.perform_later(:payment_confirmed, payment.id)
+          when "payment.failed"
+              payment = Payment.find(event.payload.fetch("payment_id"))
+              payment.mark_failed!(reason: event.payload["reason"])
+              FraudSignals.evaluate(payment)
+              NotificationJob.perform_later(:payment_failed, payment.id)
+          when "customer.signup"
+              customer = Customer.find(event.payload.fetch("customer_id"))
+              Onboarding.new(customer).kickoff!
+              NotificationJob.perform_later(:welcome, customer.id)
+          else
+              Rails.logger.warn("dispatcher.unknown type=#{event.type}")
+              event.mark_unhandled!
+          end
+      end
+      event.mark_processed!
+  end
+target_kind: replace
+target_name: process
+authoring_notes: |
+  Realistic ~35-line EventDispatcher#process method with ActiveRecord
+  transaction + 5 event types + unknown fallback + mark_processed.
+  Edit adds a 4-line nil/id-check guard at the top. FastEdit payload is
+  the guard + 2 anchors + marker; native-edit must echo the whole case
+  statement to anchor.

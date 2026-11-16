@@ -1,0 +1,41 @@
+name: add_branch_tier_pricing
+pattern: add_branch
+language: python
+original_code: |
+  def price_tier(monthly_requests):
+      if monthly_requests >= 1_000_000:
+          return "enterprise"
+      elif monthly_requests >= 100_000:
+          return "business"
+      elif monthly_requests >= 10_000:
+          return "pro"
+      return "free"
+snippet: |
+  def price_tier(monthly_requests):
+      if monthly_requests >= 1_000_000:
+          return "enterprise"
+      elif monthly_requests >= 100_000:
+          return "business"
+      elif monthly_requests >= 10_000:
+          return "pro"
+      elif monthly_requests >= 1_000:
+          return "starter"
+      return "free"
+expected_output: |
+  def price_tier(monthly_requests):
+      if monthly_requests >= 1_000_000:
+          return "enterprise"
+      elif monthly_requests >= 100_000:
+          return "business"
+      elif monthly_requests >= 10_000:
+          return "pro"
+      elif monthly_requests >= 1_000:
+          return "starter"
+      return "free"
+target_kind: replace
+target_name: price_tier
+authoring_notes: |
+  Adds a new elif arm between the 'pro' tier and the fallback 'free' return.
+  No markers — the snippet rewrites the full chain. Tests whether the adapter
+  preserves numeric-literal formatting (underscores in 1_000) and does not
+  accidentally re-order the existing branches.

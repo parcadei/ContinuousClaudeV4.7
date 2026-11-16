@@ -1,0 +1,32 @@
+name: change_signature_add_generic
+pattern: change_signature
+language: java
+original_code: |
+  public class Box {
+      public Object first(java.util.List<Object> items) {
+          if (items.isEmpty()) {
+              return null;
+          }
+          return items.get(0);
+      }
+  }
+snippet: |
+  public <T> T first(java.util.List<T> items) {
+      // ... existing code ...
+  }
+expected_output: |
+  public class Box {
+      public <T> T first(java.util.List<T> items) {
+          if (items.isEmpty()) {
+              return null;
+          }
+          return items.get(0);
+      }
+  }
+target_kind: replace
+target_name: first
+authoring_notes: |
+  Make the method generic: `Object first(List<Object>)` -> `<T> T first(List<T>)`.
+  Signature line changes entirely but the body (the if + return) is preserved
+  by the marker. Tests that the adapter correctly updates the signature line
+  only — body survives via `// ... existing code ...`.

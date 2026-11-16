@@ -1,0 +1,114 @@
+name: java_add_guard_process_refund
+pattern: add_guard
+language: java
+original_code: |
+  public RefundResult processRefund(RefundRequest request) throws RefundException {
+      MDC.put("refund_id", request.getId());
+      auditLog.recordRequested(request);
+
+      Order order = orderRepository.findById(request.getOrderId())
+              .orElseThrow(() -> new RefundException("order not found: " + request.getOrderId()));
+
+      if (order.getStatus() == OrderStatus.CANCELLED) {
+          throw new RefundException("cannot refund cancelled order");
+      }
+
+      Payment payment = paymentRepository.findLatestForOrder(order.getId())
+              .orElseThrow(() -> new RefundException("no payment recorded for order"));
+
+      BigDecimal maxRefundable = payment.getAmount().subtract(order.getRefundedSoFar());
+      if (request.getAmount().compareTo(maxRefundable) > 0) {
+          throw new RefundException(
+                  "requested " + request.getAmount() + " exceeds refundable " + maxRefundable);
+      }
+
+      RefundSaga saga = new RefundSaga(request.getId());
+      try {
+          saga.addStep(new ReserveRefundStep(order, request.getAmount()));
+          saga.addStep(new CallGatewayStep(paymentGateway, payment, request.getAmount()));
+          saga.addStep(new UpdateLedgerStep(ledger, order, request.getAmount()));
+          saga.addStep(new NotifyCustomerStep(notifier, order, request));
+
+          SagaOutcome outcome = saga.run();
+          if (!outcome.isSuccess()) {
+              throw new RefundException("saga failed: " + outcome.getFailureReason());
+          }
+
+          order.markRefunded(request.getAmount());
+          orderRepository.save(order);
+          auditLog.recordCompleted(request, outcome);
+
+          return new RefundResult(request.getId(), RefundStatus.COMPLETED, outcome.getGatewayReference());
+      } catch (Exception e) {
+          saga.compensate();
+          auditLog.recordFailed(request, e);
+          throw new RefundException("refund pipeline failed", e);
+      } finally {
+          MDC.remove("refund_id");
+      }
+  }
+snippet: |
+  public RefundResult processRefund(RefundRequest request) throws RefundException {
+      if (request == null || request.getAmount() == null || request.getAmount().signum() <= 0) {
+          throw new IllegalArgumentException("refund request must have a positive amount");
+      }
+      MDC.put("refund_id", request.getId());
+      auditLog.recordRequested(request);
+      // ... existing code ...
+expected_output: |
+  public RefundResult processRefund(RefundRequest request) throws RefundException {
+      if (request == null || request.getAmount() == null || request.getAmount().signum() <= 0) {
+          throw new IllegalArgumentException("refund request must have a positive amount");
+      }
+      MDC.put("refund_id", request.getId());
+      auditLog.recordRequested(request);
+
+      Order order = orderRepository.findById(request.getOrderId())
+              .orElseThrow(() -> new RefundException("order not found: " + request.getOrderId()));
+
+      if (order.getStatus() == OrderStatus.CANCELLED) {
+          throw new RefundException("cannot refund cancelled order");
+      }
+
+      Payment payment = paymentRepository.findLatestForOrder(order.getId())
+              .orElseThrow(() -> new RefundException("no payment recorded for order"));
+
+      BigDecimal maxRefundable = payment.getAmount().subtract(order.getRefundedSoFar());
+      if (request.getAmount().compareTo(maxRefundable) > 0) {
+          throw new RefundException(
+                  "requested " + request.getAmount() + " exceeds refundable " + maxRefundable);
+      }
+
+      RefundSaga saga = new RefundSaga(request.getId());
+      try {
+          saga.addStep(new ReserveRefundStep(order, request.getAmount()));
+          saga.addStep(new CallGatewayStep(paymentGateway, payment, request.getAmount()));
+          saga.addStep(new UpdateLedgerStep(ledger, order, request.getAmount()));
+          saga.addStep(new NotifyCustomerStep(notifier, order, request));
+
+          SagaOutcome outcome = saga.run();
+          if (!outcome.isSuccess()) {
+              throw new RefundException("saga failed: " + outcome.getFailureReason());
+          }
+
+          order.markRefunded(request.getAmount());
+          orderRepository.save(order);
+          auditLog.recordCompleted(request, outcome);
+
+          return new RefundResult(request.getId(), RefundStatus.COMPLETED, outcome.getGatewayReference());
+      } catch (Exception e) {
+          saga.compensate();
+          auditLog.recordFailed(request, e);
+          throw new RefundException("refund pipeline failed", e);
+      } finally {
+          MDC.remove("refund_id");
+      }
+  }
+target_kind: replace
+target_name: processRefund
+authoring_notes: |
+  Realistic ~45-line PaymentProcessor.processRefund method with saga
+  orchestration (reserve -> gateway -> ledger -> notify) and compensation.
+  Edit adds a 3-line argument-validation guard at the top. FastEdit's
+  minimal payload is the guard + 2 anchor lines + marker; native-edit must
+  echo the entire saga body to anchor.

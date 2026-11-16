@@ -1,0 +1,41 @@
+name: add_decorator_obsolete_attribute
+pattern: add_decorator
+language: csharp
+original_code: |
+  using System;
+
+  public class LegacyApi
+  {
+      public int OldAdd(int a, int b)
+      {
+          return a + b;
+      }
+  }
+snippet: |
+  [Obsolete("Use Add instead", false)]
+  public int OldAdd(int a, int b)
+  {
+      // ... existing code ...
+  }
+expected_output: |
+  using System;
+
+  public class LegacyApi
+  {
+      [Obsolete("Use Add instead", false)]
+      public int OldAdd(int a, int b)
+      {
+          return a + b;
+      }
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Adds a C# attribute (`[Obsolete]`) above an existing method — the C#
+  analog of Python's `add_decorator` pattern. Body preserved via marker.
+
+  target_kind=none: under replace=LegacyApi the snippet defines the
+  `OldAdd` method inline (a sibling symbol), which the
+  _extract_snippet_names guard rejects as a multi-symbol snippet.
+  Realistic agent invocation here uses markers-only without a symbol
+  target (or fast_batch_edit with two ops — not yet wired).

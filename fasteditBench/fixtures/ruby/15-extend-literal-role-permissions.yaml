@@ -1,0 +1,117 @@
+name: ruby_extend_literal_role_permissions
+pattern: extend_literal
+language: ruby
+original_code: |
+  def build_role_permissions(organization)
+      {
+          viewer: {
+              project: [:read],
+              issue: [:read, :comment],
+              member: [:read],
+              billing: [],
+              integration: [:read],
+              audit: [],
+          },
+          contributor: {
+              project: [:read, :edit],
+              issue: [:read, :create, :update, :comment, :close],
+              member: [:read],
+              billing: [],
+              integration: [:read],
+              audit: [],
+          },
+          admin: {
+              project: [:read, :edit, :delete],
+              issue: [:read, :create, :update, :comment, :close, :assign, :delete],
+              member: [:read, :invite, :remove],
+              billing: [:read],
+              integration: [:read, :configure],
+              audit: organization.tier == "enterprise" ? [:read] : [],
+          },
+          owner: {
+              project: [:read, :edit, :delete, :transfer],
+              issue: [:read, :create, :update, :comment, :close, :assign, :delete],
+              member: [:read, :invite, :remove, :change_role],
+              billing: [:read, :edit],
+              integration: [:read, :configure],
+              audit: organization.tier == "enterprise" ? [:read] : [],
+          },
+      }
+  end
+snippet: |
+  def build_role_permissions(organization)
+      {
+          viewer: {
+              project: [:read],
+              # ... existing code ...
+          owner: {
+              project: [:read, :edit, :delete, :transfer],
+              issue: [:read, :create, :update, :comment, :close, :assign, :delete],
+              member: [:read, :invite, :remove, :change_role],
+              billing: [:read, :edit],
+              integration: [:read, :configure],
+              audit: organization.tier == "enterprise" ? [:read] : [],
+          },
+          superadmin: {
+              project: [:read, :edit, :delete, :transfer, :force_delete],
+              issue: [:read, :create, :update, :comment, :close, :assign, :delete, :purge],
+              member: [:read, :invite, :remove, :change_role, :impersonate],
+              billing: [:read, :edit, :refund],
+              integration: [:read, :configure, :install, :uninstall],
+              audit: [:read, :export],
+          },
+      }
+  end
+expected_output: |
+  def build_role_permissions(organization)
+      {
+          viewer: {
+              project: [:read],
+              issue: [:read, :comment],
+              member: [:read],
+              billing: [],
+              integration: [:read],
+              audit: [],
+          },
+          contributor: {
+              project: [:read, :edit],
+              issue: [:read, :create, :update, :comment, :close],
+              member: [:read],
+              billing: [],
+              integration: [:read],
+              audit: [],
+          },
+          admin: {
+              project: [:read, :edit, :delete],
+              issue: [:read, :create, :update, :comment, :close, :assign, :delete],
+              member: [:read, :invite, :remove],
+              billing: [:read],
+              integration: [:read, :configure],
+              audit: organization.tier == "enterprise" ? [:read] : [],
+          },
+          owner: {
+              project: [:read, :edit, :delete, :transfer],
+              issue: [:read, :create, :update, :comment, :close, :assign, :delete],
+              member: [:read, :invite, :remove, :change_role],
+              billing: [:read, :edit],
+              integration: [:read, :configure],
+              audit: organization.tier == "enterprise" ? [:read] : [],
+          },
+          superadmin: {
+              project: [:read, :edit, :delete, :transfer, :force_delete],
+              issue: [:read, :create, :update, :comment, :close, :assign, :delete, :purge],
+              member: [:read, :invite, :remove, :change_role, :impersonate],
+              billing: [:read, :edit, :refund],
+              integration: [:read, :configure, :install, :uninstall],
+              audit: [:read, :export],
+          },
+      }
+  end
+target_kind: replace
+target_name: build_role_permissions
+authoring_notes: |
+  Realistic 4-role RBAC matrix (viewer / contributor / admin / owner).
+  Edit adds a 5th role "superadmin" by copying the owner block shape
+  and extending each action list. FastEdit's middle-insert marker
+  preserves the 4 existing role hashes; native-edit must echo the whole
+  38-line hash to anchor the insertion.

@@ -1,0 +1,53 @@
+name: wrap_block_try_catch
+pattern: wrap_block
+language: php
+original_code: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class ConfigLoader
+  {
+      public function load(string $path): ?array
+      {
+          $raw = file_get_contents($path);
+          return json_decode($raw, true, flags: JSON_THROW_ON_ERROR);
+      }
+  }
+snippet: |
+  public function load(string $path): ?array
+  {
+      try {
+          // ... existing code ...
+      } catch (\JsonException $e) {
+          return null;
+      }
+  }
+expected_output: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class ConfigLoader
+  {
+      public function load(string $path): ?array
+      {
+          try {
+              $raw = file_get_contents($path);
+              return json_decode($raw, true, flags: JSON_THROW_ON_ERROR);
+          } catch (\JsonException $e) {
+              return null;
+          }
+      }
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Wrap the two-line body in try/catch. Uses the '... existing code ...'
+  marker inside the try block. Note the named argument (flags:) — a
+  modern PHP 8+ feature the adapter must preserve verbatim inside the
+  wrapped block.
+
+  target_kind=none: same wrap_block body-reindent issue as csharp/02.
+  Legacy model path handles re-indent inside `try` correctly (M3
+  baseline: tier1 PASS 77 tokens).

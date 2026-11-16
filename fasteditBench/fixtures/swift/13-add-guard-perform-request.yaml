@@ -1,0 +1,128 @@
+name: swift_add_guard_perform_request
+pattern: add_guard
+language: swift
+original_code: |
+  func performRequest<T: Decodable>(
+      _ request: APIRequest,
+      expecting responseType: T.Type
+  ) async throws -> T {
+      let startedAt = DispatchTime.now()
+      var attempt = 0
+
+      while true {
+          let urlRequest = try buildURLRequest(from: request)
+          let (data, response) = try await session.data(for: urlRequest)
+
+          guard let http = response as? HTTPURLResponse else {
+              throw NetworkError.unexpectedResponseType
+          }
+
+          metrics.record(path: request.path, status: http.statusCode, attempt: attempt)
+
+          switch http.statusCode {
+          case 200...299:
+              do {
+                  return try decoder.decode(T.self, from: data)
+              } catch {
+                  throw NetworkError.decodeFailed(underlying: error)
+              }
+          case 401:
+              if attempt == 0 {
+                  try await authenticator.refresh()
+                  attempt += 1
+                  continue
+              }
+              throw NetworkError.unauthorized
+          case 429, 500...599:
+              if attempt >= maxRetries {
+                  throw NetworkError.maxRetriesExceeded
+              }
+              let delay = backoffDelay(attempt: attempt, retryAfter: http.value(forHTTPHeaderField: "Retry-After"))
+              try await Task.sleep(nanoseconds: delay)
+              attempt += 1
+              continue
+          default:
+              throw NetworkError.statusCode(http.statusCode, body: data)
+          }
+      }
+
+      let elapsed = Double(DispatchTime.now().uptimeNanoseconds - startedAt.uptimeNanoseconds) / 1_000_000
+      metrics.recordLatency(path: request.path, milliseconds: elapsed)
+  }
+snippet: |
+  func performRequest<T: Decodable>(
+      _ request: APIRequest,
+      expecting responseType: T.Type
+  ) async throws -> T {
+      guard !Task.isCancelled else {
+          throw CancellationError()
+      }
+      let startedAt = DispatchTime.now()
+      var attempt = 0
+      // ... existing code ...
+expected_output: |
+  func performRequest<T: Decodable>(
+      _ request: APIRequest,
+      expecting responseType: T.Type
+  ) async throws -> T {
+      guard !Task.isCancelled else {
+          throw CancellationError()
+      }
+      let startedAt = DispatchTime.now()
+      var attempt = 0
+
+      while true {
+          let urlRequest = try buildURLRequest(from: request)
+          let (data, response) = try await session.data(for: urlRequest)
+
+          guard let http = response as? HTTPURLResponse else {
+              throw NetworkError.unexpectedResponseType
+          }
+
+          metrics.record(path: request.path, status: http.statusCode, attempt: attempt)
+
+          switch http.statusCode {
+          case 200...299:
+              do {
+                  return try decoder.decode(T.self, from: data)
+              } catch {
+                  throw NetworkError.decodeFailed(underlying: error)
+              }
+          case 401:
+              if attempt == 0 {
+                  try await authenticator.refresh()
+                  attempt += 1
+                  continue
+              }
+              throw NetworkError.unauthorized
+          case 429, 500...599:
+              if attempt >= maxRetries {
+                  throw NetworkError.maxRetriesExceeded
+              }
+              let delay = backoffDelay(attempt: attempt, retryAfter: http.value(forHTTPHeaderField: "Retry-After"))
+              try await Task.sleep(nanoseconds: delay)
+              attempt += 1
+              continue
+          default:
+              throw NetworkError.statusCode(http.statusCode, body: data)
+          }
+      }
+
+      let elapsed = Double(DispatchTime.now().uptimeNanoseconds - startedAt.uptimeNanoseconds) / 1_000_000
+      metrics.recordLatency(path: request.path, milliseconds: elapsed)
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Realistic ~50-line NetworkCoordinator.performRequest with retry + backoff
+  + 401 refresh + structured error mapping + metrics. Edit adds a 3-line
+  task-cancellation guard at the top. FastEdit payload = guard + anchors +
+  marker; native must echo the entire retry loop body.
+
+  target_kind=none: Swift's AST-based ``replace=`` path classifies any
+  ``let`` inside the body as a top-level symbol and rejects the snippet
+  (the same pattern as swift/01-add-guard-average). Falls through to
+  FastEdit's legacy full-file merge which handles the preservation via the
+  ``// ... existing code ...`` marker on the 1.7B model path. Token accounting
+  (v5/v5.1 marker minimization) still applies — this fixture contributes
+  to the inline_edit category which is reclassified to modify_inside.

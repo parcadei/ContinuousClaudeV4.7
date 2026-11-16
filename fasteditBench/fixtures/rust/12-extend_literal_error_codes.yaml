@@ -1,0 +1,171 @@
+name: rust_extend_literal_error_code_map
+pattern: extend_literal
+language: rust
+original_code: |
+  pub fn build_error_code_map() -> HashMap<&'static str, ErrorDescriptor> {
+      let mut map = HashMap::new();
+      map.insert(
+          "E0001",
+          ErrorDescriptor {
+              code: "E0001",
+              message: "invalid configuration",
+              http_status: 400,
+              retryable: false,
+              user_facing: true,
+          },
+      );
+      map.insert(
+          "E0002",
+          ErrorDescriptor {
+              code: "E0002",
+              message: "unauthorized",
+              http_status: 401,
+              retryable: false,
+              user_facing: true,
+          },
+      );
+      map.insert(
+          "E0003",
+          ErrorDescriptor {
+              code: "E0003",
+              message: "not found",
+              http_status: 404,
+              retryable: false,
+              user_facing: true,
+          },
+      );
+      map.insert(
+          "E0010",
+          ErrorDescriptor {
+              code: "E0010",
+              message: "database unavailable",
+              http_status: 503,
+              retryable: true,
+              user_facing: false,
+          },
+      );
+      map.insert(
+          "E0011",
+          ErrorDescriptor {
+              code: "E0011",
+              message: "upstream timeout",
+              http_status: 504,
+              retryable: true,
+              user_facing: false,
+          },
+      );
+      map
+  }
+snippet: |
+  pub fn build_error_code_map() -> HashMap<&'static str, ErrorDescriptor> {
+      // ... existing code ...
+              message: "upstream timeout",
+              http_status: 504,
+              retryable: true,
+              user_facing: false,
+          },
+      );
+      map.insert(
+          "E0012",
+          ErrorDescriptor {
+              code: "E0012",
+              message: "rate limit exceeded",
+              http_status: 429,
+              retryable: true,
+              user_facing: true,
+          },
+      );
+      map.insert(
+          "E0020",
+          ErrorDescriptor {
+              code: "E0020",
+              message: "payment declined",
+              http_status: 402,
+              retryable: false,
+              user_facing: true,
+          },
+      );
+      map
+  }
+expected_output: |
+  pub fn build_error_code_map() -> HashMap<&'static str, ErrorDescriptor> {
+      let mut map = HashMap::new();
+      map.insert(
+          "E0001",
+          ErrorDescriptor {
+              code: "E0001",
+              message: "invalid configuration",
+              http_status: 400,
+              retryable: false,
+              user_facing: true,
+          },
+      );
+      map.insert(
+          "E0002",
+          ErrorDescriptor {
+              code: "E0002",
+              message: "unauthorized",
+              http_status: 401,
+              retryable: false,
+              user_facing: true,
+          },
+      );
+      map.insert(
+          "E0003",
+          ErrorDescriptor {
+              code: "E0003",
+              message: "not found",
+              http_status: 404,
+              retryable: false,
+              user_facing: true,
+          },
+      );
+      map.insert(
+          "E0010",
+          ErrorDescriptor {
+              code: "E0010",
+              message: "database unavailable",
+              http_status: 503,
+              retryable: true,
+              user_facing: false,
+          },
+      );
+      map.insert(
+          "E0011",
+          ErrorDescriptor {
+              code: "E0011",
+              message: "upstream timeout",
+              http_status: 504,
+              retryable: true,
+              user_facing: false,
+          },
+      );
+      map.insert(
+          "E0012",
+          ErrorDescriptor {
+              code: "E0012",
+              message: "rate limit exceeded",
+              http_status: 429,
+              retryable: true,
+              user_facing: true,
+          },
+      );
+      map.insert(
+          "E0020",
+          ErrorDescriptor {
+              code: "E0020",
+              message: "payment declined",
+              http_status: 402,
+              retryable: false,
+              user_facing: true,
+          },
+      );
+      map
+  }
+target_kind: replace
+target_name: build_error_code_map
+authoring_notes: |
+  Realistic error-code registry (5 existing entries, ~56 lines). Edit
+  appends 2 new entries before the `map` return. Middle-insert marker
+  preserves the leading 5 entries. Large savings because FastEdit only
+  sends the 2 new 10-line entries plus anchors.

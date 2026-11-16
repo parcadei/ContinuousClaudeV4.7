@@ -1,0 +1,25 @@
+name: ex_change_signature_incr
+pattern: change_signature
+language: elixir
+original_code: |
+  defmodule Counter do
+    def incr(x) do
+      x + 1
+    end
+  end
+snippet: |
+  def incr(x, opts \\ []) do
+    # ... existing code ...
+  end
+expected_output: |
+  defmodule Counter do
+    def incr(x, opts \\ []) do
+      x + 1
+    end
+  end
+target_kind: replace
+target_name: incr
+authoring_notes: |
+  P7 change_signature: add a trailing opts parameter with keyword-list
+  default. Body preserved via marker (function remains semantically
+  unaware of opts — fixture tests the edit pattern not refactoring).

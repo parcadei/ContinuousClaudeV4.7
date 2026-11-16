@@ -1,0 +1,30 @@
+name: add_guard_empty_list
+pattern: add_guard
+language: kotlin
+original_code: |
+  fun average(nums: List<Int>): Double {
+      val total = nums.sum()
+      return total.toDouble() / nums.size
+  }
+snippet: |
+  fun average(nums: List<Int>): Double {
+      if (nums.isEmpty()) {
+          return 0.0
+      }
+      val total = nums.sum()
+      // ... existing code ...
+  }
+expected_output: |
+  fun average(nums: List<Int>): Double {
+      if (nums.isEmpty()) {
+          return 0.0
+      }
+      val total = nums.sum()
+      return total.toDouble() / nums.size
+  }
+target_kind: replace
+target_name: average
+authoring_notes: |
+  Classic guard clause. Uses the `// ... existing code ...` marker to
+  preserve the tail of the function. A correct adapter keeps
+  `return total.toDouble() / nums.size` untouched.

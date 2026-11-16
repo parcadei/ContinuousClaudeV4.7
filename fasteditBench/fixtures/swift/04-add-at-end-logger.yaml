@@ -1,0 +1,29 @@
+name: add_at_end_process_logger
+pattern: add_at_end
+language: swift
+original_code: |
+  func process(_ input: String) -> String {
+      let trimmed = input.trimmingCharacters(in: .whitespaces)
+      let upper = trimmed.uppercased()
+      return upper
+  }
+snippet: |
+  func process(_ input: String) -> String {
+      // ... existing code ...
+      logger.info("processed \(upper)")
+      return upper
+  }
+expected_output: |
+  func process(_ input: String) -> String {
+      let trimmed = input.trimmingCharacters(in: .whitespaces)
+      let upper = trimmed.uppercased()
+      logger.info("processed \(upper)")
+      return upper
+  }
+target_kind: replace
+target_name: process
+authoring_notes: |
+  Append a logging statement before the final return. Uses a leading
+  '... existing code ...' marker to keep the 'trimmed'/'upper'
+  computations, and the tail explicitly re-states the 'return upper'
+  so the merger knows to splice logger.info in right before it.

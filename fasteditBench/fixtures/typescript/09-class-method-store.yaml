@@ -1,0 +1,57 @@
+name: ts_class_method_store
+pattern: class_method
+language: typescript
+original_code: |
+  export class Store<K, V> {
+    private items: K[] = [];
+
+    get(k: number): K {
+      return this.items[k];
+    }
+
+    set(k: number, v: K): void {
+      this.items[k] = v;
+    }
+  }
+snippet: |
+  export class Store<K, V> {
+    private items: Map<K, V> = new Map();
+  }
+expected_output: |
+  export class Store<K, V> {
+    private items: Map<K, V> = new Map();
+
+    get(k: number): K {
+      return this.items[k];
+    }
+
+    set(k: number, v: K): void {
+      this.items[k] = v;
+    }
+  }
+target_kind: batch
+target_name: null
+target_batch:
+  - kind: replace
+    name: Store
+    preserve_siblings: true
+    snippet: |
+      export class Store<K, V> {
+        private items: Map<K, V> = new Map();
+      }
+authoring_notes: |
+  Modify the field initializer on a generic class while preserving
+  both methods. Types for `get`/`set` are intentionally left as-is —
+  the benchmark tests text-level preservation, not semantic consistency.
+  Exercises class_method on a generic class with `<K, V>` type params.
+
+  M12: re-annotated as a single-entry target_batch with
+  preserve_siblings=true. FastEdit's chunked_merge resolves `Store`,
+  enumerates the two methods via tldr, and splices them back into the
+  new class body. Byte-exact, 0 model tokens.
+
+  Prior history: M9 accepted as algorithm-limit because TypeScript
+  fields aren't exposed as resolvable top-level symbols. preserve_siblings
+  removes the need to target the field individually — the snippet is
+  the minimal new class shell and the unchanged methods are preserved
+  deterministically.

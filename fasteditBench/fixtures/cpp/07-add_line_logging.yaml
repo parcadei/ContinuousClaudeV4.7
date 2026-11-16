@@ -1,0 +1,32 @@
+name: add_line_logging
+pattern: add_line
+language: cpp
+original_code: |
+  #include <string>
+  #include <iostream>
+
+  void save(const std::string& data) {
+      auto serialized = serialize(data);
+      write(serialized);
+  }
+snippet: |
+  void save(const std::string& data) {
+      auto serialized = serialize(data);
+      std::cerr << "saving " << serialized.size() << " bytes\n";
+      write(serialized);
+  }
+expected_output: |
+  #include <string>
+  #include <iostream>
+
+  void save(const std::string& data) {
+      auto serialized = serialize(data);
+      std::cerr << "saving " << serialized.size() << " bytes\n";
+      write(serialized);
+  }
+target_kind: replace
+target_name: save
+authoring_notes: |
+  Insert exactly one std::cerr log line between two existing statements.
+  The adapter must anchor off both surrounding lines and not duplicate
+  the call to write().

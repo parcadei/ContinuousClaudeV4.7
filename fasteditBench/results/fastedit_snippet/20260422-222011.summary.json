@@ -1,0 +1,335 @@
+{
+  "n_cases": 156,
+  "per_language": {
+    "c": {
+      "n_cases": 12,
+      "ratio_native_over_snippet": 0.817,
+      "savings_pct": -22.402,
+      "total_native_edit_tokens": 866,
+      "total_savings_tokens": -194,
+      "total_snippet_tokens": 1060
+    },
+    "cpp": {
+      "n_cases": 12,
+      "ratio_native_over_snippet": 0.951,
+      "savings_pct": -5.105,
+      "total_native_edit_tokens": 901,
+      "total_savings_tokens": -46,
+      "total_snippet_tokens": 947
+    },
+    "csharp": {
+      "n_cases": 12,
+      "ratio_native_over_snippet": 1.052,
+      "savings_pct": 4.974,
+      "total_native_edit_tokens": 945,
+      "total_savings_tokens": 47,
+      "total_snippet_tokens": 898
+    },
+    "elixir": {
+      "n_cases": 12,
+      "ratio_native_over_snippet": 1.06,
+      "savings_pct": 5.694,
+      "total_native_edit_tokens": 720,
+      "total_savings_tokens": 41,
+      "total_snippet_tokens": 679
+    },
+    "go": {
+      "n_cases": 12,
+      "ratio_native_over_snippet": 0.946,
+      "savings_pct": -5.707,
+      "total_native_edit_tokens": 806,
+      "total_savings_tokens": -46,
+      "total_snippet_tokens": 852
+    },
+    "java": {
+      "n_cases": 12,
+      "ratio_native_over_snippet": 1.131,
+      "savings_pct": 11.599,
+      "total_native_edit_tokens": 957,
+      "total_savings_tokens": 111,
+      "total_snippet_tokens": 846
+    },
+    "kotlin": {
+      "n_cases": 12,
+      "ratio_native_over_snippet": 0.941,
+      "savings_pct": -6.283,
+      "total_native_edit_tokens": 748,
+      "total_savings_tokens": -47,
+      "total_snippet_tokens": 795
+    },
+    "php": {
+      "n_cases": 13,
+      "ratio_native_over_snippet": 0.993,
+      "savings_pct": -0.67,
+      "total_native_edit_tokens": 895,
+      "total_savings_tokens": -6,
+      "total_snippet_tokens": 901
+    },
+    "python": {
+      "n_cases": 12,
+      "ratio_native_over_snippet": 0.887,
+      "savings_pct": -12.786,
+      "total_native_edit_tokens": 743,
+      "total_savings_tokens": -95,
+      "total_snippet_tokens": 838
+    },
+    "ruby": {
+      "n_cases": 13,
+      "ratio_native_over_snippet": 1.073,
+      "savings_pct": 6.831,
+      "total_native_edit_tokens": 732,
+      "total_savings_tokens": 50,
+      "total_snippet_tokens": 682
+    },
+    "rust": {
+      "n_cases": 10,
+      "ratio_native_over_snippet": 1.062,
+      "savings_pct": 5.868,
+      "total_native_edit_tokens": 835,
+      "total_savings_tokens": 49,
+      "total_snippet_tokens": 786
+    },
+    "swift": {
+      "n_cases": 12,
+      "ratio_native_over_snippet": 1.055,
+      "savings_pct": 5.225,
+      "total_native_edit_tokens": 823,
+      "total_savings_tokens": 43,
+      "total_snippet_tokens": 780
+    },
+    "typescript": {
+      "n_cases": 12,
+      "ratio_native_over_snippet": 1.012,
+      "savings_pct": 1.208,
+      "total_native_edit_tokens": 828,
+      "total_savings_tokens": 10,
+      "total_snippet_tokens": 818
+    }
+  },
+  "per_pattern": {
+    "add_at_end": {
+      "n_cases": 13,
+      "savings_pct": -35.085,
+      "total_native_edit_tokens": 647,
+      "total_savings_tokens": -227,
+      "total_snippet_tokens": 874
+    },
+    "add_branch": {
+      "n_cases": 12,
+      "savings_pct": -78.309,
+      "total_native_edit_tokens": 627,
+      "total_savings_tokens": -491,
+      "total_snippet_tokens": 1118
+    },
+    "add_decorator": {
+      "n_cases": 7,
+      "savings_pct": -1.446,
+      "total_native_edit_tokens": 415,
+      "total_savings_tokens": -6,
+      "total_snippet_tokens": 421
+    },
+    "add_guard": {
+      "n_cases": 13,
+      "savings_pct": -17.423,
+      "total_native_edit_tokens": 815,
+      "total_savings_tokens": -142,
+      "total_snippet_tokens": 957
+    },
+    "add_line": {
+      "n_cases": 10,
+      "savings_pct": -26.287,
+      "total_native_edit_tokens": 544,
+      "total_savings_tokens": -143,
+      "total_snippet_tokens": 687
+    },
+    "change_line": {
+      "n_cases": 13,
+      "savings_pct": -23.71,
+      "total_native_edit_tokens": 717,
+      "total_savings_tokens": -170,
+      "total_snippet_tokens": 887
+    },
+    "change_signature": {
+      "n_cases": 13,
+      "savings_pct": -10.109,
+      "total_native_edit_tokens": 732,
+      "total_savings_tokens": -74,
+      "total_snippet_tokens": 806
+    },
+    "class_method": {
+      "n_cases": 12,
+      "savings_pct": 7.082,
+      "total_native_edit_tokens": 819,
+      "total_savings_tokens": 58,
+      "total_snippet_tokens": 761
+    },
+    "delete_lines": {
+      "n_cases": 3,
+      "savings_pct": 41.993,
+      "total_native_edit_tokens": 281,
+      "total_savings_tokens": 118,
+      "total_snippet_tokens": 163
+    },
+    "extend_literal": {
+      "n_cases": 13,
+      "savings_pct": 22.159,
+      "total_native_edit_tokens": 1047,
+      "total_savings_tokens": 232,
+      "total_snippet_tokens": 815
+    },
+    "full_replace": {
+      "n_cases": 11,
+      "savings_pct": 31.931,
+      "total_native_edit_tokens": 927,
+      "total_savings_tokens": 296,
+      "total_snippet_tokens": 631
+    },
+    "multi_insert": {
+      "n_cases": 7,
+      "savings_pct": -5.282,
+      "total_native_edit_tokens": 568,
+      "total_savings_tokens": -30,
+      "total_snippet_tokens": 598
+    },
+    "rename_variable": {
+      "n_cases": 5,
+      "savings_pct": 27.514,
+      "total_native_edit_tokens": 527,
+      "total_savings_tokens": 145,
+      "total_snippet_tokens": 382
+    },
+    "replace_block": {
+      "n_cases": 7,
+      "savings_pct": 21.857,
+      "total_native_edit_tokens": 517,
+      "total_savings_tokens": 113,
+      "total_snippet_tokens": 404
+    },
+    "two_markers": {
+      "n_cases": 4,
+      "savings_pct": -23.381,
+      "total_native_edit_tokens": 278,
+      "total_savings_tokens": -65,
+      "total_snippet_tokens": 343
+    },
+    "wrap_block": {
+      "n_cases": 13,
+      "savings_pct": 22.646,
+      "total_native_edit_tokens": 1338,
+      "total_savings_tokens": 303,
+      "total_snippet_tokens": 1035
+    }
+  },
+  "tokenizer_used": "tiktoken:o200k_base",
+  "top5_largest_savings": [
+    {
+      "case_id": "java/12-rename_variable-tmp_to_result",
+      "file_size_bytes": 209,
+      "language": "java",
+      "native_edit_tokens": 150,
+      "pattern": "rename_variable",
+      "savings_pct": 42.0,
+      "savings_tokens": 63,
+      "snippet_tokens": 87
+    },
+    {
+      "case_id": "go/11-delete_lines",
+      "file_size_bytes": 268,
+      "language": "go",
+      "native_edit_tokens": 103,
+      "pattern": "delete_lines",
+      "savings_pct": 54.369,
+      "savings_tokens": 56,
+      "snippet_tokens": 47
+    },
+    {
+      "case_id": "c/10-multi-insert-hooks",
+      "file_size_bytes": 123,
+      "language": "c",
+      "native_edit_tokens": 145,
+      "pattern": "multi_insert",
+      "savings_pct": 37.931,
+      "savings_tokens": 55,
+      "snippet_tokens": 90
+    },
+    {
+      "case_id": "rust/09-delete_lines",
+      "file_size_bytes": 241,
+      "language": "rust",
+      "native_edit_tokens": 120,
+      "pattern": "delete_lines",
+      "savings_pct": 45.0,
+      "savings_tokens": 54,
+      "snippet_tokens": 66
+    },
+    {
+      "case_id": "cpp/03-full_replace_max_element",
+      "file_size_bytes": 258,
+      "language": "cpp",
+      "native_edit_tokens": 104,
+      "pattern": "full_replace",
+      "savings_pct": 46.154,
+      "savings_tokens": 48,
+      "snippet_tokens": 56
+    }
+  ],
+  "top5_smallest_savings": [
+    {
+      "case_id": "python/10-add_branch",
+      "file_size_bytes": 240,
+      "language": "python",
+      "native_edit_tokens": 54,
+      "pattern": "add_branch",
+      "savings_pct": -109.259,
+      "savings_tokens": -59,
+      "snippet_tokens": 113
+    },
+    {
+      "case_id": "c/06-add-branch-grade",
+      "file_size_bytes": 155,
+      "language": "c",
+      "native_edit_tokens": 52,
+      "pattern": "add_branch",
+      "savings_pct": -101.923,
+      "savings_tokens": -53,
+      "snippet_tokens": 105
+    },
+    {
+      "case_id": "cpp/10-add_branch_grade",
+      "file_size_bytes": 167,
+      "language": "cpp",
+      "native_edit_tokens": 51,
+      "pattern": "add_branch",
+      "savings_pct": -100.0,
+      "savings_tokens": -51,
+      "snippet_tokens": 102
+    },
+    {
+      "case_id": "java/11-add_branch-else_if",
+      "file_size_bytes": 206,
+      "language": "java",
+      "native_edit_tokens": 53,
+      "pattern": "add_branch",
+      "savings_pct": -94.34,
+      "savings_tokens": -50,
+      "snippet_tokens": 103
+    },
+    {
+      "case_id": "swift/09-add-branch-grade",
+      "file_size_bytes": 147,
+      "language": "swift",
+      "native_edit_tokens": 49,
+      "pattern": "add_branch",
+      "savings_pct": -93.878,
+      "savings_tokens": -46,
+      "snippet_tokens": 95
+    }
+  ],
+  "totals": {
+    "native_edit_tokens": 10799,
+    "ratio_native_over_snippet": 0.992,
+    "savings_pct": -0.769,
+    "savings_tokens": -83,
+    "snippet_tokens": 10882
+  }
+}

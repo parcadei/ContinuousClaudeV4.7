@@ -1,0 +1,39 @@
+name: ts_wrap_block_try_catch
+pattern: wrap_block
+language: typescript
+original_code: |
+  export async function loadConfig(path: string): Promise<Config | null> {
+    const raw = await fs.readFile(path, "utf8");
+    return JSON.parse(raw) as Config;
+  }
+snippet: |
+  export async function loadConfig(path: string): Promise<Config | null> {
+    try {
+      // ... existing code ...
+    } catch (err) {
+      logger.warn("config load failed", err);
+      return null;
+    }
+  }
+expected_output: |
+  export async function loadConfig(path: string): Promise<Config | null> {
+    try {
+      const raw = await fs.readFile(path, "utf8");
+      return JSON.parse(raw) as Config;
+    } catch (err) {
+      logger.warn("config load failed", err);
+      return null;
+    }
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Wrap existing body in try/catch using a single marker. Snippet
+  marker is `// ... existing code ...`. Body lines get their
+  indentation bumped by one level inside the try — exercises the
+  indent-aware marker resolver.
+
+  target_kind=none: same wrap_block body-reindent issue as cpp/02,
+  kotlin/02, ruby/04, swift/03. deterministic_edit's gap-preservation
+  keeps the body at its ORIGINAL indent; legacy model path handles
+  the one-level-deeper re-indent correctly.

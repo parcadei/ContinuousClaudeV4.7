@@ -1,0 +1,17 @@
+name: ts_extend_literal_extensions
+pattern: extend_literal
+language: typescript
+original_code: |
+  export const EXTENSIONS: readonly string[] = [".ts", ".tsx", ".js"];
+snippet: |
+  export const EXTENSIONS: readonly string[] = [".ts", ".tsx", ".js", ".mjs", ".cjs"];
+expected_output: |
+  export const EXTENSIONS: readonly string[] = [".ts", ".tsx", ".js", ".mjs", ".cjs"];
+target_kind: replace
+target_name: EXTENSIONS
+authoring_notes: |
+  Add two items to a `readonly string[]` module-level literal. The
+  entire const declaration fits on one line, so the "snippet" is the
+  full replacement line — no marker needed. Exercises top-level
+  (non-function-scoped) extend_literal with a TS-specific `readonly`
+  type.

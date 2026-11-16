@@ -1,0 +1,23 @@
+name: extend_literal_list_of
+pattern: extend_literal
+language: java
+original_code: |
+  public class Extensions {
+      public static final java.util.List<String> EXTENSIONS =
+          java.util.List.of(".java", ".kt", ".scala");
+  }
+snippet: |
+  public static final java.util.List<String> EXTENSIONS =
+      java.util.List.of(".java", ".kt", ".scala", ".groovy", ".clj");
+expected_output: |
+  public class Extensions {
+      public static final java.util.List<String> EXTENSIONS =
+          java.util.List.of(".java", ".kt", ".scala", ".groovy", ".clj");
+  }
+target_kind: replace
+target_name: Extensions
+authoring_notes: |
+  Extend a `List.of(...)` literal by adding two new string elements to the
+  end. No markers — the snippet is a full replacement of the two-line
+  field initializer. Tests that the adapter recognizes literal extensions
+  as a replacement of the initializer lines.

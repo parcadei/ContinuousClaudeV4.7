@@ -1,0 +1,33 @@
+name: rb_replace_block_total
+pattern: replace_block
+language: ruby
+original_code: |
+  class Calculator
+    def total(items)
+      acc = 0
+      items.each do |i|
+        acc += i
+      end
+      acc
+    end
+  end
+snippet: |
+  def total(items)
+    items.sum
+  end
+expected_output: |
+  class Calculator
+    def total(items)
+      items.sum
+    end
+  end
+target_kind: none
+target_name: null
+authoring_notes: |
+  P6 replace_block: loop body replaced with idiomatic Enumerable#sum.
+
+  target_kind=none: original has a nested `do...end` block, so under
+  replace=total the deterministic text-match pairs the snippet's
+  trailing `end` with the inner `do`'s `end` (first match forward),
+  leaving the outer `end` + `acc` as orphaned suffix lines. Legacy
+  markers-only / model path resolves this correctly.

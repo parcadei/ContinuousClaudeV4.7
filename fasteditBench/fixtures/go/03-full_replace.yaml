@@ -1,0 +1,44 @@
+name: full_replace_max_int
+pattern: full_replace
+language: go
+original_code: |
+  package stats
+
+  func MaxInt(xs []int) int {
+      best := xs[0]
+      for i := 1; i < len(xs); i++ {
+          if xs[i] > best {
+              best = xs[i]
+          }
+      }
+      return best
+  }
+snippet: |
+  func MaxInt(xs []int) int {
+      best := xs[0]
+      for _, x := range xs[1:] {
+          if x > best {
+              best = x
+          }
+      }
+      return best
+  }
+expected_output: |
+  package stats
+
+  func MaxInt(xs []int) int {
+      best := xs[0]
+      for _, x := range xs[1:] {
+          if x > best {
+              best = x
+          }
+      }
+      return best
+  }
+target_kind: replace
+target_name: MaxInt
+authoring_notes: |
+  Maps to "replace_fn" in the caller's taxonomy — full_replace in the
+  canonical 22-slug list. The entire function body is rewritten from an
+  index-based loop to an idiomatic Go range-over-slice form. Signature
+  is the same; body is completely new.

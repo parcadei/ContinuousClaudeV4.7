@@ -1,0 +1,40 @@
+name: extend_literal_file_extensions
+pattern: extend_literal
+language: c
+original_code: |
+  static const char *const KNOWN_EXTENSIONS[] = {
+      ".c",
+      ".h",
+      ".cpp",
+      NULL,
+  };
+snippet: |
+  static const char *const KNOWN_EXTENSIONS[] = {
+      ".c",
+      ".h",
+      ".cpp",
+      ".rs",
+      ".go",
+      NULL,
+  };
+expected_output: |
+  static const char *const KNOWN_EXTENSIONS[] = {
+      ".c",
+      ".h",
+      ".cpp",
+      ".rs",
+      ".go",
+      NULL,
+  };
+target_kind: none
+target_name: null
+authoring_notes: |
+  Extends a static-const C string array initializer with two new
+  entries (.rs, .go) before the NULL terminator. Pure literal-level
+  edit — no function body involved.
+
+  Note: `replace=KNOWN_EXTENSIONS` does NOT work on this fixture —
+  tree-sitter-c doesn't expose C array variables as symbols FastEdit
+  can target, so it falls through to the 1.7B model which hallucinates
+  on `static const char *const` array patterns. Kept as target_kind=none
+  as a genuine low-savings edge case (~2.5%).

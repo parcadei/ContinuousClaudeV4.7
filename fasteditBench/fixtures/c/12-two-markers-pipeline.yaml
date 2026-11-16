@@ -1,0 +1,56 @@
+name: two_markers_pipeline_middle_swap
+pattern: two_markers
+language: c
+original_code: |
+  #include <stdint.h>
+
+  int32_t run_pipeline(int32_t x) {
+      int32_t a = step1(x);
+      int32_t b = step2(a);
+      int32_t c = step3(b);
+      int32_t d = step4(c);
+      return d;
+  }
+
+  extern int32_t step1(int32_t x);
+  extern int32_t step2_v2(int32_t a);
+  extern int32_t step3_v2(int32_t b);
+  extern int32_t step4(int32_t c);
+snippet: |
+  int32_t run_pipeline(int32_t x) {
+      int32_t a = step1(x);
+      int32_t b = step2_v2(a);
+      int32_t c = step3_v2(b);
+      int32_t d = step4(c);
+      return d;
+  }
+expected_output: |
+  #include <stdint.h>
+
+  int32_t run_pipeline(int32_t x) {
+      int32_t a = step1(x);
+      int32_t b = step2_v2(a);
+      int32_t c = step3_v2(b);
+      int32_t d = step4(c);
+      return d;
+  }
+
+  extern int32_t step1(int32_t x);
+  extern int32_t step2_v2(int32_t a);
+  extern int32_t step3_v2(int32_t b);
+  extern int32_t step4(int32_t c);
+target_kind: replace
+target_name: run_pipeline
+authoring_notes: |
+  Two-marker middle-swap refactor, rewritten to Style A (full
+  replacement) under replace=run_pipeline. The deterministic
+  text-match algorithm handles bracketing markers correctly in simple
+  cases but flips the new lines OUTSIDE the preserved gap when the
+  snippet contains two `// ... existing code ...` markers sandwiching
+  the edit — because the gap-emission loop emits the gap only at the
+  first marker and appends all remaining "new" lines after it. Style A
+  sidesteps this by giving text_match the full new body explicitly.
+
+  Forward decls live in both original_code and expected_output so
+  replace= operates on run_pipeline alone without a spurious delta
+  around the surrounding top-level decls.

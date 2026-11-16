@@ -1,0 +1,159 @@
+name: kotlin_extend_literal_navigation_routes
+pattern: extend_literal
+language: kotlin
+original_code: |
+  fun buildNavigationRoutes(
+      featureFlags: FeatureFlags,
+      userRole: UserRole,
+  ): List<NavRoute> {
+      val routes = mutableListOf<NavRoute>()
+
+      routes += NavRoute(
+          id = "home",
+          path = "/",
+          label = "Home",
+          icon = Icons.Home,
+          requiresAuth = false,
+      )
+      routes += NavRoute(
+          id = "projects",
+          path = "/projects",
+          label = "Projects",
+          icon = Icons.Folder,
+          requiresAuth = true,
+      )
+      routes += NavRoute(
+          id = "issues",
+          path = "/issues",
+          label = "Issues",
+          icon = Icons.Bug,
+          requiresAuth = true,
+      )
+      routes += NavRoute(
+          id = "team",
+          path = "/team",
+          label = "Team",
+          icon = Icons.Group,
+          requiresAuth = true,
+      )
+      routes += NavRoute(
+          id = "billing",
+          path = "/billing",
+          label = "Billing",
+          icon = Icons.CreditCard,
+          requiresAuth = true,
+          visibleTo = setOf(UserRole.ADMIN, UserRole.OWNER),
+      )
+      routes += NavRoute(
+          id = "settings",
+          path = "/settings",
+          label = "Settings",
+          icon = Icons.Settings,
+          requiresAuth = true,
+      )
+
+      return routes
+  }
+snippet: |
+  fun buildNavigationRoutes(
+      featureFlags: FeatureFlags,
+      userRole: UserRole,
+  ): List<NavRoute> {
+      val routes = mutableListOf<NavRoute>()
+      // ... existing code ...
+          icon = Icons.Settings,
+          requiresAuth = true,
+      )
+      routes += NavRoute(
+          id = "reports",
+          path = "/reports",
+          label = "Reports",
+          icon = Icons.Chart,
+          requiresAuth = true,
+          visibleTo = setOf(UserRole.ADMIN, UserRole.OWNER),
+      )
+      routes += NavRoute(
+          id = "integrations",
+          path = "/integrations",
+          label = "Integrations",
+          icon = Icons.Plug,
+          requiresAuth = true,
+      )
+
+      return routes
+  }
+expected_output: |
+  fun buildNavigationRoutes(
+      featureFlags: FeatureFlags,
+      userRole: UserRole,
+  ): List<NavRoute> {
+      val routes = mutableListOf<NavRoute>()
+
+      routes += NavRoute(
+          id = "home",
+          path = "/",
+          label = "Home",
+          icon = Icons.Home,
+          requiresAuth = false,
+      )
+      routes += NavRoute(
+          id = "projects",
+          path = "/projects",
+          label = "Projects",
+          icon = Icons.Folder,
+          requiresAuth = true,
+      )
+      routes += NavRoute(
+          id = "issues",
+          path = "/issues",
+          label = "Issues",
+          icon = Icons.Bug,
+          requiresAuth = true,
+      )
+      routes += NavRoute(
+          id = "team",
+          path = "/team",
+          label = "Team",
+          icon = Icons.Group,
+          requiresAuth = true,
+      )
+      routes += NavRoute(
+          id = "billing",
+          path = "/billing",
+          label = "Billing",
+          icon = Icons.CreditCard,
+          requiresAuth = true,
+          visibleTo = setOf(UserRole.ADMIN, UserRole.OWNER),
+      )
+      routes += NavRoute(
+          id = "settings",
+          path = "/settings",
+          label = "Settings",
+          icon = Icons.Settings,
+          requiresAuth = true,
+      )
+      routes += NavRoute(
+          id = "reports",
+          path = "/reports",
+          label = "Reports",
+          icon = Icons.Chart,
+          requiresAuth = true,
+          visibleTo = setOf(UserRole.ADMIN, UserRole.OWNER),
+      )
+      routes += NavRoute(
+          id = "integrations",
+          path = "/integrations",
+          label = "Integrations",
+          icon = Icons.Plug,
+          requiresAuth = true,
+      )
+
+      return routes
+  }
+target_kind: replace
+target_name: buildNavigationRoutes
+authoring_notes: |
+  Realistic ~50-line navigation-route builder with 6 routes. Edit appends
+  2 new routes (reports, integrations) before the return. FastEdit's 0.2.5
+  middle-insert marker preserves the 6 leading routes; native-edit must
+  echo all 6 to anchor the insertion.

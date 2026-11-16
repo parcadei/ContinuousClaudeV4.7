@@ -1,0 +1,53 @@
+name: full_replace_largest
+pattern: full_replace
+language: php
+original_code: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class Finder
+  {
+      public function largest(array $items): int
+      {
+          $best = $items[0];
+          foreach (array_slice($items, 1) as $x) {
+              if ($x > $best) {
+                  $best = $x;
+              }
+          }
+          return $best;
+      }
+  }
+snippet: |
+  public function largest(array $items): int
+  {
+      $best = max($items);
+      return $best;
+  }
+expected_output: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class Finder
+  {
+      public function largest(array $items): int
+      {
+          $best = max($items);
+          return $best;
+      }
+  }
+target_kind: replace
+target_name: Finder
+authoring_notes: |
+  P12 full_replace: whole-body swap to use PHP's built-in max(). Style
+  A snippet = the complete new method body under replace=largest.
+
+  An earlier draft had the snippet return a one-liner `return
+  max($items);` while expected_output normalized to a two-line
+  `$best = ...; return $best;` to stress-test the adapter's ability
+  to harmonize different authoring styles. That stress-test is a
+  distribution mismatch in practice — real agents don't ask the
+  merge layer to reshape their snippet. The snippet now matches
+  expected_output exactly.

@@ -1,0 +1,49 @@
+name: wrap_block_try_catch
+pattern: wrap_block
+language: cpp
+original_code: |
+  #include <fstream>
+  #include <string>
+  #include <optional>
+
+  std::optional<std::string> load_config(const std::string& path) {
+      std::ifstream in(path);
+      std::string contents((std::istreambuf_iterator<char>(in)),
+                           std::istreambuf_iterator<char>());
+      return contents;
+  }
+snippet: |
+  std::optional<std::string> load_config(const std::string& path) {
+      try {
+          std::ifstream in(path);
+          std::string contents((std::istreambuf_iterator<char>(in)),
+                               std::istreambuf_iterator<char>());
+          return contents;
+      } catch (const std::exception&) {
+          return std::nullopt;
+      }
+  }
+expected_output: |
+  #include <fstream>
+  #include <string>
+  #include <optional>
+
+  std::optional<std::string> load_config(const std::string& path) {
+      try {
+          std::ifstream in(path);
+          std::string contents((std::istreambuf_iterator<char>(in)),
+                               std::istreambuf_iterator<char>());
+          return contents;
+      } catch (const std::exception&) {
+          return std::nullopt;
+      }
+  }
+target_kind: replace
+target_name: load_config
+authoring_notes: |
+  Wrap existing body with a try/catch and convert hard failure into
+  std::nullopt.
+
+  M9: rewritten as Style A — snippet is the complete new definition of
+  `load_config` with the body re-indented inside the `try` block. No
+  markers. Routes deterministic direct-swap, 0 model tokens.

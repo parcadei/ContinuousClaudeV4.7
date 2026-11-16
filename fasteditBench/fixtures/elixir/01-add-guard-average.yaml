@@ -1,0 +1,29 @@
+name: ex_add_guard_average
+pattern: add_guard
+language: elixir
+original_code: |
+  defmodule Stats do
+    def average(nums) do
+      total = Enum.sum(nums)
+      total / length(nums)
+    end
+  end
+snippet: |
+  def average(nums) do
+    if Enum.empty?(nums), do: 0.0
+    total = Enum.sum(nums)
+    # ... existing code ...
+  end
+expected_output: |
+  defmodule Stats do
+    def average(nums) do
+      if Enum.empty?(nums), do: 0.0
+      total = Enum.sum(nums)
+      total / length(nums)
+    end
+  end
+target_kind: replace
+target_name: average
+authoring_notes: |
+  P1 add_guard in Elixir idiom: inline `if Enum.empty?/1` check before body.
+  Preserves function body via marker.

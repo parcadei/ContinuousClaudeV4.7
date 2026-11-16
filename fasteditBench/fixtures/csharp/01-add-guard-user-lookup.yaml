@@ -1,0 +1,61 @@
+name: add_guard_user_lookup
+pattern: add_guard
+language: csharp
+original_code: |
+  using System;
+  using System.Collections.Generic;
+
+  public class UserRepository
+  {
+      private readonly Dictionary<int, string> _users;
+
+      public UserRepository(Dictionary<int, string> users)
+      {
+          _users = users;
+      }
+
+      public string GetName(int userId)
+      {
+          var name = _users[userId];
+          return name.Trim();
+      }
+  }
+snippet: |
+  public string GetName(int userId)
+  {
+      if (!_users.ContainsKey(userId))
+      {
+          return string.Empty;
+      }
+      var name = _users[userId];
+      // ... existing code ...
+  }
+expected_output: |
+  using System;
+  using System.Collections.Generic;
+
+  public class UserRepository
+  {
+      private readonly Dictionary<int, string> _users;
+
+      public UserRepository(Dictionary<int, string> users)
+      {
+          _users = users;
+      }
+
+      public string GetName(int userId)
+      {
+          if (!_users.ContainsKey(userId))
+          {
+              return string.Empty;
+          }
+          var name = _users[userId];
+          return name.Trim();
+      }
+  }
+target_kind: replace
+target_name: UserRepository
+authoring_notes: |
+  Inserts an early-return guard clause before the dictionary lookup to
+  avoid KeyNotFoundException. Idiomatic C# guard pattern on a repository
+  method. Marker preserves the original body.

@@ -1,0 +1,32 @@
+name: replace_block_for_to_stream
+pattern: replace_block
+language: java
+original_code: |
+  public class Summer {
+      public int total(java.util.List<Integer> items) {
+          int acc = 0;
+          for (int i : items) {
+              acc += i;
+          }
+          return acc;
+      }
+  }
+snippet: |
+  public int total(java.util.List<Integer> items) {
+      int acc = items.stream().mapToInt(Integer::intValue).sum();
+      return acc;
+  }
+expected_output: |
+  public class Summer {
+      public int total(java.util.List<Integer> items) {
+          int acc = items.stream().mapToInt(Integer::intValue).sum();
+          return acc;
+      }
+  }
+target_kind: replace
+target_name: total
+authoring_notes: |
+  Replace a 4-line imperative loop (init + for + body + close) with a
+  single stream-based assignment. The `return acc;` line is preserved
+  unchanged. Tests block replacement without markers — adapter must
+  detect that the whole middle region is being swapped.

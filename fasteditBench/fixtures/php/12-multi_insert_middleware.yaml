@@ -1,0 +1,47 @@
+name: multi_insert_middleware
+pattern: multi_insert
+language: php
+original_code: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class Bootstrap
+  {
+      public function setup(Application $app): void
+      {
+          $app->init();
+          $app->run();
+      }
+  }
+snippet: |
+  public function setup(Application $app): void
+  {
+      $app->init();
+      $app->addMiddleware(new CorsMiddleware());
+      $app->addMiddleware(new AuthMiddleware());
+      $app->addMiddleware(new LoggingMiddleware());
+      $app->run();
+  }
+expected_output: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class Bootstrap
+  {
+      public function setup(Application $app): void
+      {
+          $app->init();
+          $app->addMiddleware(new CorsMiddleware());
+          $app->addMiddleware(new AuthMiddleware());
+          $app->addMiddleware(new LoggingMiddleware());
+          $app->run();
+      }
+  }
+target_kind: replace
+target_name: Bootstrap
+authoring_notes: |
+  Three consecutive lines inserted between `$app->init();` and
+  `$app->run();`. Tests that the adapter doesn't drop any of the three
+  middleware registrations and preserves the exact order.

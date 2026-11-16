@@ -1,0 +1,25 @@
+name: add_line_logging
+pattern: add_line
+language: kotlin
+original_code: |
+  fun save(x: User) {
+      val data = serialize(x)
+      write(data)
+  }
+snippet: |
+  fun save(x: User) {
+      val data = serialize(x)
+      logger.info("saving user ${'$'}{x.id}")
+      write(data)
+  }
+expected_output: |
+  fun save(x: User) {
+      val data = serialize(x)
+      logger.info("saving user ${'$'}{x.id}")
+      write(data)
+  }
+target_kind: replace
+target_name: save
+authoring_notes: |
+  Classic one-line insertion between two anchors. No markers — the
+  snippet is the full function.

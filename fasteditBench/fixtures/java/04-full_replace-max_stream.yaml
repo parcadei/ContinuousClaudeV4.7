@@ -1,0 +1,32 @@
+name: full_replace_max_stream
+pattern: full_replace
+language: java
+original_code: |
+  public class Maximum {
+      public int largest(java.util.List<Integer> items) {
+          int best = items.get(0);
+          for (int i = 1; i < items.size(); i++) {
+              if (items.get(i) > best) {
+                  best = items.get(i);
+              }
+          }
+          return best;
+      }
+  }
+snippet: |
+  public int largest(java.util.List<Integer> items) {
+      return items.stream().mapToInt(Integer::intValue).max().getAsInt();
+  }
+expected_output: |
+  public class Maximum {
+      public int largest(java.util.List<Integer> items) {
+          return items.stream().mapToInt(Integer::intValue).max().getAsInt();
+      }
+  }
+target_kind: replace
+target_name: largest
+authoring_notes: |
+  Replace the entire method body. Signature stays the same; the imperative
+  for-loop collapses to a single stream expression. No markers — the
+  snippet shows the full intended body. Tests the adapter's ability to
+  recognize no-marker-needed full-body replacements.

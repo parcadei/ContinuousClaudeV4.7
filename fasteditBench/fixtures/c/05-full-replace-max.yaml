@@ -1,0 +1,40 @@
+name: full_replace_array_max
+pattern: full_replace
+language: c
+original_code: |
+  #include <stddef.h>
+
+  int array_max(const int *items, size_t n) {
+      int best = items[0];
+      for (size_t i = 1; i < n; ++i) {
+          if (items[i] > best) {
+              best = items[i];
+          }
+      }
+      return best;
+  }
+snippet: |
+  int array_max(const int *items, size_t n) {
+      int best = items[0];
+      for (size_t i = 1; i < n; ++i) {
+          best = items[i] > best ? items[i] : best;
+      }
+      return best;
+  }
+expected_output: |
+  #include <stddef.h>
+
+  int array_max(const int *items, size_t n) {
+      int best = items[0];
+      for (size_t i = 1; i < n; ++i) {
+          best = items[i] > best ? items[i] : best;
+      }
+      return best;
+  }
+target_kind: replace
+target_name: array_max
+authoring_notes: |
+  Replaces the whole function body with a ternary-based equivalent.
+  Signature preserved. This is a full_replace rather than change_line
+  because the if/assignment block is dropped in favour of a single
+  conditional expression.

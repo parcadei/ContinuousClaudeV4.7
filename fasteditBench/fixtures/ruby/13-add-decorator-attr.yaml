@@ -1,0 +1,37 @@
+name: rb_add_decorator_attr
+pattern: add_decorator
+language: ruby
+original_code: |
+  class User
+    def initialize(name, email)
+      @name = name
+      @email = email
+    end
+  end
+snippet: |
+  class User
+    attr_reader :name, :email
+
+    # ... existing code ...
+  end
+expected_output: |
+  class User
+    attr_reader :name, :email
+
+    def initialize(name, email)
+      @name = name
+      @email = email
+    end
+  end
+target_kind: none
+target_name: null
+authoring_notes: |
+  P15 add_decorator: Ruby analog of a decorator — attr_reader declared
+  before the initializer. Not syntactically a "decorator" but serves the
+  same role (pre-definition annotation affecting the method below).
+
+  target_kind=none: under replace=User the deterministic path treats
+  `attr_reader :name, :email` as a prepended new line but leaves the
+  subsequent gap lines (def initialize etc.) in original position,
+  producing correct placement in some shapes but failing when the
+  method def is short. Legacy path is stable here.

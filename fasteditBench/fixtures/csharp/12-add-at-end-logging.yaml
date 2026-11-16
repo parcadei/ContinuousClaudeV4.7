@@ -1,0 +1,61 @@
+name: add_at_end_emit_log
+pattern: add_at_end
+language: csharp
+original_code: |
+  using Microsoft.Extensions.Logging;
+
+  public class OrderProcessor
+  {
+      private readonly ILogger<OrderProcessor> _logger;
+
+      public OrderProcessor(ILogger<OrderProcessor> logger)
+      {
+          _logger = logger;
+      }
+
+      public int Process(int orderId)
+      {
+          var total = Compute(orderId);
+          return total;
+      }
+
+      private int Compute(int id) => id * 2;
+  }
+snippet: |
+  public int Process(int orderId)
+  {
+      var total = Compute(orderId);
+      _logger.LogInformation("processed {OrderId}", orderId);
+      return total;
+  }
+expected_output: |
+  using Microsoft.Extensions.Logging;
+
+  public class OrderProcessor
+  {
+      private readonly ILogger<OrderProcessor> _logger;
+
+      public OrderProcessor(ILogger<OrderProcessor> logger)
+      {
+          _logger = logger;
+      }
+
+      public int Process(int orderId)
+      {
+          var total = Compute(orderId);
+          _logger.LogInformation("processed {OrderId}", orderId);
+          return total;
+      }
+
+      private int Compute(int id) => id * 2;
+  }
+target_kind: replace
+target_name: Process
+authoring_notes: |
+  Inserts a structured-logging call just before the `return` at the end
+  of the method body. Sibling `Compute` method left untouched.
+
+  M9: rewritten as Style A targeting the Process method directly —
+  snippet is the full new body of `Process` with the new log line
+  inserted before return, no markers. `replace=Process` resolves the
+  method-node via tldr and direct-swap fires with 0 model tokens.

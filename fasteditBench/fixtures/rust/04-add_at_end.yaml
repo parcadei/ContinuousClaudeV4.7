@@ -1,0 +1,33 @@
+name: add_at_end_log_after_commit
+pattern: add_at_end
+language: rust
+original_code: |
+  fn commit(tx: &mut Transaction) -> Result<(), DbError> {
+      tx.flush()?;
+      tx.write_wal()?;
+      tx.mark_committed();
+      Ok(())
+  }
+snippet: |
+  fn commit(tx: &mut Transaction) -> Result<(), DbError> {
+      // ... existing code ...
+      tx.mark_committed();
+      tracing::info!(tx_id = tx.id(), "transaction committed");
+      Ok(())
+  }
+expected_output: |
+  fn commit(tx: &mut Transaction) -> Result<(), DbError> {
+      tx.flush()?;
+      tx.write_wal()?;
+      tx.mark_committed();
+      tracing::info!(tx_id = tx.id(), "transaction committed");
+      Ok(())
+  }
+target_kind: replace
+target_name: commit
+authoring_notes: |
+  Inserts a `tracing::info!` call right before the final `Ok(())`, after
+  the last pre-existing statement. Treated as the Rust analogue of
+  FastEdit's `insert_after_symbol` pattern — `add_at_end` is the closest
+  taxonomy slug. The `// ... existing code ...` marker preserves the
+  three leading statements.

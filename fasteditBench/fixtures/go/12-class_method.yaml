@@ -1,0 +1,64 @@
+name: class_method_store_init_map
+pattern: class_method
+language: go
+original_code: |
+  package store
+
+  type Store struct {
+      items []string
+  }
+
+  func NewStore() *Store {
+      return &Store{items: []string{}}
+  }
+
+  func (s *Store) Get(i int) string {
+      return s.items[i]
+  }
+
+  func (s *Store) Set(i int, v string) {
+      s.items[i] = v
+  }
+snippet: |
+  type Store struct {
+      items map[int]string
+  }
+
+  func NewStore() *Store {
+      return &Store{items: make(map[int]string)}
+  }
+
+  // ... existing code ...
+expected_output: |
+  package store
+
+  type Store struct {
+      items map[int]string
+  }
+
+  func NewStore() *Store {
+      return &Store{items: make(map[int]string)}
+  }
+
+  func (s *Store) Get(i int) string {
+      return s.items[i]
+  }
+
+  func (s *Store) Set(i int, v string) {
+      s.items[i] = v
+  }
+target_kind: batch
+target_name: null
+target_batch:
+- kind: replace
+  name: Store
+  snippet: "type Store struct {\n    items map[int]string\n}\n"
+- kind: replace
+  name: NewStore
+  snippet: "func NewStore() *Store {\n    return &Store{items: make(map[int]string)}\n}\n"
+authoring_notes: |
+  Go's closest analog to "class_method": modify the struct type and its
+  constructor while preserving the methods defined on the receiver. The
+  trailing `// ... existing code ...` marker covers both `Get` and `Set`.
+  Tests that the adapter correctly identifies method receivers as
+  part of the "class" for marker-expansion purposes.

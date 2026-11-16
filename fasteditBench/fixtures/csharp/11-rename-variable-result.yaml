@@ -1,0 +1,41 @@
+name: rename_variable_tmp_to_result
+pattern: rename_variable
+language: csharp
+original_code: |
+  using System.Collections.Generic;
+  using System.Linq;
+
+  public static class Summariser
+  {
+      public static int Summarise(IEnumerable<int> xs)
+      {
+          var tmp = xs.Where(x => x > 0).ToList();
+          tmp = tmp.Select(x => x * 2).ToList();
+          return tmp.Sum();
+      }
+  }
+snippet: |
+  public static int Summarise(IEnumerable<int> xs)
+  {
+      var result = xs.Where(x => x > 0).ToList();
+      result = result.Select(x => x * 2).ToList();
+      return result.Sum();
+  }
+expected_output: |
+  using System.Collections.Generic;
+  using System.Linq;
+
+  public static class Summariser
+  {
+      public static int Summarise(IEnumerable<int> xs)
+      {
+          var result = xs.Where(x => x > 0).ToList();
+          result = result.Select(x => x * 2).ToList();
+          return result.Sum();
+      }
+  }
+target_kind: replace
+target_name: Summariser
+authoring_notes: |
+  Renames the local `tmp` to `result` throughout a LINQ chain. Exercises
+  a full-body re-statement with three textual occurrences replaced.

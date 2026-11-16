@@ -1,0 +1,44 @@
+name: multi_insert_middleware
+pattern: multi_insert
+language: cpp
+original_code: |
+  #include <memory>
+
+  class Server;
+  void install_cors(Server&);
+  void install_auth(Server&);
+  void install_logging(Server&);
+
+  void setup(std::unique_ptr<Server>& app) {
+      app->init();
+      app->run();
+  }
+snippet: |
+  void setup(std::unique_ptr<Server>& app) {
+      app->init();
+      install_cors(*app);
+      install_auth(*app);
+      install_logging(*app);
+      app->run();
+  }
+expected_output: |
+  #include <memory>
+
+  class Server;
+  void install_cors(Server&);
+  void install_auth(Server&);
+  void install_logging(Server&);
+
+  void setup(std::unique_ptr<Server>& app) {
+      app->init();
+      install_cors(*app);
+      install_auth(*app);
+      install_logging(*app);
+      app->run();
+  }
+target_kind: replace
+target_name: setup
+authoring_notes: |
+  Multi-line insert of three consecutive middleware installation calls
+  between init() and run(). Exercises the adapter on a std::unique_ptr
+  handle — the dereferences must be preserved exactly (*app).

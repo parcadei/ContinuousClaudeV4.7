@@ -1,0 +1,42 @@
+name: add_at_end_log_after_work
+pattern: add_at_end
+language: c
+original_code: |
+  #include <stdio.h>
+
+  void run_job(const char *name) {
+      printf("starting %s\n", name);
+      do_work(name);
+  }
+
+  extern void do_work(const char *name);
+snippet: |
+  void run_job(const char *name) {
+      printf("starting %s\n", name);
+      do_work(name);
+      printf("finished %s\n", name);
+  }
+expected_output: |
+  #include <stdio.h>
+
+  void run_job(const char *name) {
+      printf("starting %s\n", name);
+      do_work(name);
+      printf("finished %s\n", name);
+  }
+
+  extern void do_work(const char *name);
+target_kind: replace
+target_name: run_job
+authoring_notes: |
+  P5 add_at_end: appends a final `printf` after the last pre-existing
+  statement. Style A (full replacement under replace=run_job): the
+  snippet is the complete new function body. Realistic MCP-mode
+  invocation — unambiguous for text_match since the target scope is
+  exactly the `run_job` function.
+
+  Note: the `extern void do_work(...)` forward decl lives AFTER the
+  target function in both original and expected, so replace= leaves it
+  untouched (as desired). An earlier draft kept it only in
+  expected_output which caused a spurious diff against replace='s
+  single-symbol scope.

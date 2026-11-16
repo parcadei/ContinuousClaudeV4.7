@@ -1,0 +1,26 @@
+name: add_decorator_lru_cache
+pattern: add_decorator
+language: python
+original_code: |
+  def resolve_dependency(name, registry):
+      if name not in registry:
+          raise KeyError(f"unknown dependency: {name}")
+      spec = registry[name]
+      return spec.build()
+snippet: |
+  @lru_cache(maxsize=256)
+  def resolve_dependency(name, registry):
+      # ... existing code ...
+expected_output: |
+  @lru_cache(maxsize=256)
+  def resolve_dependency(name, registry):
+      if name not in registry:
+          raise KeyError(f"unknown dependency: {name}")
+      spec = registry[name]
+      return spec.build()
+target_kind: replace
+target_name: resolve_dependency
+authoring_notes: |
+  Prepends a decorator above an existing def. The body is preserved with a
+  marker. Tests whether the adapter correctly distinguishes "this is a new
+  line above def" from "this is a modified signature line".

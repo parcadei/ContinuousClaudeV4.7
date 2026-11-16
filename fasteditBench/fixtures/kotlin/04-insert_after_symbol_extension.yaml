@@ -1,0 +1,27 @@
+name: insert_after_symbol_extension
+pattern: add_at_end
+language: kotlin
+original_code: |
+  fun process(input: String): String {
+      val trimmed = input.trim()
+      return trimmed.lowercase()
+  }
+snippet: |
+  fun process(input: String): String {
+      // ... existing code ...
+      logger.info("processed input of length ${'$'}{input.length}")
+      return trimmed.lowercase()
+  }
+expected_output: |
+  fun process(input: String): String {
+      val trimmed = input.trim()
+      logger.info("processed input of length ${'$'}{input.length}")
+      return trimmed.lowercase()
+  }
+target_kind: replace
+target_name: process
+authoring_notes: |
+  Insert-at-end (before the final return) via leading marker. The new
+  log line must appear after `val trimmed = ...` and before the
+  `return` — a broken adapter that appends at the very bottom would
+  corrupt control flow.

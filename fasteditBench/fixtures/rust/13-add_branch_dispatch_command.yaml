@@ -1,0 +1,123 @@
+name: rust_add_branch_dispatch_command
+pattern: add_branch
+language: rust
+original_code: |
+  pub async fn dispatch_command(
+      cmd: Command,
+      ctx: &CommandContext,
+      store: &Store,
+      telemetry: &Telemetry,
+  ) -> Result<CommandOutcome, CommandError> {
+      telemetry.record_command_received(&cmd);
+
+      match cmd {
+          Command::Deploy { target, dry_run } => {
+              let handler = DeployHandler::new(store);
+              let outcome = handler.run(target, dry_run).await?;
+              telemetry.record_deploy_completed(&outcome);
+              Ok(outcome)
+          }
+          Command::Rollback { version } => {
+              let handler = RollbackHandler::new(store);
+              handler.run(version).await
+          }
+          Command::Status { verbose } => {
+              let handler = StatusHandler::new(store);
+              let info = handler.run(verbose).await?;
+              if verbose {
+                  tracing::info!(?info, "status");
+              }
+              Ok(CommandOutcome::Status(info))
+          }
+          Command::Logs { service, tail, follow } => {
+              let handler = LogsHandler::new(store);
+              handler.run(service, tail, follow).await
+          }
+          Command::Config { subcommand } => {
+              let handler = ConfigHandler::new(store);
+              handler.run(subcommand, ctx).await
+          }
+          Command::Unknown(name) => {
+              telemetry.record_unknown_command(&name);
+              Err(CommandError::Unknown(name))
+          }
+      }
+  }
+snippet: |
+  pub async fn dispatch_command(
+      cmd: Command,
+      ctx: &CommandContext,
+      store: &Store,
+      telemetry: &Telemetry,
+  ) -> Result<CommandOutcome, CommandError> {
+      telemetry.record_command_received(&cmd);
+
+      match cmd {
+          // ... existing code ...
+          Command::Config { subcommand } => {
+              let handler = ConfigHandler::new(store);
+              handler.run(subcommand, ctx).await
+          }
+          Command::Secrets { action, key, value } => {
+              let handler = SecretsHandler::new(store);
+              handler.run(action, key, value, ctx).await
+          }
+          Command::Unknown(name) => {
+              telemetry.record_unknown_command(&name);
+              Err(CommandError::Unknown(name))
+          }
+      }
+  }
+expected_output: |
+  pub async fn dispatch_command(
+      cmd: Command,
+      ctx: &CommandContext,
+      store: &Store,
+      telemetry: &Telemetry,
+  ) -> Result<CommandOutcome, CommandError> {
+      telemetry.record_command_received(&cmd);
+
+      match cmd {
+          Command::Deploy { target, dry_run } => {
+              let handler = DeployHandler::new(store);
+              let outcome = handler.run(target, dry_run).await?;
+              telemetry.record_deploy_completed(&outcome);
+              Ok(outcome)
+          }
+          Command::Rollback { version } => {
+              let handler = RollbackHandler::new(store);
+              handler.run(version).await
+          }
+          Command::Status { verbose } => {
+              let handler = StatusHandler::new(store);
+              let info = handler.run(verbose).await?;
+              if verbose {
+                  tracing::info!(?info, "status");
+              }
+              Ok(CommandOutcome::Status(info))
+          }
+          Command::Logs { service, tail, follow } => {
+              let handler = LogsHandler::new(store);
+              handler.run(service, tail, follow).await
+          }
+          Command::Config { subcommand } => {
+              let handler = ConfigHandler::new(store);
+              handler.run(subcommand, ctx).await
+          }
+          Command::Secrets { action, key, value } => {
+              let handler = SecretsHandler::new(store);
+              handler.run(action, key, value, ctx).await
+          }
+          Command::Unknown(name) => {
+              telemetry.record_unknown_command(&name);
+              Err(CommandError::Unknown(name))
+          }
+      }
+  }
+target_kind: replace
+target_name: dispatch_command
+authoring_notes: |
+  Realistic async command dispatcher (match on Command enum, 5 variants +
+  Unknown). Edit inserts a new `Secrets` variant branch between `Config`
+  and `Unknown`. FastEdit's 0.2.5 middle-insert preserves both halves via
+  a single marker + anchors; native-edit echoes everything.

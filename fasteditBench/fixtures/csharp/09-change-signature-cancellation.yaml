@@ -1,0 +1,61 @@
+name: change_signature_add_cancellation_token
+pattern: change_signature
+language: csharp
+original_code: |
+  using System.Net.Http;
+  using System.Threading.Tasks;
+
+  public class Downloader
+  {
+      private readonly HttpClient _http;
+
+      public Downloader(HttpClient http)
+      {
+          _http = http;
+      }
+
+      public async Task<string> FetchAsync(string url)
+      {
+          var response = await _http.GetAsync(url);
+          response.EnsureSuccessStatusCode();
+          return await response.Content.ReadAsStringAsync();
+      }
+  }
+snippet: |
+  public async Task<string> FetchAsync(string url, CancellationToken cancellationToken = default)
+  {
+      var response = await _http.GetAsync(url);
+      response.EnsureSuccessStatusCode();
+      return await response.Content.ReadAsStringAsync();
+  }
+expected_output: |
+  using System.Net.Http;
+  using System.Threading.Tasks;
+
+  public class Downloader
+  {
+      private readonly HttpClient _http;
+
+      public Downloader(HttpClient http)
+      {
+          _http = http;
+      }
+
+      public async Task<string> FetchAsync(string url, CancellationToken cancellationToken = default)
+      {
+          var response = await _http.GetAsync(url);
+          response.EnsureSuccessStatusCode();
+          return await response.Content.ReadAsStringAsync();
+      }
+  }
+target_kind: replace
+target_name: FetchAsync
+authoring_notes: |
+  Adds an optional `CancellationToken cancellationToken = default`
+  parameter to an async method signature. Body is unchanged. (Per the
+  pattern taxonomy `change_signature` only requires modifying the
+  signature line; updating the body to actually use the token would
+  push this into `add_parameter`.) M8: rewritten as Style A (full-method
+  replacement, no markers) with target corrected from the enclosing
+  class `Downloader` to the method itself `FetchAsync`, so FastEdit's
+  direct-swap fast path captures it with zero model tokens.

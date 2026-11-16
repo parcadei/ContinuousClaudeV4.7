@@ -1,0 +1,25 @@
+name: ts_change_line_timeout
+pattern: change_line
+language: typescript
+original_code: |
+  export async function fetchJson<T>(url: string): Promise<T> {
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    return (await res.json()) as T;
+  }
+snippet: |
+  export async function fetchJson<T>(url: string): Promise<T> {
+    const res = await fetch(url, { signal: AbortSignal.timeout(30000) });
+    return (await res.json()) as T;
+  }
+expected_output: |
+  export async function fetchJson<T>(url: string): Promise<T> {
+    const res = await fetch(url, { signal: AbortSignal.timeout(30000) });
+    return (await res.json()) as T;
+  }
+target_kind: replace
+target_name: fetchJson
+authoring_notes: |
+  Single-line numeric literal change (5000 -> 30000) inside a generic
+  async function. Exercises change_line on a generic `<T>` signature
+  with `as T` cast so the tree-sitter check confirms we stay in valid
+  TypeScript (not plain JS).

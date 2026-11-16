@@ -1,0 +1,40 @@
+name: add_decorator_nodiscard
+pattern: add_decorator
+language: cpp
+original_code: |
+  #include <vector>
+
+  int sum(const std::vector<int>& items) {
+      int total = 0;
+      for (int x : items) {
+          total += x;
+      }
+      return total;
+  }
+snippet: |
+  [[nodiscard]] int sum(const std::vector<int>& items) {
+      int total = 0;
+      for (int x : items) {
+          total += x;
+      }
+      return total;
+  }
+expected_output: |
+  #include <vector>
+
+  [[nodiscard]] int sum(const std::vector<int>& items) {
+      int total = 0;
+      for (int x : items) {
+          total += x;
+      }
+      return total;
+  }
+target_kind: replace
+target_name: sum
+authoring_notes: |
+  C++ attribute analogue of the "add_decorator" pattern — prepend
+  [[nodiscard]] to the function declaration.
+
+  M9: rewritten as Style A — snippet is the complete new definition of
+  `sum` (markers removed). replace=sum routes direct-swap with 0 model
+  tokens.

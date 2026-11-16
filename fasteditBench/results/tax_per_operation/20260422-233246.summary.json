@@ -1,0 +1,336 @@
+{
+  "anchor_context_lines": 2,
+  "headline_excluding_whole_rewrite": {
+    "fastedit_total": 4465,
+    "n_fixtures": 68,
+    "native_total": 6882,
+    "savings_pct": 35.121,
+    "savings_ratio": 1.541,
+    "savings_tokens": 2417
+  },
+  "n_fixtures": 156,
+  "operation_categories": {
+    "batch_edit": {
+      "fastedit_avg": 67.5,
+      "fastedit_total": 675,
+      "n": 10,
+      "native_avg": 99.1,
+      "native_total": 991,
+      "ratio_native_over_fastedit": 1.468,
+      "savings_pct": 31.887,
+      "savings_total": 316
+    },
+    "delete": {
+      "fastedit_avg": 22.67,
+      "fastedit_total": 68,
+      "n": 3,
+      "native_avg": 112.33,
+      "native_total": 337,
+      "ratio_native_over_fastedit": 4.956,
+      "savings_pct": 79.822,
+      "savings_total": 269
+    },
+    "inline_edit": {
+      "fastedit_avg": 64.0,
+      "fastedit_total": 1344,
+      "n": 21,
+      "native_avg": 102.9,
+      "native_total": 2161,
+      "ratio_native_over_fastedit": 1.608,
+      "savings_pct": 37.807,
+      "savings_total": 817
+    },
+    "modify_inside": {
+      "fastedit_avg": 69.94,
+      "fastedit_total": 2378,
+      "n": 34,
+      "native_avg": 99.79,
+      "native_total": 3393,
+      "ratio_native_over_fastedit": 1.427,
+      "savings_pct": 29.915,
+      "savings_total": 1015
+    },
+    "whole_rewrite": {
+      "fastedit_avg": 75.32,
+      "fastedit_total": 6628,
+      "n": 88,
+      "native_avg": 110.52,
+      "native_total": 9726,
+      "ratio_native_over_fastedit": 1.467,
+      "savings_pct": 31.853,
+      "savings_total": 3098
+    }
+  },
+  "per_language": {
+    "c": {
+      "fastedit_avg": 90.33,
+      "fastedit_total": 1084,
+      "n": 12,
+      "native_avg": 128.83,
+      "native_total": 1546,
+      "ratio_native_over_fastedit": 1.426,
+      "savings_pct": 29.884,
+      "savings_total": 462
+    },
+    "cpp": {
+      "fastedit_avg": 80.92,
+      "fastedit_total": 971,
+      "n": 12,
+      "native_avg": 115.42,
+      "native_total": 1385,
+      "ratio_native_over_fastedit": 1.426,
+      "savings_pct": 29.892,
+      "savings_total": 414
+    },
+    "csharp": {
+      "fastedit_avg": 76.83,
+      "fastedit_total": 922,
+      "n": 12,
+      "native_avg": 112.5,
+      "native_total": 1350,
+      "ratio_native_over_fastedit": 1.464,
+      "savings_pct": 31.704,
+      "savings_total": 428
+    },
+    "elixir": {
+      "fastedit_avg": 58.58,
+      "fastedit_total": 703,
+      "n": 12,
+      "native_avg": 94.5,
+      "native_total": 1134,
+      "ratio_native_over_fastedit": 1.613,
+      "savings_pct": 38.007,
+      "savings_total": 431
+    },
+    "go": {
+      "fastedit_avg": 70.75,
+      "fastedit_total": 849,
+      "n": 12,
+      "native_avg": 101.83,
+      "native_total": 1222,
+      "ratio_native_over_fastedit": 1.439,
+      "savings_pct": 30.524,
+      "savings_total": 373
+    },
+    "java": {
+      "fastedit_avg": 72.5,
+      "fastedit_total": 870,
+      "n": 12,
+      "native_avg": 124.17,
+      "native_total": 1490,
+      "ratio_native_over_fastedit": 1.713,
+      "savings_pct": 41.611,
+      "savings_total": 620
+    },
+    "kotlin": {
+      "fastedit_avg": 68.25,
+      "fastedit_total": 819,
+      "n": 12,
+      "native_avg": 96.0,
+      "native_total": 1152,
+      "ratio_native_over_fastedit": 1.407,
+      "savings_pct": 28.906,
+      "savings_total": 333
+    },
+    "php": {
+      "fastedit_avg": 71.31,
+      "fastedit_total": 927,
+      "n": 13,
+      "native_avg": 106.85,
+      "native_total": 1389,
+      "ratio_native_over_fastedit": 1.498,
+      "savings_pct": 33.261,
+      "savings_total": 462
+    },
+    "python": {
+      "fastedit_avg": 71.83,
+      "fastedit_total": 862,
+      "n": 12,
+      "native_avg": 99.58,
+      "native_total": 1195,
+      "ratio_native_over_fastedit": 1.386,
+      "savings_pct": 27.866,
+      "savings_total": 333
+    },
+    "ruby": {
+      "fastedit_avg": 54.46,
+      "fastedit_total": 708,
+      "n": 13,
+      "native_avg": 83.54,
+      "native_total": 1086,
+      "ratio_native_over_fastedit": 1.534,
+      "savings_pct": 34.807,
+      "savings_total": 378
+    },
+    "rust": {
+      "fastedit_avg": 76.1,
+      "fastedit_total": 761,
+      "n": 10,
+      "native_avg": 116.5,
+      "native_total": 1165,
+      "ratio_native_over_fastedit": 1.531,
+      "savings_pct": 34.678,
+      "savings_total": 404
+    },
+    "swift": {
+      "fastedit_avg": 67.0,
+      "fastedit_total": 804,
+      "n": 12,
+      "native_avg": 102.0,
+      "native_total": 1224,
+      "ratio_native_over_fastedit": 1.522,
+      "savings_pct": 34.314,
+      "savings_total": 420
+    },
+    "typescript": {
+      "fastedit_avg": 67.75,
+      "fastedit_total": 813,
+      "n": 12,
+      "native_avg": 105.83,
+      "native_total": 1270,
+      "ratio_native_over_fastedit": 1.562,
+      "savings_pct": 35.984,
+      "savings_total": 457
+    }
+  },
+  "per_language_excluding_whole_rewrite": {
+    "c": {
+      "fastedit_avg": 84.75,
+      "fastedit_total": 339,
+      "n": 4,
+      "native_avg": 122.0,
+      "native_total": 488,
+      "ratio_native_over_fastedit": 1.44,
+      "savings_pct": 30.533,
+      "savings_total": 149
+    },
+    "cpp": {
+      "fastedit_avg": 79.0,
+      "fastedit_total": 316,
+      "n": 4,
+      "native_avg": 106.75,
+      "native_total": 427,
+      "ratio_native_over_fastedit": 1.351,
+      "savings_pct": 25.995,
+      "savings_total": 111
+    },
+    "csharp": {
+      "fastedit_avg": 76.5,
+      "fastedit_total": 306,
+      "n": 4,
+      "native_avg": 111.75,
+      "native_total": 447,
+      "ratio_native_over_fastedit": 1.461,
+      "savings_pct": 31.544,
+      "savings_total": 141
+    },
+    "elixir": {
+      "fastedit_avg": 61.33,
+      "fastedit_total": 368,
+      "n": 6,
+      "native_avg": 86.0,
+      "native_total": 516,
+      "ratio_native_over_fastedit": 1.402,
+      "savings_pct": 28.682,
+      "savings_total": 148
+    },
+    "go": {
+      "fastedit_avg": 61.33,
+      "fastedit_total": 368,
+      "n": 6,
+      "native_avg": 96.67,
+      "native_total": 580,
+      "ratio_native_over_fastedit": 1.576,
+      "savings_pct": 36.552,
+      "savings_total": 212
+    },
+    "java": {
+      "fastedit_avg": 68.4,
+      "fastedit_total": 342,
+      "n": 5,
+      "native_avg": 113.2,
+      "native_total": 566,
+      "ratio_native_over_fastedit": 1.655,
+      "savings_pct": 39.576,
+      "savings_total": 224
+    },
+    "kotlin": {
+      "fastedit_avg": 66.6,
+      "fastedit_total": 333,
+      "n": 5,
+      "native_avg": 94.8,
+      "native_total": 474,
+      "ratio_native_over_fastedit": 1.423,
+      "savings_pct": 29.747,
+      "savings_total": 141
+    },
+    "php": {
+      "fastedit_avg": 70.5,
+      "fastedit_total": 282,
+      "n": 4,
+      "native_avg": 109.0,
+      "native_total": 436,
+      "ratio_native_over_fastedit": 1.546,
+      "savings_pct": 35.321,
+      "savings_total": 154
+    },
+    "python": {
+      "fastedit_avg": 67.5,
+      "fastedit_total": 405,
+      "n": 6,
+      "native_avg": 100.17,
+      "native_total": 601,
+      "ratio_native_over_fastedit": 1.484,
+      "savings_pct": 32.612,
+      "savings_total": 196
+    },
+    "ruby": {
+      "fastedit_avg": 52.57,
+      "fastedit_total": 368,
+      "n": 7,
+      "native_avg": 81.57,
+      "native_total": 571,
+      "ratio_native_over_fastedit": 1.552,
+      "savings_pct": 35.552,
+      "savings_total": 203
+    },
+    "rust": {
+      "fastedit_avg": 63.5,
+      "fastedit_total": 254,
+      "n": 4,
+      "native_avg": 110.0,
+      "native_total": 440,
+      "ratio_native_over_fastedit": 1.732,
+      "savings_pct": 42.273,
+      "savings_total": 186
+    },
+    "swift": {
+      "fastedit_avg": 62.86,
+      "fastedit_total": 440,
+      "n": 7,
+      "native_avg": 103.86,
+      "native_total": 727,
+      "ratio_native_over_fastedit": 1.652,
+      "savings_pct": 39.477,
+      "savings_total": 287
+    },
+    "typescript": {
+      "fastedit_avg": 57.33,
+      "fastedit_total": 344,
+      "n": 6,
+      "native_avg": 101.5,
+      "native_total": 609,
+      "ratio_native_over_fastedit": 1.77,
+      "savings_pct": 43.514,
+      "savings_total": 265
+    }
+  },
+  "run_id": "20260422-233246",
+  "tokenizer_used": "tiktoken:o200k_base",
+  "totals": {
+    "fastedit_total": 11093,
+    "native_total": 16608,
+    "savings_pct": 33.207,
+    "savings_total": 5515
+  }
+}

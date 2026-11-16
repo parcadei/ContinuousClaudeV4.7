@@ -1,0 +1,33 @@
+name: two_markers_etl_middle_steps
+pattern: two_markers
+language: python
+original_code: |
+  def etl_run(source):
+      raw = extract(source)
+      cleaned = normalize(raw)
+      enriched = enrich(cleaned)
+      scored = score(enriched)
+      loaded = load(scored)
+      return loaded
+snippet: |
+  def etl_run(source):
+      # ... existing code ...
+      enriched = enrich_v2(cleaned, feature_flags=True)
+      scored = score_ensemble(enriched)
+      # ... existing code ...
+expected_output: |
+  def etl_run(source):
+      raw = extract(source)
+      cleaned = normalize(raw)
+      enriched = enrich_v2(cleaned, feature_flags=True)
+      scored = score_ensemble(enriched)
+      loaded = load(scored)
+      return loaded
+target_kind: replace
+target_name: etl_run
+authoring_notes: |
+  Two '# ... existing code ...' markers: one preserves the head (extract +
+  normalize), the other preserves the tail (load + return). Only the middle
+  two lines are rewritten. This is the hardest variant of marker-based
+  editing — the adapter must correctly anchor both ends without pulling
+  any of the surrounding context into the replacement region.

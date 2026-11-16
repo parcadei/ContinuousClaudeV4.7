@@ -1,0 +1,66 @@
+name: class_method_swap_container
+pattern: class_method
+language: cpp
+original_code: |
+  #include <unordered_map>
+  #include <map>
+  #include <string>
+
+  class Store {
+  public:
+      Store() : items_() {}
+
+      int get(const std::string& key) const {
+          return items_.at(key);
+      }
+
+      void set(const std::string& key, int value) {
+          items_[key] = value;
+      }
+
+  private:
+      std::map<std::string, int> items_;
+  };
+snippet: |
+  class Store {
+  public:
+      Store() : items_() {}
+
+      int get(const std::string& key) const {
+          auto it = items_.find(key);
+          return it == items_.end() ? 0 : it->second;
+      }
+
+      // ... existing code ...
+  };
+expected_output: |
+  #include <unordered_map>
+  #include <map>
+  #include <string>
+
+  class Store {
+  public:
+      Store() : items_() {}
+
+      int get(const std::string& key) const {
+          auto it = items_.find(key);
+          return it == items_.end() ? 0 : it->second;
+      }
+
+      void set(const std::string& key, int value) {
+          items_[key] = value;
+      }
+
+  private:
+      std::map<std::string, int> items_;
+  };
+target_kind: batch
+target_name: null
+target_batch:
+- kind: replace
+  name: get
+  snippet: "int get(const std::string& key) const {\n    auto it = items_.find(key);\n    return it == items_.end() ? 0 : it->second;\n}\n"
+authoring_notes: |
+  Rewrite one method of a class (Store::get) from .at() to a safe find
+  lookup. Remaining methods (ctor, set) and private section preserved
+  via a single trailing marker.

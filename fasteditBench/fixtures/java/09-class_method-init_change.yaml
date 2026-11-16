@@ -1,0 +1,74 @@
+name: class_method_init_change
+pattern: class_method
+language: java
+original_code: |
+  public class Store {
+      private java.util.List<String> items;
+
+      public Store() {
+          this.items = new java.util.ArrayList<>();
+      }
+
+      public String get(int k) {
+          return this.items.get(k);
+      }
+
+      public void set(int k, String v) {
+          this.items.set(k, v);
+      }
+  }
+snippet: |
+  public class Store {
+      private java.util.Map<Integer, String> items;
+
+      public Store() {
+          this.items = new java.util.HashMap<>();
+      }
+  }
+expected_output: |
+  public class Store {
+      private java.util.Map<Integer, String> items;
+
+      public Store() {
+          this.items = new java.util.HashMap<>();
+      }
+
+      public String get(int k) {
+          return this.items.get(k);
+      }
+
+      public void set(int k, String v) {
+          this.items.set(k, v);
+      }
+  }
+target_kind: batch
+target_name: null
+target_batch:
+  - kind: replace
+    name: Store
+    preserve_siblings: true
+    snippet: |
+      public class Store {
+          private java.util.Map<Integer, String> items;
+
+          public Store() {
+              this.items = new java.util.HashMap<>();
+          }
+      }
+authoring_notes: |
+  Change the field type AND the constructor body (List<String>/ArrayList
+  -> Map<Integer, String>/HashMap). The other methods (`get`, `set`) are
+  preserved.
+
+  M12: re-annotated as a single-entry target_batch with
+  preserve_siblings=true. FastEdit's chunked_merge (>= 333c651) resolves
+  `Store`, enumerates its children via tldr AST, and splices the
+  untouched `get` / `set` methods back into the new class body before
+  the closing brace. Byte-exact, 0 model tokens.
+
+  Prior history: M9 accepted this as an algorithm-limit because (a) the
+  Java constructor wasn't in tldr's `definitions` set and (b) fields
+  aren't exposed as top-level defs. FastEdit's new preserve_siblings
+  fast path removes the need to target the field or constructor
+  individually — the snippet is just the minimal new class shell and
+  chunked_merge re-unites it with the preserved members.

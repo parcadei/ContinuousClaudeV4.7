@@ -1,0 +1,48 @@
+name: rb_class_method_store
+pattern: class_method
+language: ruby
+original_code: |
+  class Store
+    def initialize
+      @items = []
+    end
+
+    def get(k)
+      @items[k]
+    end
+
+    def set(k, v)
+      @items[k] = v
+    end
+  end
+snippet: |
+  class Store
+    def initialize
+      @items = {}
+    end
+
+    # ... existing code ...
+  end
+expected_output: |
+  class Store
+    def initialize
+      @items = {}
+    end
+
+    def get(k)
+      @items[k]
+    end
+
+    def set(k, v)
+      @items[k] = v
+    end
+  end
+target_kind: batch
+target_name: null
+target_batch:
+- kind: replace
+  name: initialize
+  snippet: "def initialize\n  @items = {}\nend\n"
+authoring_notes: |
+  P9 class_method: change @items initializer from Array to Hash;
+  preserve other methods via marker.

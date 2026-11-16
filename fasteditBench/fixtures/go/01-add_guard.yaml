@@ -1,0 +1,40 @@
+name: add_guard_empty_slice
+pattern: add_guard
+language: go
+original_code: |
+  package mathx
+
+  func Average(nums []float64) float64 {
+      total := 0.0
+      for _, n := range nums {
+          total += n
+      }
+      return total / float64(len(nums))
+  }
+snippet: |
+  func Average(nums []float64) float64 {
+      if len(nums) == 0 {
+          return 0.0
+      }
+      total := 0.0
+      // ... existing code ...
+  }
+expected_output: |
+  package mathx
+
+  func Average(nums []float64) float64 {
+      if len(nums) == 0 {
+          return 0.0
+      }
+      total := 0.0
+      for _, n := range nums {
+          total += n
+      }
+      return total / float64(len(nums))
+  }
+target_kind: replace
+target_name: Average
+authoring_notes: |
+  Classic guard clause for Go: empty-slice check before a div-by-zero.
+  Uses the `// ... existing code ...` marker to preserve the tail of the
+  function. A broken adapter would either duplicate or drop the loop.

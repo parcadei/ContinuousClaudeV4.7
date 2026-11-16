@@ -1,0 +1,33 @@
+name: ex_add_at_end_process
+pattern: add_at_end
+language: elixir
+original_code: |
+  defmodule Processor do
+    def process(x) do
+      y = transform(x)
+      y
+    end
+  end
+snippet: |
+  def process(x) do
+    # ... existing code ...
+    Logger.info("done")
+    # ... existing code ...
+  end
+expected_output: |
+  defmodule Processor do
+    def process(x) do
+      y = transform(x)
+      Logger.info("done")
+      y
+    end
+  end
+target_kind: replace
+target_name: process
+authoring_notes: |
+  P5 add_at_end: append a log line just before the final returned
+  expression. Uses symmetric markers (# ... existing code ... above
+  and below the new line) so text_match defers to the model, which
+  places the new line semantically. Single-marker + trailing short
+  line trips on Elixir's end-keyword ambiguity (every do-block ends
+  with `end`, so `_AMBIGUOUS_LINES` misclassifies inner ends as new).

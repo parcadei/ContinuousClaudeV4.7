@@ -1,0 +1,27 @@
+name: add_line_audit_log
+pattern: add_line
+language: python
+original_code: |
+  def delete_document(session, doc_id, user):
+      doc = session.get(Document, doc_id)
+      session.delete(doc)
+      session.commit()
+snippet: |
+  def delete_document(session, doc_id, user):
+      doc = session.get(Document, doc_id)
+      audit_log.record(user, "delete", doc_id)
+      session.delete(doc)
+      session.commit()
+expected_output: |
+  def delete_document(session, doc_id, user):
+      doc = session.get(Document, doc_id)
+      audit_log.record(user, "delete", doc_id)
+      session.delete(doc)
+      session.commit()
+target_kind: replace
+target_name: delete_document
+authoring_notes: |
+  Single new line inserted between two existing context anchors (the session.get
+  and session.delete lines). No marker used — the full function fits easily in
+  the snippet. Good sanity case for the adapter's ability to locate an insertion
+  point purely by context.

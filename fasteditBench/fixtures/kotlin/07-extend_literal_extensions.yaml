@@ -1,0 +1,15 @@
+name: extend_literal_extensions
+pattern: extend_literal
+language: kotlin
+original_code: |
+  val EXTENSIONS: List<String> = listOf(".kt", ".java", ".scala")
+snippet: |
+  val EXTENSIONS: List<String> = listOf(".kt", ".java", ".scala", ".groovy", ".kts")
+expected_output: |
+  val EXTENSIONS: List<String> = listOf(".kt", ".java", ".scala", ".groovy", ".kts")
+target_kind: replace
+target_name: EXTENSIONS
+authoring_notes: |
+  Top-level `val` with a listOf literal. Two new string elements
+  appended. Tests that the adapter preserves the declaration type
+  annotation and surrounding formatting.

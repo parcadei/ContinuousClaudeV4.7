@@ -1,0 +1,37 @@
+name: wrap_block_try_catch
+pattern: wrap_block
+language: java
+original_code: |
+  public class ConfigLoader {
+      public String load(java.nio.file.Path path) throws java.io.IOException {
+          String data = java.nio.file.Files.readString(path);
+          return data.trim();
+      }
+  }
+snippet: |
+  public String load(java.nio.file.Path path) {
+      try {
+          // ... existing code ...
+      } catch (java.io.IOException e) {
+          return "";
+      }
+  }
+expected_output: |
+  public class ConfigLoader {
+      public String load(java.nio.file.Path path) {
+          try {
+              String data = java.nio.file.Files.readString(path);
+              return data.trim();
+          } catch (java.io.IOException e) {
+              return "";
+          }
+      }
+  }
+target_kind: replace
+target_name: load
+authoring_notes: |
+  Wrap the existing body in a try/catch. The `throws IOException` in the
+  original signature is removed as part of the wrap (the catch handles it).
+  Snippet uses a single `// ... existing code ...` marker inside the try
+  block. Tests that the adapter correctly indents the preserved lines one
+  additional level to match the new try-block scope.

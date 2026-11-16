@@ -1,0 +1,135 @@
+name: ts_add_logging_api_request_handler
+pattern: add_line
+language: typescript
+original_code: |
+  export async function handleApiRequest(
+    req: ApiRequest,
+    ctx: RequestContext,
+    deps: HandlerDeps,
+  ): Promise<ApiResponse> {
+    const { method, path, body, query, headers } = req;
+    const traceId = headers["x-trace-id"] ?? crypto.randomUUID();
+
+    const route = deps.router.match(method, path);
+    if (!route) {
+      return { status: 404, body: { error: "route_not_found", traceId } };
+    }
+
+    const authResult = await deps.authenticator.authenticate(headers);
+    if (!authResult.ok) {
+      return { status: 401, body: { error: authResult.reason, traceId } };
+    }
+
+    const rateLimit = await deps.rateLimiter.check(
+      authResult.user.id,
+      route.rateLimitKey,
+    );
+    if (rateLimit.exceeded) {
+      return {
+        status: 429,
+        body: { error: "rate_limited", retryAfter: rateLimit.retryAfter, traceId },
+      };
+    }
+
+    const parsedBody = route.bodySchema
+      ? route.bodySchema.safeParse(body)
+      : { success: true, data: body };
+    if (!parsedBody.success) {
+      return {
+        status: 400,
+        body: { error: "invalid_body", details: parsedBody.error.flatten(), traceId },
+      };
+    }
+
+    try {
+      const result = await route.handler({
+        user: authResult.user,
+        body: parsedBody.data,
+        query,
+        ctx,
+        deps,
+      });
+      return { status: 200, body: { ...result, traceId } };
+    } catch (err) {
+      if (err instanceof DomainError) {
+        return { status: err.httpStatus, body: { error: err.code, traceId } };
+      }
+      deps.errorReporter.capture(err, { traceId, path, method });
+      return { status: 500, body: { error: "internal", traceId } };
+    }
+  }
+snippet: |
+  export async function handleApiRequest(
+    req: ApiRequest,
+    ctx: RequestContext,
+    deps: HandlerDeps,
+  ): Promise<ApiResponse> {
+    const { method, path, body, query, headers } = req;
+    const traceId = headers["x-trace-id"] ?? crypto.randomUUID();
+    deps.logger.info("api.request", { traceId, method, path });
+    // ... existing code ...
+expected_output: |
+  export async function handleApiRequest(
+    req: ApiRequest,
+    ctx: RequestContext,
+    deps: HandlerDeps,
+  ): Promise<ApiResponse> {
+    const { method, path, body, query, headers } = req;
+    const traceId = headers["x-trace-id"] ?? crypto.randomUUID();
+    deps.logger.info("api.request", { traceId, method, path });
+
+    const route = deps.router.match(method, path);
+    if (!route) {
+      return { status: 404, body: { error: "route_not_found", traceId } };
+    }
+
+    const authResult = await deps.authenticator.authenticate(headers);
+    if (!authResult.ok) {
+      return { status: 401, body: { error: authResult.reason, traceId } };
+    }
+
+    const rateLimit = await deps.rateLimiter.check(
+      authResult.user.id,
+      route.rateLimitKey,
+    );
+    if (rateLimit.exceeded) {
+      return {
+        status: 429,
+        body: { error: "rate_limited", retryAfter: rateLimit.retryAfter, traceId },
+      };
+    }
+
+    const parsedBody = route.bodySchema
+      ? route.bodySchema.safeParse(body)
+      : { success: true, data: body };
+    if (!parsedBody.success) {
+      return {
+        status: 400,
+        body: { error: "invalid_body", details: parsedBody.error.flatten(), traceId },
+      };
+    }
+
+    try {
+      const result = await route.handler({
+        user: authResult.user,
+        body: parsedBody.data,
+        query,
+        ctx,
+        deps,
+      });
+      return { status: 200, body: { ...result, traceId } };
+    } catch (err) {
+      if (err instanceof DomainError) {
+        return { status: err.httpStatus, body: { error: err.code, traceId } };
+      }
+      deps.errorReporter.capture(err, { traceId, path, method });
+      return { status: 500, body: { error: "internal", traceId } };
+    }
+  }
+target_kind: replace
+target_name: handleApiRequest
+authoring_notes: |
+  Realistic ~55-line API request handler (router match -> auth -> rate limit
+  -> body validation -> dispatch -> error boundary). Edit inserts a single
+  structured-log line right after traceId derivation. Native tool would echo
+  the full header region to anchor; FastEdit emits just the log line + marker.

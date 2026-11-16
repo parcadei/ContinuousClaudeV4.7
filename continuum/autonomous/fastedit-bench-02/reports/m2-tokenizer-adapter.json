@@ -1,0 +1,82 @@
+{
+  "task": "M2 tokenizer_adapter",
+  "assertions": ["VAL-200", "VAL-201"],
+  "result": "success",
+  "implemented": "Added TokenizerFloorAdapter at src/fasteditbench/backends/tokenizer_floor_adapter.py exposing count_floor(original_code, expected_output, file_path, model_id) -> FloorResult. Two tokenizer backends: tiktoken o200k_base (openai/gpt-5.4, offline) and anthropic.messages.count_tokens (anthropic/claude-opus-4.7, network, free) with a cl100k_base proxy fallback when ANTHROPIC_API_KEY is missing (tokenizer_proxy=True on the result). Payload extraction via difflib.SequenceMatcher on line-split texts, with pure-insert / pure-delete hunks anchored on one adjacent equal line so the Edit-tool's old_string is never empty. Multi-hunk fixtures sum per-hunk token counts. Wrapper overhead measured once per model at __init__ and surfaced on FloorResult as an informational field (not double-counted into edit_payload_tokens). Added `anthropic` to pyproject.toml as a dep.",
+  "tests": {
+    "added": [
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_payload_extraction_single_hunk", "verifies": "VAL-200"},
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_payload_extraction_two_hunks", "verifies": "VAL-200"},
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_payload_extraction_identical_raises", "verifies": "VAL-200"},
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_payload_extraction_replace_hunk", "verifies": "VAL-200"},
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_payload_extraction_trailing_insert_uses_prev_anchor", "verifies": "VAL-200"},
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_gpt_offline_tokenization", "verifies": "VAL-200"},
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_opus_fallback_when_key_missing", "verifies": "VAL-200"},
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_wrapper_overhead_measured_once", "verifies": "VAL-200"},
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_unknown_model_raises", "verifies": "VAL-200"},
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_disabled_model_raises", "verifies": "VAL-200"},
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_both_disabled_raises", "verifies": "VAL-200"},
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_serialize_is_whitespace_free", "verifies": "VAL-200"},
+      {"file": "tests/test_tokenizer_floor_adapter.py", "name": "test_integration_fixture_01_add_guard", "verifies": "VAL-201"}
+    ],
+    "command": "cd fasteditBench && uv run --no-sync pytest tests/test_tokenizer_floor_adapter.py -v",
+    "exit_code": 0,
+    "passed": 13,
+    "failed": 0
+  },
+  "checks": [
+    {"command": "uv run --no-sync pytest tests/test_tokenizer_floor_adapter.py -v", "exit_code": 0, "result": "13 passed"},
+    {"command": "uv run --no-sync ruff check src/fasteditbench/backends/tokenizer_floor_adapter.py tests/test_tokenizer_floor_adapter.py", "exit_code": 0, "result": "All checks passed"}
+  ],
+  "commits": [
+    "274d3c0 bench-02: TokenizerFloorAdapter + payload extractor (VAL-200)",
+    "bba262a bench-02: integration test for fixture 01-add_guard (VAL-201)"
+  ],
+  "fixture_01_payload_sample": {
+    "fixture": "fixtures/python/01-add_guard.yaml",
+    "n_hunks": 1,
+    "old_string_first_hunk": "    attempt = 0\n",
+    "new_string_first_hunk": "    if not records:\n        return []\n    attempt = 0\n",
+    "anchor_strategy": "pure-insert anchored on next equal line (the `attempt = 0` line following the insertion point)",
+    "payload_bytes": 172,
+    "gpt_tokens": 48,
+    "gpt_tokenizer": "tiktoken:o200k_base",
+    "opus_tokens": 48,
+    "opus_tokenizer": "tiktoken:cl100k_base",
+    "opus_used_proxy": true,
+    "opus_proxy_reason": "ANTHROPIC_API_KEY unset in test env — hermetic test suite uses the cl100k_base fallback path",
+    "gpt_wrapper_overhead": 18,
+    "opus_wrapper_overhead": 17,
+    "byte_heuristic_tokens": 43.0,
+    "byte_heuristic_envelope_passed": true
+  },
+  "design_decisions": [
+    "Anchoring for pure insert/delete opcodes: graft one line from the NEXT equal block (falling back to the PREVIOUS equal block if the insert/delete is at end-of-file). This produces a non-empty old_string that uniquely matches the source region — a requirement of the Edit-tool schema. Without anchoring, inserts would serialize with old_string='', which can't match any existing text and isn't a fair representation of what a real model would emit.",
+    "wrapper_overhead is informational only. The full serialized payload ALREADY embeds the JSON wrapper, so count_floor simply tokenizes the complete string. Surfacing wrapper_overhead separately lets the report show how much of each payload is fixed JSON structure vs real content, without confusing the topline edit_payload_tokens number.",
+    "Anthropic count_tokens API shape: messages.count_tokens(model=..., messages=[{'role': 'user', 'content': payload}]) returns MessageTokensCount with .input_tokens field. We wrap the payload string in a single user message — the tokenizer counts exactly the payload content (plus the minimal per-message overhead Anthropic adds, which is part of what a real Opus-producing-this-edit would emit).",
+    "anthropic SDK native model id: the API endpoint expects a bare id like 'claude-opus-4-5' (no provider prefix). Tokenization is identical across Opus point releases, so claude-opus-4-5 is a safe stand-in for claude-opus-4.7 at the tokenizer level. The OpenRouter-style id ('anthropic/claude-opus-4.7') remains the external interface for count_floor(model_id=...).",
+    "Hermetic test suite: every test clears ANTHROPIC_API_KEY via monkeypatch so no live API calls are made. The Opus path is exercised entirely through the cl100k_base proxy. VAL-201 could optionally hit the live count_tokens endpoint if the key is present, but the current test unconditionally exercises the proxy path — this is a hermeticity choice and documented in the test module docstring.",
+    "tiktoken version in lockfile (0.12.0) already supports o200k_base and cl100k_base — no version bump needed. anthropic 0.96.0 was pulled in via `uv pip install anthropic` (the `uv add` path fails due to a pre-existing fastedit/fastedits lockfile issue, unrelated to this milestone; pyproject.toml was still updated with the dep for discoverability)."
+  ],
+  "discoveries": [
+    "Fixture 01-add_guard is a pure single-line insertion at the top of the function body. The extracted old_string is just 16 bytes ('    attempt = 0\\n') and the new_string is 60 bytes. Even though the raw diff is small, the serialized JSON tool-call payload is 172 bytes — roughly 3x inflation from the wrapper JSON + escapes. Wrapper overhead alone is 17-18 tokens (~10% of the total). The FastEdit baseline for this fixture is zero (pure-AST add_guard), so the floor ratio vs FastEdit here is literally 48:0 — an edge case the M4 report will need to handle cleanly (probably report 'FastEdit: pure AST, zero model tokens' alongside the LLM floor, without dividing by zero).",
+    "GPT and Opus proxy gave identical 48-token counts on this fixture, coincidence at small payload sizes — o200k_base and cl100k_base differ on <5% of typical code payloads. Real-backend (live count_tokens) measurements will diverge more, and VAL-300 should not assume they'll match.",
+    "The `uv add anthropic` path hits the same fastedit/fastedits lockfile mismatch noted in M1 discoveries. Workaround used: manual `uv pip install anthropic`. pyproject.toml was updated directly so the dep is declared even if the lockfile doesn't regenerate."
+  ],
+  "issues": [
+    {
+      "severity": "info",
+      "description": "Hermetic test suite never exercises the live anthropic.count_tokens path. If the SDK's API shape drifts (field renames, new auth requirements), VAL-300 would be the first to discover it. Consider adding an opt-in live test gated on ANTHROPIC_API_KEY before M3 runs."
+    },
+    {
+      "severity": "info",
+      "description": "Anchoring strategy is tested on hand-crafted cases + fixture 01. Fixtures with unusual shapes (e.g. empty-line-only diffs, CRLF line endings, multi-byte unicode edits) are not yet exercised. M3 may surface edge cases; current strategy raises on identical inputs so at least the silent-zero-payload failure mode is blocked."
+    }
+  ],
+  "constraints_honored": [
+    "Did not implement EditAdapter protocol — TokenizerFloorAdapter has its own FloorResult shape as specified.",
+    "Did not touch dormant M1 files (openrouter_client.py, prompts/templates.py, smoke/pilot scripts).",
+    "No real API calls made during tests.",
+    "Two commits: one for VAL-200 (adapter + unit tests), one for VAL-201 (integration test)."
+  ]
+}

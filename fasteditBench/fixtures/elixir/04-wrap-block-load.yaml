@@ -1,0 +1,34 @@
+name: ex_wrap_block_load
+pattern: wrap_block
+language: elixir
+original_code: |
+  defmodule ConfigLoader do
+    def load(path) do
+      data = File.read!(path)
+      parse(data)
+    end
+  end
+snippet: |
+  def load(path) do
+    try do
+      # ... existing code ...
+    rescue
+      File.Error -> nil
+    end
+  end
+expected_output: |
+  defmodule ConfigLoader do
+    def load(path) do
+      try do
+        data = File.read!(path)
+        parse(data)
+      rescue
+        File.Error -> nil
+      end
+    end
+  end
+target_kind: replace
+target_name: load
+authoring_notes: |
+  P4 wrap_block: surround existing body with try/rescue. Elixir's
+  canonical exception handling idiom using File.Error.

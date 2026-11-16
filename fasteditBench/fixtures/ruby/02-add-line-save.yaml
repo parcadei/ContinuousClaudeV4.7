@@ -1,0 +1,29 @@
+name: rb_add_line_save
+pattern: add_line
+language: ruby
+original_code: |
+  class Repository
+    def save(record)
+      data = serialize(record)
+      write(data)
+    end
+  end
+snippet: |
+  def save(record)
+    data = serialize(record)
+    logger.info("saving #{record.id}")
+    write(data)
+  end
+expected_output: |
+  class Repository
+    def save(record)
+      data = serialize(record)
+      logger.info("saving #{record.id}")
+      write(data)
+    end
+  end
+target_kind: replace
+target_name: save
+authoring_notes: |
+  P2 add_line: single log statement inserted between two anchors.
+  Interpolation uses Ruby #{...} syntax.

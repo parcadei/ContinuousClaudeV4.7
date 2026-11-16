@@ -1,0 +1,35 @@
+name: wrap_block_try_catch
+pattern: wrap_block
+language: kotlin
+original_code: |
+  fun load(path: String): Config {
+      val data = readFile(path)
+      return parse(data)
+  }
+snippet: |
+  fun load(path: String): Config {
+      try {
+          // ... existing code ...
+      } catch (e: IOException) {
+          return Config.EMPTY
+      }
+  }
+expected_output: |
+  fun load(path: String): Config {
+      try {
+          val data = readFile(path)
+          return parse(data)
+      } catch (e: IOException) {
+          return Config.EMPTY
+      }
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Kotlin try/catch wrap. Marker sits inside the `try` block and must
+  expand to the two-line body of the original function, indented one
+  level deeper.
+
+  target_kind=none: same wrap_block indent issue as cpp/02/ruby/04 —
+  deterministic_edit preserves original body at its original indent,
+  not the deeper indent required inside the `try` block.

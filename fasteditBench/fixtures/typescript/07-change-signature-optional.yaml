@@ -1,0 +1,22 @@
+name: ts_change_signature_optional_param
+pattern: change_signature
+language: typescript
+original_code: |
+  export function formatGreeting(name: string): string {
+    return `Hello, ${name}!`;
+  }
+snippet: |
+  export function formatGreeting(name: string, locale?: string): string {
+    // ... existing code ...
+  }
+expected_output: |
+  export function formatGreeting(name: string, locale?: string): string {
+    return `Hello, ${name}!`;
+  }
+target_kind: replace
+target_name: formatGreeting
+authoring_notes: |
+  Add an optional second parameter (`locale?: string`) to the
+  signature while preserving the body via a marker. Exercises
+  TS-specific optional-parameter syntax (`?:`) in the signature
+  replacement.

@@ -1,0 +1,500 @@
+{
+  "anchor_context_lines": 2,
+  "headline_excluding_whole_rewrite": {
+    "fastedit_total": 5262,
+    "n_fixtures": 88,
+    "native_total": 10096,
+    "savings_pct": 47.88,
+    "savings_ratio": 1.919,
+    "savings_tokens": 4834
+  },
+  "methodology": "v6_176_fixtures_fastedit_0_2_5",
+  "n_fixtures": 176,
+  "operation_categories": {
+    "batch_edit": {
+      "fastedit_avg": 55.2,
+      "fastedit_total": 552,
+      "n": 10,
+      "native_avg": 99.1,
+      "native_total": 991,
+      "ratio_native_over_fastedit": 1.795,
+      "savings_pct": 44.299,
+      "savings_total": 439
+    },
+    "delete": {
+      "fastedit_avg": 22.67,
+      "fastedit_total": 68,
+      "n": 3,
+      "native_avg": 112.33,
+      "native_total": 337,
+      "ratio_native_over_fastedit": 4.956,
+      "savings_pct": 79.822,
+      "savings_total": 269
+    },
+    "inline_edit": {
+      "fastedit_avg": 64.0,
+      "fastedit_total": 128,
+      "n": 2,
+      "native_avg": 79.5,
+      "native_total": 159,
+      "ratio_native_over_fastedit": 1.242,
+      "savings_pct": 19.497,
+      "savings_total": 31
+    },
+    "modify_inside": {
+      "fastedit_avg": 61.84,
+      "fastedit_total": 4514,
+      "n": 73,
+      "native_avg": 117.93,
+      "native_total": 8609,
+      "ratio_native_over_fastedit": 1.907,
+      "savings_pct": 47.567,
+      "savings_total": 4095
+    },
+    "whole_rewrite": {
+      "fastedit_avg": 66.4,
+      "fastedit_total": 5843,
+      "n": 88,
+      "native_avg": 110.52,
+      "native_total": 9726,
+      "ratio_native_over_fastedit": 1.665,
+      "savings_pct": 39.924,
+      "savings_total": 3883
+    }
+  },
+  "per_category_versions": {
+    "batch_edit": {
+      "n": 10,
+      "native": 991,
+      "v3": 675,
+      "v4": 675,
+      "v5": 552
+    },
+    "delete": {
+      "n": 3,
+      "native": 337,
+      "v3": 68,
+      "v4": 68,
+      "v5": 68
+    },
+    "inline_edit": {
+      "n": 23,
+      "native": 2380,
+      "v3": 1526,
+      "v4": 1526,
+      "v5": 1220
+    },
+    "modify_inside": {
+      "n": 52,
+      "native": 6388,
+      "v3": 5468,
+      "v4": 4918,
+      "v5": 3422
+    },
+    "whole_rewrite": {
+      "n": 88,
+      "native": 9726,
+      "v3": 6628,
+      "v4": 5843,
+      "v5": 5843
+    }
+  },
+  "per_language": {
+    "c": {
+      "fastedit_avg": 76.5,
+      "fastedit_total": 918,
+      "n": 12,
+      "native_avg": 128.83,
+      "native_total": 1546,
+      "ratio_native_over_fastedit": 1.684,
+      "savings_pct": 40.621,
+      "savings_total": 628
+    },
+    "cpp": {
+      "fastedit_avg": 64.33,
+      "fastedit_total": 772,
+      "n": 12,
+      "native_avg": 115.42,
+      "native_total": 1385,
+      "ratio_native_over_fastedit": 1.794,
+      "savings_pct": 44.26,
+      "savings_total": 613
+    },
+    "csharp": {
+      "fastedit_avg": 67.58,
+      "fastedit_total": 811,
+      "n": 12,
+      "native_avg": 112.5,
+      "native_total": 1350,
+      "ratio_native_over_fastedit": 1.665,
+      "savings_pct": 39.926,
+      "savings_total": 539
+    },
+    "elixir": {
+      "fastedit_avg": 50.17,
+      "fastedit_total": 602,
+      "n": 12,
+      "native_avg": 94.5,
+      "native_total": 1134,
+      "ratio_native_over_fastedit": 1.884,
+      "savings_pct": 46.914,
+      "savings_total": 532
+    },
+    "go": {
+      "fastedit_avg": 64.5,
+      "fastedit_total": 903,
+      "n": 14,
+      "native_avg": 107.71,
+      "native_total": 1508,
+      "ratio_native_over_fastedit": 1.67,
+      "savings_pct": 40.119,
+      "savings_total": 605
+    },
+    "java": {
+      "fastedit_avg": 69.79,
+      "fastedit_total": 977,
+      "n": 14,
+      "native_avg": 134.29,
+      "native_total": 1880,
+      "ratio_native_over_fastedit": 1.924,
+      "savings_pct": 48.032,
+      "savings_total": 903
+    },
+    "kotlin": {
+      "fastedit_avg": 58.79,
+      "fastedit_total": 823,
+      "n": 14,
+      "native_avg": 104.93,
+      "native_total": 1469,
+      "ratio_native_over_fastedit": 1.785,
+      "savings_pct": 43.975,
+      "savings_total": 646
+    },
+    "php": {
+      "fastedit_avg": 65.23,
+      "fastedit_total": 848,
+      "n": 13,
+      "native_avg": 106.85,
+      "native_total": 1389,
+      "ratio_native_over_fastedit": 1.638,
+      "savings_pct": 38.949,
+      "savings_total": 541
+    },
+    "python": {
+      "fastedit_avg": 67.88,
+      "fastedit_total": 1086,
+      "n": 16,
+      "native_avg": 117.88,
+      "native_total": 1886,
+      "ratio_native_over_fastedit": 1.737,
+      "savings_pct": 42.418,
+      "savings_total": 800
+    },
+    "ruby": {
+      "fastedit_avg": 57.33,
+      "fastedit_total": 860,
+      "n": 15,
+      "native_avg": 95.53,
+      "native_total": 1433,
+      "ratio_native_over_fastedit": 1.666,
+      "savings_pct": 39.986,
+      "savings_total": 573
+    },
+    "rust": {
+      "fastedit_avg": 64.31,
+      "fastedit_total": 836,
+      "n": 13,
+      "native_avg": 127.15,
+      "native_total": 1653,
+      "ratio_native_over_fastedit": 1.977,
+      "savings_pct": 49.425,
+      "savings_total": 817
+    },
+    "swift": {
+      "fastedit_avg": 54.57,
+      "fastedit_total": 764,
+      "n": 14,
+      "native_avg": 103.07,
+      "native_total": 1443,
+      "ratio_native_over_fastedit": 1.889,
+      "savings_pct": 47.055,
+      "savings_total": 679
+    },
+    "typescript": {
+      "fastedit_avg": 60.33,
+      "fastedit_total": 905,
+      "n": 15,
+      "native_avg": 116.4,
+      "native_total": 1746,
+      "ratio_native_over_fastedit": 1.929,
+      "savings_pct": 48.167,
+      "savings_total": 841
+    }
+  },
+  "per_language_excluding_whole_rewrite": {
+    "c": {
+      "fastedit_avg": 70.5,
+      "fastedit_total": 282,
+      "n": 4,
+      "native_avg": 122.0,
+      "native_total": 488,
+      "ratio_native_over_fastedit": 1.73,
+      "savings_pct": 42.213,
+      "savings_total": 206
+    },
+    "cpp": {
+      "fastedit_avg": 54.5,
+      "fastedit_total": 218,
+      "n": 4,
+      "native_avg": 106.75,
+      "native_total": 427,
+      "ratio_native_over_fastedit": 1.959,
+      "savings_pct": 48.946,
+      "savings_total": 209
+    },
+    "csharp": {
+      "fastedit_avg": 56.5,
+      "fastedit_total": 226,
+      "n": 4,
+      "native_avg": 111.75,
+      "native_total": 447,
+      "ratio_native_over_fastedit": 1.978,
+      "savings_pct": 49.441,
+      "savings_total": 221
+    },
+    "elixir": {
+      "fastedit_avg": 49.5,
+      "fastedit_total": 297,
+      "n": 6,
+      "native_avg": 86.0,
+      "native_total": 516,
+      "ratio_native_over_fastedit": 1.737,
+      "savings_pct": 42.442,
+      "savings_total": 219
+    },
+    "go": {
+      "fastedit_avg": 61.38,
+      "fastedit_total": 491,
+      "n": 8,
+      "native_avg": 108.25,
+      "native_total": 866,
+      "ratio_native_over_fastedit": 1.764,
+      "savings_pct": 43.303,
+      "savings_total": 375
+    },
+    "java": {
+      "fastedit_avg": 71.57,
+      "fastedit_total": 501,
+      "n": 7,
+      "native_avg": 136.57,
+      "native_total": 956,
+      "ratio_native_over_fastedit": 1.908,
+      "savings_pct": 47.594,
+      "savings_total": 455
+    },
+    "kotlin": {
+      "fastedit_avg": 62.57,
+      "fastedit_total": 438,
+      "n": 7,
+      "native_avg": 113.0,
+      "native_total": 791,
+      "ratio_native_over_fastedit": 1.806,
+      "savings_pct": 44.627,
+      "savings_total": 353
+    },
+    "php": {
+      "fastedit_avg": 54.75,
+      "fastedit_total": 219,
+      "n": 4,
+      "native_avg": 109.0,
+      "native_total": 436,
+      "ratio_native_over_fastedit": 1.991,
+      "savings_pct": 49.771,
+      "savings_total": 217
+    },
+    "python": {
+      "fastedit_avg": 68.6,
+      "fastedit_total": 686,
+      "n": 10,
+      "native_avg": 129.2,
+      "native_total": 1292,
+      "ratio_native_over_fastedit": 1.883,
+      "savings_pct": 46.904,
+      "savings_total": 606
+    },
+    "ruby": {
+      "fastedit_avg": 61.11,
+      "fastedit_total": 550,
+      "n": 9,
+      "native_avg": 102.0,
+      "native_total": 918,
+      "ratio_native_over_fastedit": 1.669,
+      "savings_pct": 40.087,
+      "savings_total": 368
+    },
+    "rust": {
+      "fastedit_avg": 58.43,
+      "fastedit_total": 409,
+      "n": 7,
+      "native_avg": 132.57,
+      "native_total": 928,
+      "ratio_native_over_fastedit": 2.269,
+      "savings_pct": 55.927,
+      "savings_total": 519
+    },
+    "swift": {
+      "fastedit_avg": 49.44,
+      "fastedit_total": 445,
+      "n": 9,
+      "native_avg": 105.11,
+      "native_total": 946,
+      "ratio_native_over_fastedit": 2.126,
+      "savings_pct": 52.96,
+      "savings_total": 501
+    },
+    "typescript": {
+      "fastedit_avg": 55.56,
+      "fastedit_total": 500,
+      "n": 9,
+      "native_avg": 120.56,
+      "native_total": 1085,
+      "ratio_native_over_fastedit": 2.17,
+      "savings_pct": 53.917,
+      "savings_total": 585
+    }
+  },
+  "reclassified_count": 21,
+  "run_id": "20260423-015844",
+  "tokenizer_used": "tiktoken:o200k_base",
+  "top_by_category": {
+    "batch_edit": [
+      {
+        "case_id": "c/10-multi-insert-hooks",
+        "fastedit_tokens": 92,
+        "native_edit_tokens": 161,
+        "savings_pct": 42.857,
+        "savings_tokens": 69
+      },
+      {
+        "case_id": "rust/10-class_method",
+        "fastedit_tokens": 60,
+        "native_edit_tokens": 129,
+        "savings_pct": 53.488,
+        "savings_tokens": 69
+      },
+      {
+        "case_id": "go/12-class_method",
+        "fastedit_tokens": 47,
+        "native_edit_tokens": 104,
+        "savings_pct": 54.808,
+        "savings_tokens": 57
+      }
+    ],
+    "delete": [
+      {
+        "case_id": "rust/09-delete_lines",
+        "fastedit_tokens": 23,
+        "native_edit_tokens": 141,
+        "savings_pct": 83.688,
+        "savings_tokens": 118
+      },
+      {
+        "case_id": "go/11-delete_lines",
+        "fastedit_tokens": 22,
+        "native_edit_tokens": 102,
+        "savings_pct": 78.431,
+        "savings_tokens": 80
+      },
+      {
+        "case_id": "typescript/11-delete-lines-debug",
+        "fastedit_tokens": 23,
+        "native_edit_tokens": 94,
+        "savings_pct": 75.532,
+        "savings_tokens": 71
+      }
+    ],
+    "inline_edit": [
+      {
+        "case_id": "go/09-extend_literal",
+        "fastedit_tokens": 51,
+        "native_edit_tokens": 80,
+        "savings_pct": 36.25,
+        "savings_tokens": 29
+      },
+      {
+        "case_id": "c/11-extend-literal-exts",
+        "fastedit_tokens": 77,
+        "native_edit_tokens": 79,
+        "savings_pct": 2.532,
+        "savings_tokens": 2
+      }
+    ],
+    "modify_inside": [
+      {
+        "case_id": "rust/11-add_guard_parse_config",
+        "fastedit_tokens": 60,
+        "native_edit_tokens": 173,
+        "savings_pct": 65.318,
+        "savings_tokens": 113
+      },
+      {
+        "case_id": "python/14-add_logging_order_pipeline",
+        "fastedit_tokens": 57,
+        "native_edit_tokens": 163,
+        "savings_pct": 65.031,
+        "savings_tokens": 106
+      },
+      {
+        "case_id": "python/13-add_guard_webhook_processor",
+        "fastedit_tokens": 80,
+        "native_edit_tokens": 185,
+        "savings_pct": 56.757,
+        "savings_tokens": 105
+      }
+    ],
+    "whole_rewrite": [
+      {
+        "case_id": "java/02-change_line-timeout",
+        "fastedit_tokens": 66,
+        "native_edit_tokens": 169,
+        "savings_pct": 60.947,
+        "savings_tokens": 103
+      },
+      {
+        "case_id": "java/04-full_replace-max_stream",
+        "fastedit_tokens": 52,
+        "native_edit_tokens": 153,
+        "savings_pct": 66.013,
+        "savings_tokens": 101
+      },
+      {
+        "case_id": "cpp/03-full_replace_max_element",
+        "fastedit_tokens": 46,
+        "native_edit_tokens": 136,
+        "savings_pct": 66.176,
+        "savings_tokens": 90
+      }
+    ]
+  },
+  "totals": {
+    "fastedit_total": 11105,
+    "native_total": 19822,
+    "savings_pct": 43.976,
+    "savings_total": 8717
+  },
+  "version_progression": {
+    "native_total_headline": 10096,
+    "v3": {
+      "fastedit_total_headline": 7737,
+      "savings_pct_headline": 23.366
+    },
+    "v4": {
+      "fastedit_total_headline": 7187,
+      "savings_pct_headline": 28.813
+    },
+    "v5": {
+      "fastedit_total_headline": 5262,
+      "savings_pct_headline": 47.88
+    }
+  }
+}

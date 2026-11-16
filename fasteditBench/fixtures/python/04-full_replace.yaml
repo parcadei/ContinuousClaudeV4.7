@@ -1,0 +1,22 @@
+name: full_replace_compute_checksum
+pattern: full_replace
+language: python
+original_code: |
+  def compute_checksum(data: bytes) -> str:
+      total = 0
+      for byte in data:
+          total = (total * 31 + byte) & 0xFFFFFFFF
+      return f"{total:08x}"
+snippet: |
+  def compute_checksum(data: bytes) -> str:
+      return hashlib.sha256(data).hexdigest()
+expected_output: |
+  def compute_checksum(data: bytes) -> str:
+      return hashlib.sha256(data).hexdigest()
+target_kind: replace
+target_name: compute_checksum
+authoring_notes: |
+  Fulfills the 'replace_fn' intent from the authoring_requirements: the entire
+  function body is replaced while the signature (including type annotations)
+  is preserved. A broken adapter that keeps the old `total = 0` accumulator
+  or emits both implementations will fail tier-1 and also fail minimality.

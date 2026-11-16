@@ -1,0 +1,500 @@
+{
+  "anchor_context_lines": 2,
+  "headline_excluding_whole_rewrite": {
+    "fastedit_total": 3556,
+    "n_fixtures": 68,
+    "native_total": 6882,
+    "savings_pct": 48.329,
+    "savings_ratio": 1.935,
+    "savings_tokens": 3326
+  },
+  "methodology": "v5_minimal_payloads_fastedit_0_2_5",
+  "n_fixtures": 156,
+  "operation_categories": {
+    "batch_edit": {
+      "fastedit_avg": 57.0,
+      "fastedit_total": 570,
+      "n": 10,
+      "native_avg": 99.1,
+      "native_total": 991,
+      "ratio_native_over_fastedit": 1.739,
+      "savings_pct": 42.482,
+      "savings_total": 421
+    },
+    "delete": {
+      "fastedit_avg": 22.67,
+      "fastedit_total": 68,
+      "n": 3,
+      "native_avg": 112.33,
+      "native_total": 337,
+      "ratio_native_over_fastedit": 4.956,
+      "savings_pct": 79.822,
+      "savings_total": 269
+    },
+    "inline_edit": {
+      "fastedit_avg": 64.0,
+      "fastedit_total": 128,
+      "n": 2,
+      "native_avg": 79.5,
+      "native_total": 159,
+      "ratio_native_over_fastedit": 1.242,
+      "savings_pct": 19.497,
+      "savings_total": 31
+    },
+    "modify_inside": {
+      "fastedit_avg": 52.64,
+      "fastedit_total": 2790,
+      "n": 53,
+      "native_avg": 101.79,
+      "native_total": 5395,
+      "ratio_native_over_fastedit": 1.934,
+      "savings_pct": 48.285,
+      "savings_total": 2605
+    },
+    "whole_rewrite": {
+      "fastedit_avg": 66.4,
+      "fastedit_total": 5843,
+      "n": 88,
+      "native_avg": 110.52,
+      "native_total": 9726,
+      "ratio_native_over_fastedit": 1.665,
+      "savings_pct": 39.924,
+      "savings_total": 3883
+    }
+  },
+  "per_category_versions": {
+    "batch_edit": {
+      "n": 10,
+      "native": 991,
+      "v3": 675,
+      "v4": 675,
+      "v5": 570
+    },
+    "delete": {
+      "n": 3,
+      "native": 337,
+      "v3": 68,
+      "v4": 68,
+      "v5": 68
+    },
+    "inline_edit": {
+      "n": 21,
+      "native": 2161,
+      "v3": 1344,
+      "v4": 1344,
+      "v5": 1128
+    },
+    "modify_inside": {
+      "n": 34,
+      "native": 3393,
+      "v3": 2378,
+      "v4": 2067,
+      "v5": 1790
+    },
+    "whole_rewrite": {
+      "n": 88,
+      "native": 9726,
+      "v3": 6628,
+      "v4": 5843,
+      "v5": 5843
+    }
+  },
+  "per_language": {
+    "c": {
+      "fastedit_avg": 77.0,
+      "fastedit_total": 924,
+      "n": 12,
+      "native_avg": 128.83,
+      "native_total": 1546,
+      "ratio_native_over_fastedit": 1.673,
+      "savings_pct": 40.233,
+      "savings_total": 622
+    },
+    "cpp": {
+      "fastedit_avg": 65.0,
+      "fastedit_total": 780,
+      "n": 12,
+      "native_avg": 115.42,
+      "native_total": 1385,
+      "ratio_native_over_fastedit": 1.776,
+      "savings_pct": 43.682,
+      "savings_total": 605
+    },
+    "csharp": {
+      "fastedit_avg": 68.33,
+      "fastedit_total": 820,
+      "n": 12,
+      "native_avg": 112.5,
+      "native_total": 1350,
+      "ratio_native_over_fastedit": 1.646,
+      "savings_pct": 39.259,
+      "savings_total": 530
+    },
+    "elixir": {
+      "fastedit_avg": 50.58,
+      "fastedit_total": 607,
+      "n": 12,
+      "native_avg": 94.5,
+      "native_total": 1134,
+      "ratio_native_over_fastedit": 1.868,
+      "savings_pct": 46.473,
+      "savings_total": 527
+    },
+    "go": {
+      "fastedit_avg": 59.25,
+      "fastedit_total": 711,
+      "n": 12,
+      "native_avg": 101.83,
+      "native_total": 1222,
+      "ratio_native_over_fastedit": 1.719,
+      "savings_pct": 41.817,
+      "savings_total": 511
+    },
+    "java": {
+      "fastedit_avg": 62.42,
+      "fastedit_total": 749,
+      "n": 12,
+      "native_avg": 124.17,
+      "native_total": 1490,
+      "ratio_native_over_fastedit": 1.989,
+      "savings_pct": 49.732,
+      "savings_total": 741
+    },
+    "kotlin": {
+      "fastedit_avg": 54.42,
+      "fastedit_total": 653,
+      "n": 12,
+      "native_avg": 96.0,
+      "native_total": 1152,
+      "ratio_native_over_fastedit": 1.764,
+      "savings_pct": 43.316,
+      "savings_total": 499
+    },
+    "php": {
+      "fastedit_avg": 65.46,
+      "fastedit_total": 851,
+      "n": 13,
+      "native_avg": 106.85,
+      "native_total": 1389,
+      "ratio_native_over_fastedit": 1.632,
+      "savings_pct": 38.733,
+      "savings_total": 538
+    },
+    "python": {
+      "fastedit_avg": 60.0,
+      "fastedit_total": 720,
+      "n": 12,
+      "native_avg": 99.58,
+      "native_total": 1195,
+      "ratio_native_over_fastedit": 1.66,
+      "savings_pct": 39.749,
+      "savings_total": 475
+    },
+    "ruby": {
+      "fastedit_avg": 48.23,
+      "fastedit_total": 627,
+      "n": 13,
+      "native_avg": 83.54,
+      "native_total": 1086,
+      "ratio_native_over_fastedit": 1.732,
+      "savings_pct": 42.265,
+      "savings_total": 459
+    },
+    "rust": {
+      "fastedit_avg": 60.5,
+      "fastedit_total": 605,
+      "n": 10,
+      "native_avg": 116.5,
+      "native_total": 1165,
+      "ratio_native_over_fastedit": 1.926,
+      "savings_pct": 48.069,
+      "savings_total": 560
+    },
+    "swift": {
+      "fastedit_avg": 55.67,
+      "fastedit_total": 668,
+      "n": 12,
+      "native_avg": 102.0,
+      "native_total": 1224,
+      "ratio_native_over_fastedit": 1.832,
+      "savings_pct": 45.425,
+      "savings_total": 556
+    },
+    "typescript": {
+      "fastedit_avg": 57.0,
+      "fastedit_total": 684,
+      "n": 12,
+      "native_avg": 105.83,
+      "native_total": 1270,
+      "ratio_native_over_fastedit": 1.857,
+      "savings_pct": 46.142,
+      "savings_total": 586
+    }
+  },
+  "per_language_excluding_whole_rewrite": {
+    "c": {
+      "fastedit_avg": 72.0,
+      "fastedit_total": 288,
+      "n": 4,
+      "native_avg": 122.0,
+      "native_total": 488,
+      "ratio_native_over_fastedit": 1.694,
+      "savings_pct": 40.984,
+      "savings_total": 200
+    },
+    "cpp": {
+      "fastedit_avg": 56.5,
+      "fastedit_total": 226,
+      "n": 4,
+      "native_avg": 106.75,
+      "native_total": 427,
+      "ratio_native_over_fastedit": 1.889,
+      "savings_pct": 47.073,
+      "savings_total": 201
+    },
+    "csharp": {
+      "fastedit_avg": 58.75,
+      "fastedit_total": 235,
+      "n": 4,
+      "native_avg": 111.75,
+      "native_total": 447,
+      "ratio_native_over_fastedit": 1.902,
+      "savings_pct": 47.427,
+      "savings_total": 212
+    },
+    "elixir": {
+      "fastedit_avg": 50.33,
+      "fastedit_total": 302,
+      "n": 6,
+      "native_avg": 86.0,
+      "native_total": 516,
+      "ratio_native_over_fastedit": 1.709,
+      "savings_pct": 41.473,
+      "savings_total": 214
+    },
+    "go": {
+      "fastedit_avg": 49.83,
+      "fastedit_total": 299,
+      "n": 6,
+      "native_avg": 96.67,
+      "native_total": 580,
+      "ratio_native_over_fastedit": 1.94,
+      "savings_pct": 48.448,
+      "savings_total": 281
+    },
+    "java": {
+      "fastedit_avg": 54.6,
+      "fastedit_total": 273,
+      "n": 5,
+      "native_avg": 113.2,
+      "native_total": 566,
+      "ratio_native_over_fastedit": 2.073,
+      "savings_pct": 51.767,
+      "savings_total": 293
+    },
+    "kotlin": {
+      "fastedit_avg": 53.6,
+      "fastedit_total": 268,
+      "n": 5,
+      "native_avg": 94.8,
+      "native_total": 474,
+      "ratio_native_over_fastedit": 1.769,
+      "savings_pct": 43.46,
+      "savings_total": 206
+    },
+    "php": {
+      "fastedit_avg": 55.5,
+      "fastedit_total": 222,
+      "n": 4,
+      "native_avg": 109.0,
+      "native_total": 436,
+      "ratio_native_over_fastedit": 1.964,
+      "savings_pct": 49.083,
+      "savings_total": 214
+    },
+    "python": {
+      "fastedit_avg": 53.33,
+      "fastedit_total": 320,
+      "n": 6,
+      "native_avg": 100.17,
+      "native_total": 601,
+      "ratio_native_over_fastedit": 1.878,
+      "savings_pct": 46.755,
+      "savings_total": 281
+    },
+    "ruby": {
+      "fastedit_avg": 45.29,
+      "fastedit_total": 317,
+      "n": 7,
+      "native_avg": 81.57,
+      "native_total": 571,
+      "ratio_native_over_fastedit": 1.801,
+      "savings_pct": 44.483,
+      "savings_total": 254
+    },
+    "rust": {
+      "fastedit_avg": 44.5,
+      "fastedit_total": 178,
+      "n": 4,
+      "native_avg": 110.0,
+      "native_total": 440,
+      "ratio_native_over_fastedit": 2.472,
+      "savings_pct": 59.545,
+      "savings_total": 262
+    },
+    "swift": {
+      "fastedit_avg": 49.86,
+      "fastedit_total": 349,
+      "n": 7,
+      "native_avg": 103.86,
+      "native_total": 727,
+      "ratio_native_over_fastedit": 2.083,
+      "savings_pct": 51.994,
+      "savings_total": 378
+    },
+    "typescript": {
+      "fastedit_avg": 46.5,
+      "fastedit_total": 279,
+      "n": 6,
+      "native_avg": 101.5,
+      "native_total": 609,
+      "ratio_native_over_fastedit": 2.183,
+      "savings_pct": 54.187,
+      "savings_total": 330
+    }
+  },
+  "reclassified_count": 19,
+  "run_id": "20260423-012752",
+  "tokenizer_used": "tiktoken:o200k_base",
+  "top_by_category": {
+    "batch_edit": [
+      {
+        "case_id": "c/10-multi-insert-hooks",
+        "fastedit_tokens": 92,
+        "native_edit_tokens": 161,
+        "savings_pct": 42.857,
+        "savings_tokens": 69
+      },
+      {
+        "case_id": "rust/10-class_method",
+        "fastedit_tokens": 65,
+        "native_edit_tokens": 129,
+        "savings_pct": 49.612,
+        "savings_tokens": 64
+      },
+      {
+        "case_id": "go/12-class_method",
+        "fastedit_tokens": 51,
+        "native_edit_tokens": 104,
+        "savings_pct": 50.962,
+        "savings_tokens": 53
+      }
+    ],
+    "delete": [
+      {
+        "case_id": "rust/09-delete_lines",
+        "fastedit_tokens": 23,
+        "native_edit_tokens": 141,
+        "savings_pct": 83.688,
+        "savings_tokens": 118
+      },
+      {
+        "case_id": "go/11-delete_lines",
+        "fastedit_tokens": 22,
+        "native_edit_tokens": 102,
+        "savings_pct": 78.431,
+        "savings_tokens": 80
+      },
+      {
+        "case_id": "typescript/11-delete-lines-debug",
+        "fastedit_tokens": 23,
+        "native_edit_tokens": 94,
+        "savings_pct": 75.532,
+        "savings_tokens": 71
+      }
+    ],
+    "inline_edit": [
+      {
+        "case_id": "go/09-extend_literal",
+        "fastedit_tokens": 51,
+        "native_edit_tokens": 80,
+        "savings_pct": 36.25,
+        "savings_tokens": 29
+      },
+      {
+        "case_id": "c/11-extend-literal-exts",
+        "fastedit_tokens": 77,
+        "native_edit_tokens": 79,
+        "savings_pct": 2.532,
+        "savings_tokens": 2
+      }
+    ],
+    "modify_inside": [
+      {
+        "case_id": "c/03-wrap-block-errno-check",
+        "fastedit_tokens": 64,
+        "native_edit_tokens": 160,
+        "savings_pct": 60.0,
+        "savings_tokens": 96
+      },
+      {
+        "case_id": "php/04-wrap_block_try_catch",
+        "fastedit_tokens": 59,
+        "native_edit_tokens": 146,
+        "savings_pct": 59.589,
+        "savings_tokens": 87
+      },
+      {
+        "case_id": "typescript/04-wrap-block-try-catch",
+        "fastedit_tokens": 66,
+        "native_edit_tokens": 152,
+        "savings_pct": 56.579,
+        "savings_tokens": 86
+      }
+    ],
+    "whole_rewrite": [
+      {
+        "case_id": "java/02-change_line-timeout",
+        "fastedit_tokens": 66,
+        "native_edit_tokens": 169,
+        "savings_pct": 60.947,
+        "savings_tokens": 103
+      },
+      {
+        "case_id": "java/04-full_replace-max_stream",
+        "fastedit_tokens": 52,
+        "native_edit_tokens": 153,
+        "savings_pct": 66.013,
+        "savings_tokens": 101
+      },
+      {
+        "case_id": "cpp/03-full_replace_max_element",
+        "fastedit_tokens": 46,
+        "native_edit_tokens": 136,
+        "savings_pct": 66.176,
+        "savings_tokens": 90
+      }
+    ]
+  },
+  "totals": {
+    "fastedit_total": 9399,
+    "native_total": 16608,
+    "savings_pct": 43.407,
+    "savings_total": 7209
+  },
+  "version_progression": {
+    "native_total_headline": 6882,
+    "v3": {
+      "fastedit_total_headline": 4465,
+      "savings_pct_headline": 35.121
+    },
+    "v4": {
+      "fastedit_total_headline": 4154,
+      "savings_pct_headline": 39.64
+    },
+    "v5": {
+      "fastedit_total_headline": 3556,
+      "savings_pct_headline": 48.329
+    }
+  }
+}

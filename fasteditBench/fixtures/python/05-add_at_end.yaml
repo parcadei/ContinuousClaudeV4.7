@@ -1,0 +1,29 @@
+name: add_at_end_log_metric
+pattern: add_at_end
+language: python
+original_code: |
+  def process_order(order):
+      validate(order)
+      charge = compute_charge(order)
+      persist(order, charge)
+      return charge
+snippet: |
+  def process_order(order):
+      # ... existing code ...
+      metrics.increment("orders.processed")
+      return charge
+expected_output: |
+  def process_order(order):
+      validate(order)
+      charge = compute_charge(order)
+      persist(order, charge)
+      metrics.increment("orders.processed")
+      return charge
+target_kind: replace
+target_name: process_order
+authoring_notes: |
+  Fulfills the 'insert_after_symbol' intent: a new statement is appended at
+  the end of the symbol body, just before the final return. The marker
+  preserves the 3-line head; the adapter must keep the closing `return charge`
+  intact. A naive adapter that treats the snippet's final return as new would
+  duplicate it.

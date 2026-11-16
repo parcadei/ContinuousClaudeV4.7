@@ -1,0 +1,115 @@
+name: add_logging_run_order_pipeline
+pattern: add_line
+language: python
+original_code: |
+  def run_order_pipeline(order, store, payments, fulfillment, notifier):
+      """Validate, charge, fulfill, and notify for a single order."""
+      if not order.get("items"):
+          raise ValueError("order has no items")
+
+      subtotal = 0
+      for item in order["items"]:
+          product = store.get_product(item["sku"])
+          if product is None:
+              raise ValueError(f"unknown SKU {item['sku']}")
+          if product["stock"] < item["quantity"]:
+              raise OutOfStockError(item["sku"])
+          subtotal += product["price"] * item["quantity"]
+
+      tax = round(subtotal * order.get("tax_rate", 0.0), 2)
+      total = subtotal + tax
+
+      charge = payments.charge(
+          customer_id=order["customer_id"],
+          amount=total,
+          idempotency_key=order["id"],
+      )
+      if charge.status != "succeeded":
+          raise PaymentDeclinedError(charge.decline_reason)
+
+      for item in order["items"]:
+          store.reserve(item["sku"], item["quantity"])
+
+      shipment = fulfillment.schedule(
+          order_id=order["id"],
+          items=order["items"],
+          address=order["shipping_address"],
+      )
+
+      notifier.publish("order.confirmed", {
+          "order_id": order["id"],
+          "total": total,
+          "shipment_id": shipment.id,
+      })
+
+      return {
+          "order_id": order["id"],
+          "subtotal": subtotal,
+          "tax": tax,
+          "total": total,
+          "charge_id": charge.id,
+          "shipment_id": shipment.id,
+      }
+snippet: |
+  def run_order_pipeline(order, store, payments, fulfillment, notifier):
+      """Validate, charge, fulfill, and notify for a single order."""
+      logger.info("pipeline start: order_id=%s", order.get("id"))
+      # ... existing code ...
+expected_output: |
+  def run_order_pipeline(order, store, payments, fulfillment, notifier):
+      """Validate, charge, fulfill, and notify for a single order."""
+      logger.info("pipeline start: order_id=%s", order.get("id"))
+      if not order.get("items"):
+          raise ValueError("order has no items")
+
+      subtotal = 0
+      for item in order["items"]:
+          product = store.get_product(item["sku"])
+          if product is None:
+              raise ValueError(f"unknown SKU {item['sku']}")
+          if product["stock"] < item["quantity"]:
+              raise OutOfStockError(item["sku"])
+          subtotal += product["price"] * item["quantity"]
+
+      tax = round(subtotal * order.get("tax_rate", 0.0), 2)
+      total = subtotal + tax
+
+      charge = payments.charge(
+          customer_id=order["customer_id"],
+          amount=total,
+          idempotency_key=order["id"],
+      )
+      if charge.status != "succeeded":
+          raise PaymentDeclinedError(charge.decline_reason)
+
+      for item in order["items"]:
+          store.reserve(item["sku"], item["quantity"])
+
+      shipment = fulfillment.schedule(
+          order_id=order["id"],
+          items=order["items"],
+          address=order["shipping_address"],
+      )
+
+      notifier.publish("order.confirmed", {
+          "order_id": order["id"],
+          "total": total,
+          "shipment_id": shipment.id,
+      })
+
+      return {
+          "order_id": order["id"],
+          "subtotal": subtotal,
+          "tax": tax,
+          "total": total,
+          "charge_id": charge.id,
+          "shipment_id": shipment.id,
+      }
+target_kind: replace
+target_name: run_order_pipeline
+authoring_notes: |
+  Realistic 50-line order pipeline (validate -> charge -> reserve -> ship ->
+  notify). Edit inserts a single logger.info at the start. Because the
+  surrounding function body is large and complex, native-edit must anchor
+  with a big old_string region while FastEdit 0.2.5 emits only the new
+  logger line + marker.

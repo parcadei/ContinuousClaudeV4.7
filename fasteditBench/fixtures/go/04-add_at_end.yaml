@@ -1,0 +1,46 @@
+name: add_at_end_log_completion
+pattern: add_at_end
+language: go
+original_code: |
+  package pipeline
+
+  import "log"
+
+  func Process(items []string) []string {
+      out := make([]string, 0, len(items))
+      for _, it := range items {
+          out = append(out, transform(it))
+      }
+      return out
+  }
+
+  func transform(s string) string { return s + "!" }
+snippet: |
+  func Process(items []string) []string {
+      // ... existing code ...
+      log.Printf("processed %d items", len(out))
+      return out
+  }
+expected_output: |
+  package pipeline
+
+  import "log"
+
+  func Process(items []string) []string {
+      out := make([]string, 0, len(items))
+      for _, it := range items {
+          out = append(out, transform(it))
+      }
+      log.Printf("processed %d items", len(out))
+      return out
+  }
+
+  func transform(s string) string { return s + "!" }
+target_kind: replace
+target_name: Process
+authoring_notes: |
+  Maps to "insert_after_symbol" in the caller's taxonomy — add_at_end in
+  the 22-slug list. New log line is inserted just before the final
+  `return`, preserving the loop via the top marker. Adapter must also
+  preserve the sibling `transform` function below, which is outside the
+  edited symbol.

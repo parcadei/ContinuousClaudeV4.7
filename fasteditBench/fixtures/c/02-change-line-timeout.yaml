@@ -1,0 +1,46 @@
+name: change_line_connect_timeout
+pattern: change_line
+language: c
+original_code: |
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+
+  int open_connection(int sock, const struct sockaddr *addr) {
+      int timeout_ms = 5000;
+      setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout_ms, sizeof(timeout_ms));
+      return connect(sock, addr, sizeof(struct sockaddr_in));
+  }
+snippet: |
+  int open_connection(int sock, const struct sockaddr *addr) {
+      int timeout_ms = 30000;
+      setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout_ms, sizeof(timeout_ms));
+      return connect(sock, addr, sizeof(struct sockaddr_in));
+  }
+expected_output: |
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+
+  int open_connection(int sock, const struct sockaddr *addr) {
+      int timeout_ms = 30000;
+      setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout_ms, sizeof(timeout_ms));
+      return connect(sock, addr, sizeof(struct sockaddr_in));
+  }
+target_kind: replace
+target_name: open_connection
+authoring_notes: |
+  Single-line change: bump timeout from 5s to 30s. Only the initializer
+  literal changes; surrounding context (setsockopt call, connect call)
+  is identical. Full function body is present in the snippet — no
+  elision marker needed for change_line.
+
+  M12: re-annotated to target_kind='replace' after the upstream tldr
+  C-grammar fix that stopped emitting bare `struct X` type references
+  as top-level struct definitions. FastEdit's chunked_merge now
+  resolves `open_connection` without the extras guard firing, and the
+  deterministic text-match path produces the byte-exact output at 0
+  model tokens.
+
+  Prior history: M9 accepted as algorithm-limit because tldr's C
+  analyzer mis-reported `struct sockaddr` / `struct sockaddr_in`
+  (pointer parameter and sizeof expression) as struct definitions,
+  tripping FastEdit's single-symbol extras guard.

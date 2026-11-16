@@ -1,0 +1,44 @@
+name: add_branch_grade
+pattern: add_branch
+language: cpp
+original_code: |
+  #include <string>
+
+  std::string grade(int score) {
+      if (score >= 90) {
+          return "A";
+      } else if (score >= 80) {
+          return "B";
+      }
+      return "F";
+  }
+snippet: |
+  std::string grade(int score) {
+      if (score >= 90) {
+          return "A";
+      } else if (score >= 80) {
+          return "B";
+      } else if (score >= 70) {
+          return "C";
+      }
+      return "F";
+  }
+expected_output: |
+  #include <string>
+
+  std::string grade(int score) {
+      if (score >= 90) {
+          return "A";
+      } else if (score >= 80) {
+          return "B";
+      } else if (score >= 70) {
+          return "C";
+      }
+      return "F";
+  }
+target_kind: replace
+target_name: grade
+authoring_notes: |
+  Add an else-if branch to an existing chain. The adapter must splice
+  the new branch between the last existing else-if and the fallthrough
+  return, without duplicating or reordering branches.

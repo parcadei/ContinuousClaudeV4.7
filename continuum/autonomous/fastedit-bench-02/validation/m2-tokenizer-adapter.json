@@ -1,0 +1,46 @@
+{
+  "milestone": "tokenizer_adapter",
+  "date": "2026-04-22",
+  "status": "passed",
+  "gate_result": "pass",
+  "assertions": {
+    "VAL-200": {
+      "status": "passed",
+      "evidence": "TokenizerFloorAdapter with two backends (tiktoken o200k_base for GPT, anthropic.count_tokens for Opus with cl100k_base fallback). 12 unit tests + 1 integration test, all pass. Ruff clean. Commit 274d3c0."
+    },
+    "VAL-201": {
+      "status": "passed",
+      "evidence": "Integration test on fixtures/python/01-add_guard.yaml: both model paths return FloorResult with edit_payload_tokens > 0 and within 0.5x-3x of bytes/4 heuristic (48 tokens vs ~19 heuristic = 2.5x). Commit bba262a."
+    }
+  },
+  "automated_checks": {
+    "targeted_tests": {"command": "uv run --no-sync pytest tests/test_tokenizer_floor_adapter.py -v", "passed": 13, "exit_code": 0},
+    "full_suite": {"command": "uv run --no-sync pytest", "passed": 115, "exit_code": 0},
+    "ruff": {"command": "uv run --no-sync ruff check src/fasteditbench/backends/tokenizer_floor_adapter.py tests/test_tokenizer_floor_adapter.py", "exit_code": 0}
+  },
+  "fixture_01_audit": {
+    "fixture": "fixtures/python/01-add_guard.yaml",
+    "n_hunks": 1,
+    "old_string": "    attempt = 0\n",
+    "new_string": "    if not records:\n        return []\n    attempt = 0\n",
+    "payload_bytes": 172,
+    "gpt_tokens": 48,
+    "opus_tokens": 48,
+    "opus_used_proxy": true,
+    "tokenizer_gpt": "tiktoken:o200k_base",
+    "tokenizer_opus": "tiktoken:cl100k_base (proxy — ANTHROPIC_API_KEY absent)"
+  },
+  "worker_notes": [
+    "Pure insert/delete hunks are anchored on one adjacent equal line (next preferred, else previous). Without this, old_string would be empty — unmatchable by a real Edit tool — so the floor would misrepresent what a real model would emit.",
+    "wrapper_overhead is informational only; not added to edit_payload_tokens. The full serialized JSON already includes the wrapper structure.",
+    "Tests are hermetic. Opus live count_tokens API path is untested — M3 will be the first exercise. Low risk (free endpoint, simple SDK call) but worth monitoring during the first few fixtures.",
+    "Fixture 01 is a pure-AST add_guard (FastEdit spends zero tokens on it), so the floor ratio vs FastEdit is 48:0. M4 report rendering needs a divide-by-zero guard or ratio=inf handling for the 120 zero-token FastEdit cases.",
+    "Anthropic SDK installed via `uv add anthropic` — dep added to fasteditBench/pyproject.toml."
+  ],
+  "tokenizer_decision_for_m3": {
+    "opus_path": "proxy",
+    "reason": "ANTHROPIC_API_KEY absent from fasteditBench/.env. User approved proxy path for M3 — tokenizer_proxy=true on all 156 Opus rows, disclosed in VAL-401 report. Live path available by adding the key and rerunning (~30s).",
+    "reversibility": "High — adapter supports both paths, no code change needed to swap."
+  },
+  "next_milestone": "floor_run (M3)"
+}

@@ -1,0 +1,28 @@
+name: delete_lines_debug_prints
+pattern: delete_lines
+language: rust
+original_code: |
+  fn run_pipeline(input: &Input) -> Output {
+      let stage1 = preprocess(input);
+      println!("[debug] stage1 done: {:?}", stage1);
+      let stage2 = transform(&stage1);
+      println!("[debug] stage2 done: {:?}", stage2);
+      finalize(stage2)
+  }
+snippet: |
+  fn run_pipeline(input: &Input) -> Output {
+      let stage1 = preprocess(input);
+      let stage2 = transform(&stage1);
+      finalize(stage2)
+  }
+expected_output: |
+  fn run_pipeline(input: &Input) -> Output {
+      let stage1 = preprocess(input);
+      let stage2 = transform(&stage1);
+      finalize(stage2)
+  }
+target_kind: replace
+target_name: run_pipeline
+authoring_notes: |
+  Removes two `println!` debug-trace lines while keeping the three
+  pipeline stages intact. Realistic cleanup edit before merging to main.

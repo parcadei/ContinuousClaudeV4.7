@@ -1,0 +1,35 @@
+name: change_line_timeout
+pattern: change_line
+language: java
+original_code: |
+  public class HttpFetcher {
+      public String fetch(java.net.URI url) throws Exception {
+          java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+              .connectTimeout(java.time.Duration.ofSeconds(5))
+              .build();
+          java.net.http.HttpRequest req = java.net.http.HttpRequest.newBuilder(url).build();
+          return client.send(req, java.net.http.HttpResponse.BodyHandlers.ofString()).body();
+      }
+  }
+snippet: |
+  java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+      .connectTimeout(java.time.Duration.ofSeconds(30))
+      .build();
+expected_output: |
+  public class HttpFetcher {
+      public String fetch(java.net.URI url) throws Exception {
+          java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+              .connectTimeout(java.time.Duration.ofSeconds(30))
+              .build();
+          java.net.http.HttpRequest req = java.net.http.HttpRequest.newBuilder(url).build();
+          return client.send(req, java.net.http.HttpResponse.BodyHandlers.ofString()).body();
+      }
+  }
+target_kind: replace
+target_name: HttpFetcher
+authoring_notes: |
+  Single-line change: bump the connectTimeout from 5 to 30 seconds.
+  Snippet provides the exact replacement span (the three lines of the
+  newBuilder().connectTimeout(...).build() chain). A correct adapter
+  changes only the Duration.ofSeconds(5) -> Duration.ofSeconds(30) line
+  and leaves the rest of the method body alone.

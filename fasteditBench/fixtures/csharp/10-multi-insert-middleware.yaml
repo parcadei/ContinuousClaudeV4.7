@@ -1,0 +1,43 @@
+name: multi_insert_aspnet_middleware
+pattern: multi_insert
+language: csharp
+original_code: |
+  using Microsoft.AspNetCore.Builder;
+
+  public static class Startup
+  {
+      public static void Configure(IApplicationBuilder app)
+      {
+          app.UseRouting();
+          app.UseEndpoints(endpoints => { });
+      }
+  }
+snippet: |
+  public static void Configure(IApplicationBuilder app)
+  {
+      app.UseRouting();
+      app.UseCors();
+      app.UseAuthentication();
+      app.UseAuthorization();
+      app.UseEndpoints(endpoints => { });
+  }
+expected_output: |
+  using Microsoft.AspNetCore.Builder;
+
+  public static class Startup
+  {
+      public static void Configure(IApplicationBuilder app)
+      {
+          app.UseRouting();
+          app.UseCors();
+          app.UseAuthentication();
+          app.UseAuthorization();
+          app.UseEndpoints(endpoints => { });
+      }
+  }
+target_kind: replace
+target_name: Startup
+authoring_notes: |
+  Inserts three consecutive ASP.NET middleware calls between existing
+  `UseRouting` and `UseEndpoints` anchors. Canonical `multi_insert` case
+  in an ASP.NET Core startup pipeline.

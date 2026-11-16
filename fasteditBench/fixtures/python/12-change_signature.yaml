@@ -1,0 +1,25 @@
+name: change_signature_add_kwarg
+pattern: change_signature
+language: python
+original_code: |
+  def render_template(template_name, context):
+      template = env.get_template(template_name)
+      rendered = template.render(**context)
+      return rendered.encode("utf-8")
+snippet: |
+  def render_template(template_name, context, *, strict=False):
+      template = env.get_template(template_name)
+      rendered = template.render(**context)
+      return rendered.encode("utf-8")
+expected_output: |
+  def render_template(template_name, context, *, strict=False):
+      template = env.get_template(template_name)
+      rendered = template.render(**context)
+      return rendered.encode("utf-8")
+target_kind: replace
+target_name: render_template
+authoring_notes: |
+  Adds a keyword-only parameter after a bare-star separator. Body is
+  unchanged. M8: rewritten as Style A (full-function replacement, no
+  markers) so FastEdit's direct-swap fast path captures it deterministically
+  with zero model tokens.

@@ -1,0 +1,121 @@
+name: rust_add_guard_parse_config_file
+pattern: add_guard
+language: rust
+original_code: |
+  pub fn parse_config_file(path: &Path) -> Result<Config, ConfigError> {
+      let raw = std::fs::read_to_string(path)
+          .map_err(|e| ConfigError::Io { path: path.to_path_buf(), source: e })?;
+
+      let mut table: toml::Value = toml::from_str(&raw)
+          .map_err(|e| ConfigError::Parse { path: path.to_path_buf(), source: e })?;
+
+      let root = table
+          .as_table_mut()
+          .ok_or_else(|| ConfigError::Schema {
+              reason: "top-level must be a table".to_string(),
+          })?;
+
+      let server = root
+          .remove("server")
+          .and_then(|v| v.try_into::<ServerConfig>().ok())
+          .unwrap_or_default();
+
+      let database = root
+          .remove("database")
+          .map(|v| v.try_into::<DatabaseConfig>())
+          .transpose()
+          .map_err(|e| ConfigError::Schema { reason: e.to_string() })?
+          .ok_or(ConfigError::MissingSection("database"))?;
+
+      let logging = root
+          .remove("logging")
+          .and_then(|v| v.try_into::<LoggingConfig>().ok())
+          .unwrap_or_else(LoggingConfig::default);
+
+      let mut features = FeatureFlags::default();
+      if let Some(flags) = root.remove("features") {
+          features = flags
+              .try_into::<FeatureFlags>()
+              .map_err(|e| ConfigError::Schema { reason: e.to_string() })?;
+      }
+
+      for (key, _value) in root.iter() {
+          tracing::warn!(key, "unknown top-level config section ignored");
+      }
+
+      Ok(Config {
+          server,
+          database,
+          logging,
+          features,
+          source_path: path.to_path_buf(),
+      })
+  }
+snippet: |
+  pub fn parse_config_file(path: &Path) -> Result<Config, ConfigError> {
+      if !path.exists() {
+          return Err(ConfigError::NotFound(path.to_path_buf()));
+      }
+      let raw = std::fs::read_to_string(path)
+          .map_err(|e| ConfigError::Io { path: path.to_path_buf(), source: e })?;
+      // ... existing code ...
+expected_output: |
+  pub fn parse_config_file(path: &Path) -> Result<Config, ConfigError> {
+      if !path.exists() {
+          return Err(ConfigError::NotFound(path.to_path_buf()));
+      }
+      let raw = std::fs::read_to_string(path)
+          .map_err(|e| ConfigError::Io { path: path.to_path_buf(), source: e })?;
+
+      let mut table: toml::Value = toml::from_str(&raw)
+          .map_err(|e| ConfigError::Parse { path: path.to_path_buf(), source: e })?;
+
+      let root = table
+          .as_table_mut()
+          .ok_or_else(|| ConfigError::Schema {
+              reason: "top-level must be a table".to_string(),
+          })?;
+
+      let server = root
+          .remove("server")
+          .and_then(|v| v.try_into::<ServerConfig>().ok())
+          .unwrap_or_default();
+
+      let database = root
+          .remove("database")
+          .map(|v| v.try_into::<DatabaseConfig>())
+          .transpose()
+          .map_err(|e| ConfigError::Schema { reason: e.to_string() })?
+          .ok_or(ConfigError::MissingSection("database"))?;
+
+      let logging = root
+          .remove("logging")
+          .and_then(|v| v.try_into::<LoggingConfig>().ok())
+          .unwrap_or_else(LoggingConfig::default);
+
+      let mut features = FeatureFlags::default();
+      if let Some(flags) = root.remove("features") {
+          features = flags
+              .try_into::<FeatureFlags>()
+              .map_err(|e| ConfigError::Schema { reason: e.to_string() })?;
+      }
+
+      for (key, _value) in root.iter() {
+          tracing::warn!(key, "unknown top-level config section ignored");
+      }
+
+      Ok(Config {
+          server,
+          database,
+          logging,
+          features,
+          source_path: path.to_path_buf(),
+      })
+  }
+target_kind: replace
+target_name: parse_config_file
+authoring_notes: |
+  Realistic 45-line TOML config parser (IO -> parse -> section extraction ->
+  defaults -> unknown-key warn). Edit adds a 3-line pre-check guard that
+  returns NotFound early. FastEdit 0.2.5 minimal payload = guard + context
+  anchor (let raw) + marker. Native-edit must echo the whole body.

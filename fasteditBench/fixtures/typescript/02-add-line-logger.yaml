@@ -1,0 +1,26 @@
+name: ts_add_line_logger
+pattern: add_line
+language: typescript
+original_code: |
+  export async function saveUser(user: User): Promise<void> {
+    const payload = serialize(user);
+    await repo.write(payload);
+  }
+snippet: |
+  export async function saveUser(user: User): Promise<void> {
+    const payload = serialize(user);
+    logger.info("saving user", { id: user.id });
+    await repo.write(payload);
+  }
+expected_output: |
+  export async function saveUser(user: User): Promise<void> {
+    const payload = serialize(user);
+    logger.info("saving user", { id: user.id });
+    await repo.write(payload);
+  }
+target_kind: replace
+target_name: saveUser
+authoring_notes: |
+  Insert exactly one statement between two anchors (the `const payload`
+  line and the `await repo.write` line). Idiomatic async/await
+  TypeScript with Promise<void> return type.

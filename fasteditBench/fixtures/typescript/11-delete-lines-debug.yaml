@@ -1,0 +1,26 @@
+name: ts_delete_lines_debug_logs
+pattern: delete_lines
+language: typescript
+original_code: |
+  export async function run(): Promise<void> {
+    await init();
+    logger.debug("starting");
+    logger.debug("about to work");
+    await work();
+  }
+snippet: |
+  export async function run(): Promise<void> {
+    await init();
+    await work();
+  }
+expected_output: |
+  export async function run(): Promise<void> {
+    await init();
+    await work();
+  }
+target_kind: replace
+target_name: run
+authoring_notes: |
+  Remove two `logger.debug` calls between the `await init()` and
+  `await work()` anchors. No replacement lines. Tests the
+  delete_lines pattern on idiomatic async TypeScript.

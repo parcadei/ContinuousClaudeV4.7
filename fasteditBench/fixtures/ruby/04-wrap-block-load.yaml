@@ -1,0 +1,41 @@
+name: rb_wrap_block_load
+pattern: wrap_block
+language: ruby
+original_code: |
+  class ConfigLoader
+    def load(path)
+      data = File.read(path)
+      parse(data)
+    end
+  end
+snippet: |
+  def load(path)
+    begin
+      # ... existing code ...
+    rescue Errno::ENOENT
+      nil
+    end
+  end
+expected_output: |
+  class ConfigLoader
+    def load(path)
+      begin
+        data = File.read(path)
+        parse(data)
+      rescue Errno::ENOENT
+        nil
+      end
+    end
+  end
+target_kind: none
+target_name: null
+authoring_notes: |
+  P4 wrap_block: surround body with begin/rescue/end. Ruby's canonical
+  exception handling idiom.
+
+  target_kind=none: under AST-scoped replace=<func>, the deterministic
+  text-match can't preserve-gap-AND-reindent the body lines when they
+  get wrapped in a `begin` block (two extra levels of indent). Falling
+  back to the legacy markers-only path (model-driven) handles it
+  correctly — and this IS a realistic agent invocation mode (agents
+  often don't pass symbol targets when doing pure marker-based edits).

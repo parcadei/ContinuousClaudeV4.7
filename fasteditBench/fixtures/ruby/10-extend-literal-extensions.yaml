@@ -1,0 +1,21 @@
+name: rb_extend_literal_extensions
+pattern: extend_literal
+language: ruby
+original_code: |
+  module Indexer
+    EXTENSIONS = [".py", ".js", ".ts"].freeze
+  end
+snippet: |
+  EXTENSIONS = [".py", ".js", ".ts", ".rb", ".go"].freeze
+expected_output: |
+  module Indexer
+    EXTENSIONS = [".py", ".js", ".ts", ".rb", ".go"].freeze
+  end
+target_kind: replace
+target_name: EXTENSIONS
+authoring_notes: |
+  P14 extend_literal: add two entries to a frozen array constant.
+
+  M9: annotated as replace=EXTENSIONS — tldr emits the constant as a
+  resolvable top-level definition (inside the module), direct-swap
+  fires with 0 model tokens.

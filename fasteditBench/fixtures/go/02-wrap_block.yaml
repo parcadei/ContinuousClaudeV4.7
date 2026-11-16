@@ -1,0 +1,44 @@
+name: wrap_block_defer_recover
+pattern: wrap_block
+language: go
+original_code: |
+  package worker
+
+  import "log"
+
+  func RunJob(job func()) {
+      log.Println("job start")
+      job()
+      log.Println("job end")
+  }
+snippet: |
+  func RunJob(job func()) {
+      defer func() {
+          if r := recover(); r != nil {
+              log.Printf("job panicked: %v", r)
+          }
+      }()
+      // ... existing code ...
+  }
+expected_output: |
+  package worker
+
+  import "log"
+
+  func RunJob(job func()) {
+      defer func() {
+          if r := recover(); r != nil {
+              log.Printf("job panicked: %v", r)
+          }
+      }()
+      log.Println("job start")
+      job()
+      log.Println("job end")
+  }
+target_kind: replace
+target_name: RunJob
+authoring_notes: |
+  Wrap an existing body with a `defer func(){ recover() }` panic guard —
+  idiomatic Go panic-to-error boundary. The marker preserves the three
+  existing body lines verbatim. Wrong adapter would either drop the
+  original body or mis-place the defer.

@@ -1,0 +1,32 @@
+name: add_line_log_before_write
+pattern: add_line
+language: c
+original_code: |
+  #include <stdio.h>
+  #include <string.h>
+
+  void persist_record(FILE *fp, const char *record) {
+      size_t len = strlen(record);
+      fwrite(record, 1, len, fp);
+  }
+snippet: |
+  void persist_record(FILE *fp, const char *record) {
+      size_t len = strlen(record);
+      fprintf(stderr, "persisting %zu bytes\n", len);
+      fwrite(record, 1, len, fp);
+  }
+expected_output: |
+  #include <stdio.h>
+  #include <string.h>
+
+  void persist_record(FILE *fp, const char *record) {
+      size_t len = strlen(record);
+      fprintf(stderr, "persisting %zu bytes\n", len);
+      fwrite(record, 1, len, fp);
+  }
+target_kind: replace
+target_name: persist_record
+authoring_notes: |
+  Inserts exactly one `fprintf` line between the `strlen` assignment
+  and the `fwrite` call. No marker needed because the snippet carries
+  the full function.

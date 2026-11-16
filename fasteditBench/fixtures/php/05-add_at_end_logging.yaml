@@ -1,0 +1,46 @@
+name: add_at_end_logging
+pattern: add_at_end
+language: php
+original_code: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class Processor
+  {
+      public function process(Payload $x): Payload
+      {
+          $y = $this->transform($x);
+          return $y;
+      }
+  }
+snippet: |
+  public function process(Payload $x): Payload
+  {
+      $y = $this->transform($x);
+      $this->logger->info('done');
+      return $y;
+  }
+expected_output: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class Processor
+  {
+      public function process(Payload $x): Payload
+      {
+          $y = $this->transform($x);
+          $this->logger->info('done');
+          return $y;
+      }
+  }
+target_kind: replace
+target_name: Processor
+authoring_notes: |
+  Append logger call before the final return. Style A (full method
+  replacement) under replace=process — realistic MCP-mode invocation
+  targeting the specific method. Earlier draft used target_kind=none
+  with a top-marker snippet, which fell back to the model and failed
+  rejected_hallucinated_chunks on `Payload` — this Style A variant
+  is unambiguous for text_match.

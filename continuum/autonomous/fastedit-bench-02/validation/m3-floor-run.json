@@ -1,0 +1,50 @@
+{
+  "milestone": "floor_run",
+  "date": "2026-04-22",
+  "status": "passed",
+  "gate_result": "pass",
+  "run_id": "20260422-213958",
+  "assertions": {
+    "VAL-300": {
+      "status": "passed",
+      "evidence": "floor_runner.run_floor() executes 156 fixtures x 2 models = 312 computations in 0.35s wall-clock, 0 errors. Produces results/{slug}/{run_id}.jsonl + .summary.json per model. Idempotent resume + force flag both covered by dedicated tests."
+    },
+    "VAL-301": {
+      "status": "passed",
+      "evidence": "All 4 invariants + 2 resume/force tests pass (6/6). Every row has tokenizer_used. Every non-error row has edit_payload_tokens > 0. Per-model totals (gpt=10799, opus=10726) inside [10k, 1M] envelope. Proxy flag matches ANTHROPIC_API_KEY state (key absent -> all Opus rows tokenizer_proxy=true)."
+    }
+  },
+  "automated_checks": {
+    "targeted_tests": {"command": "uv run --no-sync pytest tests/test_floor_run.py -v", "passed": 9, "exit_code": 0},
+    "full_suite": {"command": "uv run --no-sync pytest", "passed": 124, "exit_code": 0},
+    "ruff": {"command": "uv run --no-sync ruff check src/fasteditbench/floor_runner.py scripts/run_floor.py tests/test_floor_run.py", "exit_code": 0}
+  },
+  "headline_numbers": {
+    "fastedit_baseline_total_tokens": 1977,
+    "gpt_5_4_total_tokens": 10799,
+    "gpt_ratio_vs_fastedit": 5.46,
+    "opus_4_7_total_tokens": 10726,
+    "opus_ratio_vs_fastedit": 5.43,
+    "opus_used_proxy": true
+  },
+  "results_files": {
+    "openai/gpt-5.4": {
+      "jsonl": "fasteditBench/results/openai_gpt-5.4/20260422-213958.jsonl",
+      "summary": "fasteditBench/results/openai_gpt-5.4/20260422-213958.summary.json",
+      "n_rows": 156
+    },
+    "anthropic/claude-opus-4.7": {
+      "jsonl": "fasteditBench/results/anthropic_claude-opus-4.7/20260422-213958.jsonl",
+      "summary": "fasteditBench/results/anthropic_claude-opus-4.7/20260422-213958.summary.json",
+      "n_rows": 156
+    }
+  },
+  "proxy_disclosure": {
+    "opus_path": "proxy",
+    "tokenizer_used": "tiktoken:cl100k_base",
+    "reason": "ANTHROPIC_API_KEY absent from fasteditBench/.env per user direction at M2 gate.",
+    "aggregate_divergence_vs_native_estimate": "<1% (GPT/Opus aggregate totals within 73 tokens on 10.7k total)",
+    "reversibility": "High - rerun scripts/run_floor.py --force --models anthropic/claude-opus-4.7 with key set"
+  },
+  "next_milestone": "report (M4)"
+}

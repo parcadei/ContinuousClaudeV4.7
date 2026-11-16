@@ -1,0 +1,44 @@
+name: add_branch_grade_c
+pattern: add_branch
+language: go
+original_code: |
+  package grade
+
+  func Letter(score int) string {
+      if score >= 90 {
+          return "A"
+      } else if score >= 80 {
+          return "B"
+      }
+      return "F"
+  }
+snippet: |
+  func Letter(score int) string {
+      if score >= 90 {
+          return "A"
+      } else if score >= 80 {
+          return "B"
+      } else if score >= 70 {
+          return "C"
+      }
+      return "F"
+  }
+expected_output: |
+  package grade
+
+  func Letter(score int) string {
+      if score >= 90 {
+          return "A"
+      } else if score >= 80 {
+          return "B"
+      } else if score >= 70 {
+          return "C"
+      }
+      return "F"
+  }
+target_kind: replace
+target_name: Letter
+authoring_notes: |
+  Add a third `else if` branch to an existing if/else-if chain. The
+  trailing `return "F"` (the implicit "else") must stay intact, as must
+  the two pre-existing branches. Classic add_branch test.

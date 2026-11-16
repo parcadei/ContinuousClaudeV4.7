@@ -1,0 +1,45 @@
+name: add_branch_else_if
+pattern: add_branch
+language: java
+original_code: |
+  public class Grader {
+      public String grade(int score) {
+          if (score >= 90) {
+              return "A";
+          } else if (score >= 80) {
+              return "B";
+          }
+          return "F";
+      }
+  }
+snippet: |
+  public String grade(int score) {
+      if (score >= 90) {
+          return "A";
+      } else if (score >= 80) {
+          return "B";
+      } else if (score >= 70) {
+          return "C";
+      }
+      return "F";
+  }
+expected_output: |
+  public class Grader {
+      public String grade(int score) {
+          if (score >= 90) {
+              return "A";
+          } else if (score >= 80) {
+              return "B";
+          } else if (score >= 70) {
+              return "C";
+          }
+          return "F";
+      }
+  }
+target_kind: replace
+target_name: grade
+authoring_notes: |
+  Insert a new `else if (score >= 70)` arm into an existing if/else-if
+  chain. Snippet shows the entire method body; adapter must merge the new
+  arm between the existing `>= 80` arm and the fall-through `return "F"`.
+  Tests correct placement inside a multi-branch conditional.

@@ -1,0 +1,29 @@
+name: rb_rename_variable_accumulate
+pattern: rename_variable
+language: ruby
+original_code: |
+  class Reducer
+    def accumulate(xs)
+      tmp = xs.map { |x| x * 2 }
+      tmp = tmp.reject(&:zero?)
+      tmp
+    end
+  end
+snippet: |
+  def accumulate(xs)
+    result = xs.map { |x| x * 2 }
+    result = result.reject(&:zero?)
+    result
+  end
+expected_output: |
+  class Reducer
+    def accumulate(xs)
+      result = xs.map { |x| x * 2 }
+      result = result.reject(&:zero?)
+      result
+    end
+  end
+target_kind: replace
+target_name: accumulate
+authoring_notes: |
+  P16 rename_variable: rename local tmp -> result across three usages.

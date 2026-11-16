@@ -1,0 +1,29 @@
+name: full_replace_largest_to_max
+pattern: full_replace
+language: swift
+original_code: |
+  func largest(_ items: [Int]) -> Int? {
+      guard var best = items.first else {
+          return nil
+      }
+      for x in items.dropFirst() {
+          if x > best {
+              best = x
+          }
+      }
+      return best
+  }
+snippet: |
+  func largest(_ items: [Int]) -> Int? {
+      return items.max()
+  }
+expected_output: |
+  func largest(_ items: [Int]) -> Int? {
+      return items.max()
+  }
+target_kind: replace
+target_name: largest
+authoring_notes: |
+  Replace the entire manual max-finder with a single call to
+  Array.max(). Signature preserved; body fully rewritten. No markers —
+  the snippet IS the complete new function body.

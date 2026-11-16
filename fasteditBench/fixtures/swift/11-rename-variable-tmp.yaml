@@ -1,0 +1,27 @@
+name: rename_variable_tmp_to_result
+pattern: rename_variable
+language: swift
+original_code: |
+  func compute(_ xs: [Int]) -> Int {
+      var tmp = xs.reduce(0, +)
+      tmp = tmp + 1
+      return tmp
+  }
+snippet: |
+  func compute(_ xs: [Int]) -> Int {
+      var result = xs.reduce(0, +)
+      result = result + 1
+      return result
+  }
+expected_output: |
+  func compute(_ xs: [Int]) -> Int {
+      var result = xs.reduce(0, +)
+      result = result + 1
+      return result
+  }
+target_kind: replace
+target_name: compute
+authoring_notes: |
+  Rename the local 'tmp' variable to 'result' at all three usage sites
+  (declaration, self-assignment, return). No markers; full body is
+  rewritten because every line is affected by the rename.

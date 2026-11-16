@@ -1,0 +1,54 @@
+name: change_signature_add_ctx
+pattern: change_signature
+language: go
+original_code: |
+  package api
+
+  import (
+      "context"
+      "fmt"
+  )
+
+  var _ = context.Background
+
+  func Fetch(url string) (string, error) {
+      if url == "" {
+          return "", fmt.Errorf("empty url")
+      }
+      return "body of " + url, nil
+  }
+snippet: |
+  func Fetch(ctx context.Context, url string) (string, error) {
+      if url == "" {
+          return "", fmt.Errorf("empty url")
+      }
+      return "body of " + url, nil
+  }
+expected_output: |
+  package api
+
+  import (
+      "context"
+      "fmt"
+  )
+
+  var _ = context.Background
+
+  func Fetch(ctx context.Context, url string) (string, error) {
+      if url == "" {
+          return "", fmt.Errorf("empty url")
+      }
+      return "body of " + url, nil
+  }
+target_kind: replace
+target_name: Fetch
+authoring_notes: |
+  Add a leading `ctx context.Context` parameter (Go convention). M8:
+  rewritten as Style A (full-function replacement, no markers) so
+  FastEdit's direct-swap fast path captures it with zero model tokens.
+  The `context` import was moved into original_code (with a
+  `var _ = context.Background` usage so the import is not unused-and-
+  rejected by the Go parse check) — the original multi-region edit
+  (imports block + function) is not representable in a single
+  direct-swap, and splitting it into a batch edit would change the
+  pattern classification.

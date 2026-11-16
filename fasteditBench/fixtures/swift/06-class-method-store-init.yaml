@@ -1,0 +1,75 @@
+name: class_method_store_init_swap
+pattern: class_method
+language: swift
+original_code: |
+  class Store {
+      private var items: [Int]
+
+      init() {
+          self.items = []
+      }
+
+      func get(_ k: Int) -> Int {
+          return items[k]
+      }
+
+      func set(_ k: Int, _ v: Int) {
+          items[k] = v
+      }
+  }
+snippet: |
+  class Store {
+      private var items: [String: Int]
+
+      init() {
+          self.items = [:]
+      }
+  }
+expected_output: |
+  class Store {
+      private var items: [String: Int]
+
+      init() {
+          self.items = [:]
+      }
+
+      func get(_ k: Int) -> Int {
+          return items[k]
+      }
+
+      func set(_ k: Int, _ v: Int) {
+          items[k] = v
+      }
+  }
+target_kind: batch
+target_name: null
+target_batch:
+  - kind: replace
+    name: Store
+    preserve_siblings: true
+    snippet: |
+      class Store {
+          private var items: [String: Int]
+
+          init() {
+              self.items = [:]
+          }
+      }
+authoring_notes: |
+  Modify a stored property's type and the init body while preserving
+  the get/set methods. The new items dictionary type is [String: Int]
+  but the surviving methods still use Int keys — this intentionally
+  mirrors the Python P9 fixture, which also leaves the post-edit code
+  semantically inconsistent. Tree-sitter accepts it as syntactically
+  valid Swift.
+
+  M12: re-annotated as a single-entry target_batch with
+  preserve_siblings=true. FastEdit's chunked_merge resolves `Store`,
+  enumerates the two methods via tldr, and splices them back into the
+  new class body. Byte-exact, 0 model tokens.
+
+  Prior history: M9 accepted as algorithm-limit because Swift's
+  `init()` is in tldr's `methods` list but NOT in `definitions`, and
+  fields aren't exposed. preserve_siblings removes the need to target
+  init or the field individually — the snippet carries both in a
+  minimal class shell and the untouched methods are spliced back in.

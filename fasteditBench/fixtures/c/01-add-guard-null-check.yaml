@@ -1,0 +1,34 @@
+name: add_guard_null_check
+pattern: add_guard
+language: c
+original_code: |
+  #include <stddef.h>
+  #include <string.h>
+
+  size_t safe_strlen(const char *s) {
+      return strlen(s);
+  }
+snippet: |
+  size_t safe_strlen(const char *s) {
+      if (s == NULL) {
+          return 0;
+      }
+      // ... existing code ...
+  }
+expected_output: |
+  #include <stddef.h>
+  #include <string.h>
+
+  size_t safe_strlen(const char *s) {
+      if (s == NULL) {
+          return 0;
+      }
+      return strlen(s);
+  }
+target_kind: replace
+target_name: safe_strlen
+authoring_notes: |
+  Classic NULL-guard insertion at the top of a C function. The snippet
+  uses a C-style `// ... existing code ...` marker to preserve the
+  original body (strlen call). Expected_output is a standalone TU with
+  required includes so tree-sitter-c parses it cleanly.

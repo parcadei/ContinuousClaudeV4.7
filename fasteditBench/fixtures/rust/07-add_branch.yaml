@@ -1,0 +1,35 @@
+name: add_branch_match_arm
+pattern: add_branch
+language: rust
+original_code: |
+  fn level_for(code: u16) -> Level {
+      match code {
+          200..=299 => Level::Info,
+          400..=499 => Level::Warn,
+          _ => Level::Error,
+      }
+  }
+snippet: |
+  fn level_for(code: u16) -> Level {
+      match code {
+          200..=299 => Level::Info,
+          300..=399 => Level::Debug,
+          400..=499 => Level::Warn,
+          _ => Level::Error,
+      }
+  }
+expected_output: |
+  fn level_for(code: u16) -> Level {
+      match code {
+          200..=299 => Level::Info,
+          300..=399 => Level::Debug,
+          400..=499 => Level::Warn,
+          _ => Level::Error,
+      }
+  }
+target_kind: replace
+target_name: level_for
+authoring_notes: |
+  Adds a new match arm (`300..=399 => Level::Debug`) between two existing
+  arms. Rust-idiomatic: uses inclusive-range pattern syntax, which is a
+  node-type tree-sitter-rust must recognise.

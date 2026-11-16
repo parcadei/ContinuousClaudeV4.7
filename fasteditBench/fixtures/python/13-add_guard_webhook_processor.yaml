@@ -1,0 +1,120 @@
+name: add_guard_process_webhook_event
+pattern: add_guard
+language: python
+original_code: |
+  def process_webhook_event(event, store, notifier, retries=3):
+      """Dispatch an incoming webhook to its handler with retry + logging."""
+      event_id = event.get("id")
+      event_type = event.get("type")
+      payload = event.get("data", {})
+      logger.info("webhook %s type=%s", event_id, event_type)
+
+      if event_type == "order.created":
+          order = payload.get("order")
+          if order is None:
+              raise ValueError("order.created missing order payload")
+          store.create_order(order)
+          notifier.publish("order.created", order)
+          return {"status": "ok", "event_id": event_id}
+
+      if event_type == "order.updated":
+          order = payload.get("order")
+          diff = payload.get("changes", {})
+          store.update_order(order["id"], diff)
+          if diff.get("status") == "shipped":
+              notifier.publish("order.shipped", order)
+          return {"status": "ok", "event_id": event_id}
+
+      if event_type == "payment.succeeded":
+          attempt = 0
+          while attempt < retries:
+              try:
+                  store.record_payment(payload)
+                  notifier.publish("payment.succeeded", payload)
+                  return {"status": "ok", "event_id": event_id}
+              except TransientError as exc:
+                  logger.warning("payment retry %d: %s", attempt, exc)
+                  attempt += 1
+          raise RuntimeError("payment.succeeded exhausted retries")
+
+      if event_type == "payment.failed":
+          store.record_failed_payment(payload)
+          notifier.publish("payment.failed", payload)
+          return {"status": "ok", "event_id": event_id}
+
+      if event_type == "refund.issued":
+          refund = payload.get("refund")
+          store.record_refund(refund)
+          notifier.publish("refund.issued", refund)
+          return {"status": "ok", "event_id": event_id}
+
+      logger.warning("unhandled webhook type: %s", event_type)
+      return {"status": "ignored", "event_id": event_id}
+snippet: |
+  def process_webhook_event(event, store, notifier, retries=3):
+      """Dispatch an incoming webhook to its handler with retry + logging."""
+      if event is None or not event.get("id"):
+          logger.warning("dropping malformed webhook: %r", event)
+          return {"status": "dropped"}
+      event_id = event.get("id")
+      # ... existing code ...
+expected_output: |
+  def process_webhook_event(event, store, notifier, retries=3):
+      """Dispatch an incoming webhook to its handler with retry + logging."""
+      if event is None or not event.get("id"):
+          logger.warning("dropping malformed webhook: %r", event)
+          return {"status": "dropped"}
+      event_id = event.get("id")
+      event_type = event.get("type")
+      payload = event.get("data", {})
+      logger.info("webhook %s type=%s", event_id, event_type)
+
+      if event_type == "order.created":
+          order = payload.get("order")
+          if order is None:
+              raise ValueError("order.created missing order payload")
+          store.create_order(order)
+          notifier.publish("order.created", order)
+          return {"status": "ok", "event_id": event_id}
+
+      if event_type == "order.updated":
+          order = payload.get("order")
+          diff = payload.get("changes", {})
+          store.update_order(order["id"], diff)
+          if diff.get("status") == "shipped":
+              notifier.publish("order.shipped", order)
+          return {"status": "ok", "event_id": event_id}
+
+      if event_type == "payment.succeeded":
+          attempt = 0
+          while attempt < retries:
+              try:
+                  store.record_payment(payload)
+                  notifier.publish("payment.succeeded", payload)
+                  return {"status": "ok", "event_id": event_id}
+              except TransientError as exc:
+                  logger.warning("payment retry %d: %s", attempt, exc)
+                  attempt += 1
+          raise RuntimeError("payment.succeeded exhausted retries")
+
+      if event_type == "payment.failed":
+          store.record_failed_payment(payload)
+          notifier.publish("payment.failed", payload)
+          return {"status": "ok", "event_id": event_id}
+
+      if event_type == "refund.issued":
+          refund = payload.get("refund")
+          store.record_refund(refund)
+          notifier.publish("refund.issued", refund)
+          return {"status": "ok", "event_id": event_id}
+
+      logger.warning("unhandled webhook type: %s", event_type)
+      return {"status": "ignored", "event_id": event_id}
+target_kind: replace
+target_name: process_webhook_event
+authoring_notes: |
+  Realistic 47-line webhook dispatcher (order/payment/refund events with
+  retry + notifier). The edit adds a 3-line malformed-event guard at the
+  top; FastEdit's 0.2.5 minimal payload is the guard + marker. Native-edit
+  must echo the entire dispatch body as old_string to anchor the insertion,
+  so the savings are substantial.

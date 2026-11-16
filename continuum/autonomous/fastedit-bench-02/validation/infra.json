@@ -1,0 +1,71 @@
+{
+  "milestone": "infra",
+  "status": "passed",
+  "assertions": {
+    "VAL-100": {
+      "status": "passed",
+      "worker": "worker",
+      "evidence": "src/fasteditbench/backends/openrouter_client.py (258 lines, ruff-clean) + tests/test_openrouter_client.py (5 tests, all passing via httpx.MockTransport). Covers OpenRouterClient + OpenRouterResponse + BudgetState, async invoke(tools=...) with OpenAI->contract tool-schema normalisation, tool-call JSON parse with _parse_error fallback for malformed args, budget soft-warn-once + hard-stop-raises, missing-key init failure. Commits: 0b0a30a, dd4751b (ruff fix)."
+    },
+    "VAL-101": {
+      "status": "passed",
+      "worker": "worker",
+      "evidence": "CaseRow extended with 7 new fields (input_tokens, output_tokens, latency_ms, tool_call_count, retry_count, input_tokens_native, output_tokens_native) with historical-compatible defaults. reporting._finalize computes nullable-safe means via _safe_mean (None, not 0.0, when no data). scripts/migrate_historical_runs.py migrated results/fastedit/20260422-181127.jsonl -> .migrated.jsonl with tier1=1.0 preserved (156 cases, 0 errors). tests/test_schema_migration.py: 8 tests, all passing. Commit: d306751."
+    },
+    "VAL-102": {
+      "status": "passed",
+      "worker": "worker",
+      "evidence": {
+        "artifact": "scripts/smoke_test_models.py",
+        "results": "continuum/autonomous/fastedit-bench-02/validation/smoke-results.json",
+        "commit": "73d2ef7",
+        "models": {
+          "moonshotai/kimi-k2.6": {"status": "passed", "input_discrepancy_pct": 6.9, "output_discrepancy_pct": 174.5, "cost_usd": 0.00068825, "latency_ms": 1905.9},
+          "anthropic/claude-opus-4.7": {"status": "passed", "input_discrepancy_pct": 519.3, "output_discrepancy_pct": 78.6, "cost_usd": 0.007615, "latency_ms": 1452.0},
+          "z-ai/glm-5.1": {"status": "passed", "input_discrepancy_pct": 71.7, "output_discrepancy_pct": 8.8, "cost_usd": 0.0006214, "latency_ms": 1082.9},
+          "openai/gpt-5.4": {"status": "passed", "input_discrepancy_pct": 11.7, "output_discrepancy_pct": 42.4, "cost_usd": 0.00089, "latency_ms": 1138.4}
+        },
+        "dropped_models": [],
+        "tokenizer_notes": "All 4 models exceed 5% tokenizer discrepancy with o200k_base proxy -> CaseRow already carries both OpenRouter-reported and native counts (T-003 mitigation). Matrix report uses OpenRouter-reported as primary (billing-authoritative) with native counts logged for audit. Opus input_discrepancy 519% reflects Anthropic's provider-side expansion (tool schema + system headers injected before the model sees the tokens) — billing reality, not a defect.",
+        "smoke_cost_usd": 0.00981465
+      }
+    },
+    "VAL-102.5": {
+      "status": "passed",
+      "worker": "worker",
+      "evidence": {
+        "artifact": "scripts/template_pilot.py + src/fasteditbench/prompts/templates.py",
+        "results": "continuum/autonomous/fastedit-bench-02/validation/template-pilot.json",
+        "tests": "tests/test_prompts.py (6 tests, all passing)",
+        "commit": "becd213",
+        "pilot_summary": {
+          "opus": {"A_passes": 8, "B_passes": 9, "variance_pp": 10.0, "total_per_template": 10},
+          "gpt":  {"A_passes": 8, "B_passes": 7, "variance_pp": 10.0, "total_per_template": 10}
+        },
+        "decision": "per_model_registry",
+        "decision_reason": "Both variances = 10.0pp > 5pp threshold. Opus favors B by 1/10, GPT favors A by 1/10. Per-model registry used.",
+        "registry_rules": {
+          "anthropic/*": "Template B (Markdown-style)",
+          "openai/*": "Template A (XML-style)",
+          "default": "Template A"
+        },
+        "pilot_cost_usd": 0.2628,
+        "caveats": "n=10 per (model,template) cell: a single flip moves variance by 10pp. The 'opus prefers B' and 'gpt prefers A' signal should be treated as weak — report methodology (VAL-401) should disclose this."
+      }
+    }
+  },
+  "total_m1_api_cost_usd": 0.27263465,
+  "budget_remaining_usd": 4.72736535,
+  "discoveries": [
+    "Tokenizer discrepancies exceed 5% on ALL four models using o200k_base as proxy — contract's T-003 assumption (only some models need both fields) was conservative; in practice every CaseRow carries both. Fortunately CaseRow was already extended in VAL-101 to support this.",
+    "Opus input_discrepancy of 519% is explained by provider-side expansion (tool schema + system headers injected by Anthropic before the model sees the tokens). This is a billing reality, not a defect — matrix report cites OpenRouter-reported tokens as authoritative.",
+    "Both pilot variances landed exactly at 10.0pp (one flip in each direction, n=10). Small sample size means per-model preferences may not generalise; methodology should document this caveat.",
+    "No models were dropped — matrix is strong (4/4 passing smoke)."
+  ],
+  "issues": [
+    {
+      "severity": "info",
+      "description": "uv sync still broken by fastedit/fastedits package-name mismatch (pre-existing, not caused by bench-02). `uv run --no-sync` works fine since venv is already populated. Flagged in earlier M1 report — not blocking."
+    }
+  ]
+}

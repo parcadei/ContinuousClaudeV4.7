@@ -1,0 +1,52 @@
+name: add_line_logger
+pattern: add_line
+language: php
+original_code: |
+  <?php
+
+  declare(strict_types=1);
+
+  namespace App\Persistence;
+
+  final class Saver
+  {
+      public function __construct(private readonly Logger $logger) {}
+
+      public function save(Record $record): void
+      {
+          $data = $record->serialize();
+          $this->writer->write($data);
+      }
+  }
+snippet: |
+  public function save(Record $record): void
+  {
+      $data = $record->serialize();
+      $this->logger->info('saving record');
+      $this->writer->write($data);
+  }
+expected_output: |
+  <?php
+
+  declare(strict_types=1);
+
+  namespace App\Persistence;
+
+  final class Saver
+  {
+      public function __construct(private readonly Logger $logger) {}
+
+      public function save(Record $record): void
+      {
+          $data = $record->serialize();
+          $this->logger->info('saving record');
+          $this->writer->write($data);
+      }
+  }
+target_kind: replace
+target_name: Saver
+authoring_notes: |
+  Single-line insert between two context anchors ($data = ... and
+  $this->writer->write(...)). No markers needed because the snippet shows
+  the full method body; adapter must preserve surrounding class structure
+  (constructor, namespace, readonly promoted property).

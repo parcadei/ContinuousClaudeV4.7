@@ -1,0 +1,32 @@
+name: add_guard_average_empty_array
+pattern: add_guard
+language: swift
+original_code: |
+  func average(_ nums: [Double]) -> Double {
+      let total = nums.reduce(0, +)
+      return total / Double(nums.count)
+  }
+snippet: |
+  func average(_ nums: [Double]) -> Double {
+      guard !nums.isEmpty else {
+          return 0.0
+      }
+      let total = nums.reduce(0, +)
+      // ... existing code ...
+  }
+expected_output: |
+  func average(_ nums: [Double]) -> Double {
+      guard !nums.isEmpty else {
+          return 0.0
+      }
+      let total = nums.reduce(0, +)
+      return total / Double(nums.count)
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Classic Swift guard-clause pattern. Tests that the merge preserves the
+  existing reduce+divide body while inserting a canonical empty-check
+  guard at the top. The '// ... existing code ...' marker sits after the
+  new 'total' assignment, which forces the merger to keep the trailing
+  'return' statement unchanged.

@@ -1,0 +1,121 @@
+name: add_branch_handle_command
+pattern: add_branch
+language: python
+original_code: |
+  def handle_command(command, context, registry, telemetry):
+      """Route a parsed CLI command to its handler with middleware."""
+      name = command.name
+      args = command.args
+      flags = command.flags
+      telemetry.record("command.received", {"name": name})
+
+      if name == "deploy":
+          target = args.get("target") or "production"
+          handler = registry.resolve("deploy")
+          result = handler.run(target=target, dry_run=flags.get("dry_run", False))
+          telemetry.record("deploy.completed", {"target": target})
+          return result
+
+      if name == "rollback":
+          version = args.get("version")
+          if version is None:
+              raise ValueError("rollback requires --version")
+          handler = registry.resolve("rollback")
+          return handler.run(version=version)
+
+      if name == "status":
+          verbose = flags.get("verbose", False)
+          handler = registry.resolve("status")
+          info = handler.run(verbose=verbose)
+          print_status(info, verbose=verbose)
+          return info
+
+      if name == "logs":
+          service = args.get("service")
+          tail = int(args.get("tail", 100))
+          follow = flags.get("follow", False)
+          handler = registry.resolve("logs")
+          return handler.run(service=service, tail=tail, follow=follow)
+
+      if name == "config":
+          subcommand = args.get("subcommand", "show")
+          handler = registry.resolve(f"config.{subcommand}")
+          return handler.run(**args)
+
+      telemetry.record("command.unknown", {"name": name})
+      raise UnknownCommandError(name)
+snippet: |
+  def handle_command(command, context, registry, telemetry):
+      # ... existing code ...
+      if name == "config":
+          subcommand = args.get("subcommand", "show")
+          handler = registry.resolve(f"config.{subcommand}")
+          return handler.run(**args)
+
+      if name == "secrets":
+          action = args.get("action", "list")
+          if action not in ("list", "set", "rotate", "delete"):
+              raise ValueError(f"unknown secrets action {action!r}")
+          handler = registry.resolve(f"secrets.{action}")
+          return handler.run(**args, dry_run=flags.get("dry_run", False))
+
+      telemetry.record("command.unknown", {"name": name})
+      raise UnknownCommandError(name)
+expected_output: |
+  def handle_command(command, context, registry, telemetry):
+      """Route a parsed CLI command to its handler with middleware."""
+      name = command.name
+      args = command.args
+      flags = command.flags
+      telemetry.record("command.received", {"name": name})
+
+      if name == "deploy":
+          target = args.get("target") or "production"
+          handler = registry.resolve("deploy")
+          result = handler.run(target=target, dry_run=flags.get("dry_run", False))
+          telemetry.record("deploy.completed", {"target": target})
+          return result
+
+      if name == "rollback":
+          version = args.get("version")
+          if version is None:
+              raise ValueError("rollback requires --version")
+          handler = registry.resolve("rollback")
+          return handler.run(version=version)
+
+      if name == "status":
+          verbose = flags.get("verbose", False)
+          handler = registry.resolve("status")
+          info = handler.run(verbose=verbose)
+          print_status(info, verbose=verbose)
+          return info
+
+      if name == "logs":
+          service = args.get("service")
+          tail = int(args.get("tail", 100))
+          follow = flags.get("follow", False)
+          handler = registry.resolve("logs")
+          return handler.run(service=service, tail=tail, follow=follow)
+
+      if name == "config":
+          subcommand = args.get("subcommand", "show")
+          handler = registry.resolve(f"config.{subcommand}")
+          return handler.run(**args)
+
+      if name == "secrets":
+          action = args.get("action", "list")
+          if action not in ("list", "set", "rotate", "delete"):
+              raise ValueError(f"unknown secrets action {action!r}")
+          handler = registry.resolve(f"secrets.{action}")
+          return handler.run(**args, dry_run=flags.get("dry_run", False))
+
+      telemetry.record("command.unknown", {"name": name})
+      raise UnknownCommandError(name)
+target_kind: replace
+target_name: handle_command
+authoring_notes: |
+  Realistic 38-line CLI command dispatcher. Edit inserts a brand-new
+  'secrets' branch between the 'config' branch and the fallthrough error.
+  The middle-insert marker preserves everything above and below; the new
+  code is ~6 lines. Large savings because native-edit must anchor on the
+  bracketing context.

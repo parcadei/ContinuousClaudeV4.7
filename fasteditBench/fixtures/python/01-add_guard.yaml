@@ -1,0 +1,36 @@
+name: add_guard_retry_empty_batch
+pattern: add_guard
+language: python
+original_code: |
+  def retry_batch(client, records, max_attempts=3):
+      attempt = 0
+      while attempt < max_attempts:
+          try:
+              return client.send(records)
+          except TransientError:
+              attempt += 1
+      raise RuntimeError("exhausted retries")
+snippet: |
+  def retry_batch(client, records, max_attempts=3):
+      if not records:
+          return []
+      attempt = 0
+      # ... existing code ...
+expected_output: |
+  def retry_batch(client, records, max_attempts=3):
+      if not records:
+          return []
+      attempt = 0
+      while attempt < max_attempts:
+          try:
+              return client.send(records)
+          except TransientError:
+              attempt += 1
+      raise RuntimeError("exhausted retries")
+target_kind: replace
+target_name: retry_batch
+authoring_notes: |
+  Classic guard-clause insertion at the top of the body. The snippet preserves
+  the while-loop and raise via the '# ... existing code ...' marker. A broken
+  adapter that merges greedily might duplicate `attempt = 0` or drop the trailing
+  raise; this case catches both failure modes.

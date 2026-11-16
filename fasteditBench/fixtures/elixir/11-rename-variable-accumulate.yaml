@@ -1,0 +1,31 @@
+name: ex_rename_variable_accumulate
+pattern: rename_variable
+language: elixir
+original_code: |
+  defmodule Reducer do
+    def accumulate(xs) do
+      tmp = Enum.map(xs, fn x -> x * 2 end)
+      tmp = Enum.reject(tmp, fn x -> x == 0 end)
+      tmp
+    end
+  end
+snippet: |
+  def accumulate(xs) do
+    result = Enum.map(xs, fn x -> x * 2 end)
+    result = Enum.reject(result, fn x -> x == 0 end)
+    result
+  end
+expected_output: |
+  defmodule Reducer do
+    def accumulate(xs) do
+      result = Enum.map(xs, fn x -> x * 2 end)
+      result = Enum.reject(result, fn x -> x == 0 end)
+      result
+    end
+  end
+target_kind: replace
+target_name: accumulate
+authoring_notes: |
+  P16 rename_variable: rename local `tmp` -> `result` across three
+  binding/usage sites. Elixir rebinding semantics permit the reassignment
+  pattern shown.

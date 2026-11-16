@@ -1,0 +1,68 @@
+name: class_method_impl_swap_storage
+pattern: class_method
+language: rust
+original_code: |
+  pub struct Cache {
+      items: Vec<(String, String)>,
+  }
+
+  impl Cache {
+      pub fn new() -> Self {
+          Self { items: Vec::new() }
+      }
+
+      pub fn get(&self, key: &str) -> Option<&str> {
+          self.items.iter().find(|(k, _)| k == key).map(|(_, v)| v.as_str())
+      }
+
+      pub fn set(&mut self, key: String, value: String) {
+          self.items.push((key, value));
+      }
+  }
+snippet: |
+  pub struct Cache {
+      items: std::collections::HashMap<String, String>,
+  }
+
+  impl Cache {
+      pub fn new() -> Self {
+          Self { items: std::collections::HashMap::new() }
+      }
+
+      // ... existing code ...
+  }
+expected_output: |
+  pub struct Cache {
+      items: std::collections::HashMap<String, String>,
+  }
+
+  impl Cache {
+      pub fn new() -> Self {
+          Self { items: std::collections::HashMap::new() }
+      }
+
+      pub fn get(&self, key: &str) -> Option<&str> {
+          self.items.iter().find(|(k, _)| k == key).map(|(_, v)| v.as_str())
+      }
+
+      pub fn set(&mut self, key: String, value: String) {
+          self.items.push((key, value));
+      }
+  }
+target_kind: batch
+target_name: null
+target_batch:
+- kind: replace
+  name: Cache
+  snippet: "pub struct Cache {\n    items: std::collections::HashMap<String, String>,\n}\n"
+- kind: replace
+  name: new
+  snippet: "pub fn new() -> Self {\n    Self { items: std::collections::HashMap::new() }\n}\n"
+authoring_notes: |
+  Rust uses `impl` blocks rather than class syntax, but `class_method`
+  still applies semantically: we modify the struct definition + one
+  method (`new`) while leaving the other two methods (`get`, `set`)
+  untouched via a trailing `// ... existing code ...` marker.
+  Intentionally, the `get`/`set` methods are NOT updated to use
+  HashMap APIs — that cascading edit would be a separate case. This
+  fixture tests targeted method-level edits, not refactor propagation.

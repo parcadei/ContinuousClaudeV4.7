@@ -1,0 +1,68 @@
+name: class_method_store
+pattern: class_method
+language: php
+original_code: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class Store
+  {
+      private array $items = [];
+
+      public function add(string $k, mixed $v): void
+      {
+          $this->items[$k] = $v;
+      }
+
+      public function get(string $k): mixed
+      {
+          return $this->items[$k];
+      }
+
+      public function clear(): void
+      {
+          $this->items = [];
+      }
+  }
+snippet: |
+  public function get(string $k): mixed
+  {
+      return $this->items[$k] ?? null;
+      // ... existing code ...
+  }
+expected_output: |
+  <?php
+
+  declare(strict_types=1);
+
+  final class Store
+  {
+      private array $items = [];
+
+      public function add(string $k, mixed $v): void
+      {
+          $this->items[$k] = $v;
+      }
+
+      public function get(string $k): mixed
+      {
+          return $this->items[$k] ?? null;
+      }
+
+      public function clear(): void
+      {
+          $this->items = [];
+      }
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Modify one method (`get`) by adding null-coalescing fallback. Other
+  methods (`add`, `clear`) must be preserved via surrounding context
+  around the edit. Tests the adapter's scoping inside a class body.
+
+  target_kind=none: the snippet targets method `get` but fixture was
+  annotated with replace=Store (class target); the marker inside the
+  method collides with method `end`. Legacy markers-only path handles
+  the partial method edit (M3 baseline: tier1 PASS 97 tokens).

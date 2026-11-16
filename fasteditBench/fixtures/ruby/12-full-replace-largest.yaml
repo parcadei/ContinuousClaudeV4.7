@@ -1,0 +1,32 @@
+name: rb_full_replace_largest
+pattern: full_replace
+language: ruby
+original_code: |
+  class Finder
+    def largest(items)
+      best = items.first
+      items.drop(1).each do |x|
+        best = x if x > best
+      end
+      best
+    end
+  end
+snippet: |
+  def largest(items)
+    items.max
+  end
+expected_output: |
+  class Finder
+    def largest(items)
+      items.max
+    end
+  end
+target_kind: none
+target_name: null
+authoring_notes: |
+  P12 full_replace: replace hand-rolled max with Enumerable#max.
+
+  target_kind=none: original body has a nested `do...end` whose `end`
+  matches the snippet's trailing `end` before the method-def `end`,
+  dropping the `best` return statement and creating a duplicate `end`.
+  Model path handles the wholesale body replacement cleanly.

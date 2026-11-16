@@ -1,0 +1,39 @@
+name: ts_two_markers_pipeline
+pattern: two_markers
+language: typescript
+original_code: |
+  export function pipeline(xs: number[]): number[] {
+    const a = step1(xs);
+    const b = step2(a);
+    const c = step3(b);
+    const d = step4(c);
+    return d;
+  }
+snippet: |
+  export function pipeline(xs: number[]): number[] {
+    const a = step1(xs);
+    const b = step2V2(a);
+    const c = step3V2(b);
+    const d = step4(c);
+    return d;
+  }
+expected_output: |
+  export function pipeline(xs: number[]): number[] {
+    const a = step1(xs);
+    const b = step2V2(a);
+    const c = step3V2(b);
+    const d = step4(c);
+    return d;
+  }
+target_kind: replace
+target_name: pipeline
+authoring_notes: |
+  Change only the middle two statements while preserving the head
+  (`const a = step1`) and tail (`const d = step4` + `return d`) via
+  two separate markers. The classic two-marker replacement shape.
+
+  Style A (full replacement) under replace=pipeline: text_match has a
+  known bracketing-markers bug — new lines sandwiched between two
+  `// ... existing code ...` markers land AFTER the preserved gap
+  rather than bracketed by it. Style A gives text_match the complete
+  new function body so there is no gap to preserve.

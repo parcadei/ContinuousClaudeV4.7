@@ -1,0 +1,29 @@
+name: change_signature_default_arg
+pattern: change_signature
+language: cpp
+original_code: |
+  #include <string>
+
+  std::string greet(const std::string& name) {
+      return "Hello, " + name + "!";
+  }
+snippet: |
+  std::string greet(const std::string& name, const std::string& punctuation = "!") {
+      return "Hello, " + name + punctuation;
+  }
+expected_output: |
+  #include <string>
+
+  std::string greet(const std::string& name, const std::string& punctuation = "!") {
+      return "Hello, " + name + punctuation;
+  }
+target_kind: replace
+target_name: greet
+authoring_notes: |
+  Add a defaulted parameter and thread it through the body. This is a
+  change_signature pattern where the body legitimately changes too
+  (to reference the new parameter); the adapter shouldn't leave the old
+  hardcoded "!" in place. M8: snippet was already the full new function
+  (no markers), so re-annotated from target_kind=none to
+  target_kind=replace/target_name=greet to let FastEdit's direct-swap
+  fast path capture it with zero model tokens.

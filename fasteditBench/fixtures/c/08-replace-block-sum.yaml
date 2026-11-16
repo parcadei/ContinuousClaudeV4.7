@@ -1,0 +1,39 @@
+name: replace_block_sum_with_builtin
+pattern: replace_block
+language: c
+original_code: |
+  #include <stddef.h>
+
+  long sum_array(const long *items, size_t n) {
+      long acc = 0;
+      for (size_t i = 0; i < n; ++i) {
+          acc += items[i];
+      }
+      return acc;
+  }
+snippet: |
+  long sum_array(const long *items, size_t n) {
+      long acc = 0;
+      for (size_t i = 0; i < n; i += 2) {
+          acc += items[i];
+          if (i + 1 < n) acc += items[i + 1];
+      }
+      return acc;
+  }
+expected_output: |
+  #include <stddef.h>
+
+  long sum_array(const long *items, size_t n) {
+      long acc = 0;
+      for (size_t i = 0; i < n; i += 2) {
+          acc += items[i];
+          if (i + 1 < n) acc += items[i + 1];
+      }
+      return acc;
+  }
+target_kind: replace
+target_name: sum_array
+authoring_notes: |
+  Replaces the inner loop block (3 lines: the single-add loop) with a
+  new 2-way unrolled loop block (4 lines). The accumulator init and
+  the final return are preserved as anchors.

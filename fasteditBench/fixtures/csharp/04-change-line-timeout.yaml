@@ -1,0 +1,43 @@
+name: change_line_http_timeout
+pattern: change_line
+language: csharp
+original_code: |
+  using System;
+  using System.Net.Http;
+
+  public class ApiClient
+  {
+      private readonly HttpClient _http;
+
+      public ApiClient()
+      {
+          _http = new HttpClient();
+          _http.Timeout = TimeSpan.FromSeconds(5);
+      }
+  }
+snippet: |
+  public ApiClient()
+  {
+      _http = new HttpClient();
+      _http.Timeout = TimeSpan.FromSeconds(30);
+  }
+expected_output: |
+  using System;
+  using System.Net.Http;
+
+  public class ApiClient
+  {
+      private readonly HttpClient _http;
+
+      public ApiClient()
+      {
+          _http = new HttpClient();
+          _http.Timeout = TimeSpan.FromSeconds(30);
+      }
+  }
+target_kind: replace
+target_name: ApiClient
+authoring_notes: |
+  One-line change: bump HTTP client timeout from 5s to 30s. Canonical
+  single-line-change pattern; snippet re-states the entire constructor
+  since the change sits inside it.

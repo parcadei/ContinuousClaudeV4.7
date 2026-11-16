@@ -1,0 +1,58 @@
+name: wrap_block_file_reader
+pattern: wrap_block
+language: csharp
+original_code: |
+  using System.IO;
+  using System.Threading.Tasks;
+
+  public class ConfigLoader
+  {
+      public async Task<string> LoadAsync(string path)
+      {
+          var text = await File.ReadAllTextAsync(path);
+          return text.Trim();
+      }
+  }
+snippet: |
+  public async Task<string> LoadAsync(string path)
+  {
+      try
+      {
+          // ... existing code ...
+      }
+      catch (IOException)
+      {
+          return string.Empty;
+      }
+  }
+expected_output: |
+  using System.IO;
+  using System.Threading.Tasks;
+
+  public class ConfigLoader
+  {
+      public async Task<string> LoadAsync(string path)
+      {
+          try
+          {
+              var text = await File.ReadAllTextAsync(path);
+              return text.Trim();
+          }
+          catch (IOException)
+          {
+              return string.Empty;
+          }
+      }
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Wraps an async file-read body inside try/catch (IOException). Relies on
+  a single `// ... existing code ...` marker at the old indentation of the
+  body; the wrapper re-indents the preserved lines one level deeper.
+
+  target_kind=none: same wrap_block body-reindent issue — under
+  replace=ConfigLoader, deterministic_edit preserves the body at its
+  original indent (12) but expected_output needs it at +4 inside the
+  `try` block. Legacy model path handles this correctly (M3 baseline:
+  tier1 PASS 68 tokens).

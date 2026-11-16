@@ -1,0 +1,29 @@
+name: ex_add_line_save
+pattern: add_line
+language: elixir
+original_code: |
+  defmodule Persistence do
+    def save(x) do
+      data = serialize(x)
+      write(data)
+    end
+  end
+snippet: |
+  def save(x) do
+    data = serialize(x)
+    Logger.info("saving")
+    write(data)
+  end
+expected_output: |
+  defmodule Persistence do
+    def save(x) do
+      data = serialize(x)
+      Logger.info("saving")
+      write(data)
+    end
+  end
+target_kind: replace
+target_name: save
+authoring_notes: |
+  P2 add_line: inject a single Logger.info call between two existing
+  statements. Anchors above and below are unchanged.

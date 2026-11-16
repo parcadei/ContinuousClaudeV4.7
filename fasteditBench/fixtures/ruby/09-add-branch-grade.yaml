@@ -1,0 +1,51 @@
+name: rb_add_branch_grade
+pattern: add_branch
+language: ruby
+original_code: |
+  class Grader
+    def grade(score)
+      if score >= 90
+        "A"
+      elsif score >= 80
+        "B"
+      else
+        "F"
+      end
+    end
+  end
+snippet: |
+  def grade(score)
+    if score >= 90
+      "A"
+    elsif score >= 80
+      "B"
+    elsif score >= 70
+      "C"
+    else
+      "F"
+    end
+  end
+expected_output: |
+  class Grader
+    def grade(score)
+      if score >= 90
+        "A"
+      elsif score >= 80
+        "B"
+      elsif score >= 70
+        "C"
+      else
+        "F"
+      end
+    end
+  end
+target_kind: none
+target_name: null
+authoring_notes: |
+  P13 add_branch: insert elsif 70->C into if/elsif chain.
+
+  target_kind=none: the method body contains `if ... end` whose closing
+  `end` collides with the method-def `end` in text_match's forward
+  scan (both strip to the ambiguous `end`). The deterministic path
+  either truncates the if-block or duplicates the `end` depending on
+  which one pairs up first. Legacy path handles this correctly.

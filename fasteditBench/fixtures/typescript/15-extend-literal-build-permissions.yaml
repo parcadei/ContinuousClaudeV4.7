@@ -1,0 +1,116 @@
+name: ts_extend_literal_build_permissions
+pattern: extend_literal
+language: typescript
+original_code: |
+  export function buildPermissionMatrix(
+    role: Role,
+    subscriptionTier: SubscriptionTier,
+    featureFlags: FeatureFlags,
+  ): PermissionMatrix {
+    const matrix: PermissionMatrix = {
+      "project.view": true,
+      "project.edit": role !== "viewer",
+      "project.delete": role === "owner" || role === "admin",
+      "project.transfer": role === "owner",
+      "issue.view": true,
+      "issue.create": role !== "viewer",
+      "issue.assign": role === "admin" || role === "owner",
+      "issue.close": role !== "viewer",
+      "issue.delete": role === "owner" || role === "admin",
+      "member.invite": role === "admin" || role === "owner",
+      "member.remove": role === "owner",
+      "member.change_role": role === "owner",
+      "billing.view": role === "owner" || role === "admin",
+      "billing.edit": role === "owner",
+      "integration.view": true,
+      "integration.configure":
+        (role === "admin" || role === "owner") &&
+        subscriptionTier !== "free",
+      "export.csv": subscriptionTier !== "free",
+      "export.bulk":
+        subscriptionTier === "enterprise" && featureFlags.bulkExport === true,
+      "audit.view": subscriptionTier === "enterprise" && role === "owner",
+    };
+
+    if (featureFlags.adminOverride && role === "owner") {
+      for (const key of Object.keys(matrix) as Array<keyof PermissionMatrix>) {
+        matrix[key] = true;
+      }
+    }
+
+    return matrix;
+  }
+snippet: |
+  export function buildPermissionMatrix(
+    role: Role,
+    subscriptionTier: SubscriptionTier,
+    featureFlags: FeatureFlags,
+  ): PermissionMatrix {
+    const matrix: PermissionMatrix = {
+      "project.view": true,
+      // ... existing code ...
+      "audit.view": subscriptionTier === "enterprise" && role === "owner",
+      "webhook.view": role !== "viewer",
+      "webhook.configure":
+        (role === "admin" || role === "owner") && subscriptionTier !== "free",
+      "api_key.create": role === "owner" && subscriptionTier === "enterprise",
+    };
+
+    if (featureFlags.adminOverride && role === "owner") {
+      for (const key of Object.keys(matrix) as Array<keyof PermissionMatrix>) {
+        matrix[key] = true;
+      }
+    }
+
+    return matrix;
+  }
+expected_output: |
+  export function buildPermissionMatrix(
+    role: Role,
+    subscriptionTier: SubscriptionTier,
+    featureFlags: FeatureFlags,
+  ): PermissionMatrix {
+    const matrix: PermissionMatrix = {
+      "project.view": true,
+      "project.edit": role !== "viewer",
+      "project.delete": role === "owner" || role === "admin",
+      "project.transfer": role === "owner",
+      "issue.view": true,
+      "issue.create": role !== "viewer",
+      "issue.assign": role === "admin" || role === "owner",
+      "issue.close": role !== "viewer",
+      "issue.delete": role === "owner" || role === "admin",
+      "member.invite": role === "admin" || role === "owner",
+      "member.remove": role === "owner",
+      "member.change_role": role === "owner",
+      "billing.view": role === "owner" || role === "admin",
+      "billing.edit": role === "owner",
+      "integration.view": true,
+      "integration.configure":
+        (role === "admin" || role === "owner") &&
+        subscriptionTier !== "free",
+      "export.csv": subscriptionTier !== "free",
+      "export.bulk":
+        subscriptionTier === "enterprise" && featureFlags.bulkExport === true,
+      "audit.view": subscriptionTier === "enterprise" && role === "owner",
+      "webhook.view": role !== "viewer",
+      "webhook.configure":
+        (role === "admin" || role === "owner") && subscriptionTier !== "free",
+      "api_key.create": role === "owner" && subscriptionTier === "enterprise",
+    };
+
+    if (featureFlags.adminOverride && role === "owner") {
+      for (const key of Object.keys(matrix) as Array<keyof PermissionMatrix>) {
+        matrix[key] = true;
+      }
+    }
+
+    return matrix;
+  }
+target_kind: replace
+target_name: buildPermissionMatrix
+authoring_notes: |
+  Realistic permission-matrix builder (~20 permission entries across role
+  and subscription tiers). Edit adds 4 new permission entries before the
+  closing brace, preserving the admin-override postprocess block via
+  marker. Savings come from the large permission literal being elided.

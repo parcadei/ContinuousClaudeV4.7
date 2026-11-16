@@ -1,0 +1,28 @@
+name: change_signature_add_async_throws
+pattern: change_signature
+language: swift
+original_code: |
+  func fetchUser(id: Int) -> User? {
+      let url = URL(string: "https://api.example.com/users/\(id)")!
+      let data = try? Data(contentsOf: url)
+      return data.flatMap { try? JSONDecoder().decode(User.self, from: $0) }
+  }
+snippet: |
+  func fetchUser(id: Int) async throws -> User {
+      // ... existing code ...
+  }
+expected_output: |
+  func fetchUser(id: Int) async throws -> User {
+      let url = URL(string: "https://api.example.com/users/\(id)")!
+      let data = try? Data(contentsOf: url)
+      return data.flatMap { try? JSONDecoder().decode(User.self, from: $0) }
+  }
+target_kind: replace
+target_name: fetchUser
+authoring_notes: |
+  Change the signature from sync-optional to async-throws-non-optional.
+  Body is preserved via marker. The resulting code is semantically
+  inconsistent (returning an optional when the signature says non-
+  optional), mirroring how Python P7 fixtures also leave the preserved
+  body untouched even when it no longer matches the new contract. The
+  parse check only verifies Swift grammar, which is fine here.

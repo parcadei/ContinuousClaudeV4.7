@@ -1,0 +1,43 @@
+name: add_line_logging
+pattern: add_line
+language: java
+original_code: |
+  public class Saver {
+      private static final java.util.logging.Logger LOG =
+          java.util.logging.Logger.getLogger("Saver");
+
+      public void save(Object x) {
+          byte[] data = serialize(x);
+          write(data);
+      }
+
+      private byte[] serialize(Object x) { return new byte[0]; }
+      private void write(byte[] data) { }
+  }
+snippet: |
+  public void save(Object x) {
+      byte[] data = serialize(x);
+      LOG.info("saving");
+      write(data);
+  }
+expected_output: |
+  public class Saver {
+      private static final java.util.logging.Logger LOG =
+          java.util.logging.Logger.getLogger("Saver");
+
+      public void save(Object x) {
+          byte[] data = serialize(x);
+          LOG.info("saving");
+          write(data);
+      }
+
+      private byte[] serialize(Object x) { return new byte[0]; }
+      private void write(byte[] data) { }
+  }
+target_kind: replace
+target_name: save
+authoring_notes: |
+  Insert exactly one statement between two existing anchors (`data = ...`
+  and `write(data)`). Other methods (serialize, write) MUST remain
+  untouched. Tests the adapter's locality — only the `save` method is in
+  the snippet yet siblings are preserved implicitly.

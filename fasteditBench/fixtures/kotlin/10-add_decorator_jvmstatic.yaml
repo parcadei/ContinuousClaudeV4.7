@@ -1,0 +1,31 @@
+name: add_decorator_jvmstatic
+pattern: add_decorator
+language: kotlin
+original_code: |
+  fun fib(n: Int): Int {
+      if (n < 2) {
+          return n
+      }
+      return fib(n - 1) + fib(n - 2)
+  }
+snippet: |
+  @JvmStatic
+  @Suppress("NOTHING_TO_INLINE")
+  fun fib(n: Int): Int {
+      // ... existing code ...
+  }
+expected_output: |
+  @JvmStatic
+  @Suppress("NOTHING_TO_INLINE")
+  fun fib(n: Int): Int {
+      if (n < 2) {
+          return n
+      }
+      return fib(n - 1) + fib(n - 2)
+  }
+target_kind: replace
+target_name: fib
+authoring_notes: |
+  Kotlin's decorator equivalent is annotations. Prepends two annotations
+  to a top-level function; the body survives via marker. Exercises
+  multi-line decorator-style insertion.

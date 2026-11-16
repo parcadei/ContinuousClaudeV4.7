@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FastEdit vs native edit tool — bench-02</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Geist', 'system-ui', 'sans-serif'],
+          mono: ['Geist Mono', 'ui-monospace', 'monospace'],
+        },
+        colors: { accent: '#0ea5e9' },
+      },
+    },
+  };
+</script>
+<style>
+  :root {
+    --accent: #0ea5e9;
+    --accent-dim: rgba(14, 165, 233, 0.18);
+    --hair: rgba(255, 255, 255, 0.08);
+    --hair-strong: rgba(255, 255, 255, 0.14);
+  }
+  html, body { background: #09090b; }
+  body {
+    font-family: 'Geist', system-ui, sans-serif;
+    color: #e4e4e7;
+    font-feature-settings: 'ss01', 'ss02', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: 'zero', 'tnum'; }
+  .hair { border-color: var(--hair); }
+  .hair-strong { border-color: var(--hair-strong); }
+  .accent-text { color: var(--accent); }
+  .accent-bg { background: var(--accent); }
+  .grain::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.04 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+  }
+  .stagger > * {
+    opacity: 0;
+    transform: translateY(6px);
+    animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: calc(var(--i, 0) * 80ms);
+  }
+  @keyframes rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .code { white-space: pre; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.55; }
+  .tok-kw { color: #7dd3fc; }
+  .tok-str { color: #a7f3d0; }
+  .tok-fn { color: #bae6fd; }
+  .tok-num { color: #fcd34d; }
+  .tok-com { color: #71717a; font-style: italic; }
+  .tok-op { color: #a1a1aa; }
+  .tok-punc { color: #a1a1aa; }
+  .tok-del { color: #fca5a5; background: rgba(239, 68, 68, 0.08); }
+  .tok-add { color: #86efac; background: rgba(34, 197, 94, 0.08); }
+  .tok-key { color: #e4e4e7; }
+  a.u { color: #e4e4e7; border-bottom: 1px solid var(--hair-strong); transition: border-color 0.2s, color 0.2s; }
+  a.u:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  tbody tr.row:hover { background: rgba(14, 165, 233, 0.05); }
+  .scrollbar-thin::-webkit-scrollbar { height: 8px; width: 8px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+  .bar-lang {
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s;
+    transform-origin: bottom;
+  }
+  .bar-lang:hover { background-color: var(--accent); transform: scaleY(1.04); }
+  .hero-wash {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .hero-wash::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(closest-side, rgba(14, 165, 233, 0.09), transparent 72%);
+    filter: blur(20px);
+  }
+  .divide-hair > * + * { border-top: 1px solid var(--hair); }
+</style>
+</head>
+<body class="grain">
+<!-- Data (inline, offline-safe) -->
+<script type="application/json" id="bench-data">
+{
+  "version": "0.2.5",
+  "date": "2026-04-23",
+  "tokenizer": "tiktoken o200k_base",
+  "total_fixtures": 176,
+  "total_languages": 13,
+  "headline": {
+    "n": 84,
+    "native_total": 9679,
+    "fastedit_total": 5091,
+    "savings_tokens": 4588,
+    "savings_pct": 47.4
+  },
+  "per_language": [
+    { "lang": "swift",      "n":  9, "native":  946, "fastedit": 445, "pct": 53.0 },
+    { "lang": "typescript", "n":  8, "native":  991, "fastedit": 477, "pct": 51.9 },
+    { "lang": "rust",       "n":  6, "native":  787, "fastedit": 386, "pct": 51.0 },
+    { "lang": "php",        "n":  4, "native":  436, "fastedit": 219, "pct": 49.8 },
+    { "lang": "csharp",     "n":  4, "native":  447, "fastedit": 226, "pct": 49.4 },
+    { "lang": "cpp",        "n":  4, "native":  427, "fastedit": 218, "pct": 48.9 },
+    { "lang": "java",       "n":  7, "native":  956, "fastedit": 501, "pct": 47.6 },
+    { "lang": "python",     "n": 10, "native": 1292, "fastedit": 686, "pct": 46.9 },
+    { "lang": "go",         "n":  6, "native":  684, "fastedit": 366, "pct": 46.5 },
+    { "lang": "kotlin",     "n":  7, "native":  791, "fastedit": 438, "pct": 44.6 },
+    { "lang": "elixir",     "n":  6, "native":  516, "fastedit": 297, "pct": 42.4 },
+    { "lang": "c",          "n":  4, "native":  488, "fastedit": 282, "pct": 42.2 },
+    { "lang": "ruby",       "n":  9, "native":  918, "fastedit": 550, "pct": 40.1 }
+  ],
+  "size_buckets": [
+    { "bucket": "small",  "range": "<80 tok native",    "n": 11, "native":  791, "fastedit":  529, "pct": 33.1 },
+    { "bucket": "medium", "range": "80–160 tok native", "n": 64, "native": 6960, "fastedit": 3423, "pct": 50.8 },
+    { "bucket": "large",  "range": "≥160 tok native",  "n": 13, "native": 2345, "fastedit": 1258, "pct": 46.3 }
+  ],
+  "examples": [
+    {
+      "id": "python/01-add_guard",
+      "label": "add-guard — python",
+      "op": "modify_inside",
+      "native_tokens": 96,
+      "fastedit_tokens": 45,
+      "native_payload": "{\n  \"old_string\": \"def retry_batch(client, records, max_attempts=3):\\n    attempt = 0\\n    while attempt < max_attempts:\",\n  \"new_string\": \"def retry_batch(client, records, max_attempts=3):\\n    if not records:\\n        return []\\n    attempt = 0\\n    while attempt < max_attempts:\"\n}",
+      "fastedit_payload": "fast_edit(\n  replace='retry_batch',\n  snippet=(\n    \"def retry_batch(client, records, max_attempts=3):\\n\"\n    \"    if not records:\\n\"\n    \"        return []\\n\"\n    \"    attempt = 0\\n\"\n    \"    # ... existing code ...\\n\"\n  ),\n)"
+    },
+    {
+      "id": "typescript/09-class-method-store",
+      "label": "class-method refactor — typescript",
+      "op": "batch_edit",
+      "native_tokens": 89,
+      "fastedit_tokens": 50,
+      "native_payload": "{\n  \"old_string\": \"export class Store<K, V> {\\n  private items: K[] = [];\\n\\n  get(k: number): K {\\n    return this.items[k];\\n  }\\n\\n  set(k: number, v: K): void {\\n    this.items[k] = v;\\n  }\\n}\",\n  \"new_string\": \"export class Store<K, V> {\\n  private items: Map<K, V> = new Map();\\n\\n  get(k: number): K {\\n    return this.items[k];\\n  }\\n\\n  set(k: number, v: K): void {\\n    this.items[k] = v;\\n  }\\n}\"\n}",
+      "fastedit_payload": "fast_edit(\n  replace='Store',\n  preserve_siblings=True,\n  snippet=(\n    \"export class Store<K, V> {\\n\"\n    \"  private items: Map<K, V> = new Map();\\n\"\n    \"}\"\n  ),\n)"
+    },
+    {
+      "id": "rust/11-add_guard_parse_config",
+      "label": "add-guard — rust",
+      "op": "modify_inside",
+      "native_tokens": 173,
+      "fastedit_tokens": 60,
+      "native_payload": "{\n  \"old_string\": \"pub fn parse_config_file(path: &Path) -> Result<Config, ConfigError> {\\n    let raw = std::fs::read_to_string(path)\\n        .map_err(|e| ConfigError::Io { path: path.to_path_buf(), source: e })?;\",\n  \"new_string\": \"pub fn parse_config_file(path: &Path) -> Result<Config, ConfigError> {\\n    if !path.exists() {\\n        return Err(ConfigError::NotFound(path.to_path_buf()));\\n    }\\n    let raw = std::fs::read_to_string(path)\\n        .map_err(|e| ConfigError::Io { path: path.to_path_buf(), source: e })?;\"\n}",
+      "fastedit_payload": "fast_edit(\n  replace='parse_config_file',\n  snippet=(\n    \"    if !path.exists() {\\n\"\n    \"        return Err(ConfigError::NotFound(path.to_path_buf()));\\n\"\n    \"    }\\n\"\n    \"    //...\\n\"\n  ),\n)"
+    }
+  ]
+}
+</script>
+
+<!-- ======================================================================= -->
+<!-- Section 1 — HERO -->
+<!-- ======================================================================= -->
+<section class="relative border-b hair">
+  <div class="hero-wash"></div>
+  <div class="relative z-10 max-w-[1400px] mx-auto px-6 md:px-10 pt-14 pb-24 grid grid-cols-12 gap-8">
+
+    <!-- headline -->
+    <div class="col-span-12 stagger">
+      <div style="--i:0" class="mono text-[11px] tracking-[0.18em] uppercase text-zinc-500 flex items-center gap-3">
+        <span class="inline-block w-6 h-px bg-zinc-600"></span>
+        bench-02 <span class="text-zinc-700">·</span> fastedit vs native edit
+      </div>
+      <h1 style="--i:1" class="mt-6 text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tighter leading-[0.98]">
+        Half the tokens. <br/>
+        <span class="accent-text">Same edit.</span>
+      </h1>
+      <p style="--i:2" class="mt-8 max-w-[60ch] text-zinc-400 text-base md:text-lg leading-relaxed">
+        FastEdit replaces the native <span class="mono text-zinc-300">edit</span> tool's
+        <span class="mono text-zinc-300">{old_string, new_string}</span> payload with a symbol-targeted snippet
+        that omits the unchanged surrounding code. Benchmarked across
+        <span class="text-zinc-200">176 fixtures</span> in
+        <span class="text-zinc-200">13 languages</span>.
+      </p>
+
+      <!-- Big number -->
+      <div style="--i:3" class="mt-12 grid grid-cols-12 gap-6 items-end">
+        <div class="col-span-12 md:col-span-7">
+          <div class="mono text-[11px] text-zinc-500 uppercase tracking-[0.18em]">output token savings</div>
+          <div class="mono text-[88px] md:text-[140px] leading-[0.9] font-medium tracking-[-0.04em]">
+            <span class="accent-text">47.4</span><span class="text-zinc-600 text-[56px] md:text-[80px] align-top">%</span>
+          </div>
+          <div class="mt-3 text-sm text-zinc-500 max-w-[42ch]">
+            Headline across 84 fixtures where structural savings are measurable — the edits that FastEdit exists to make fast.
+          </div>
+        </div>
+
+        <!-- micro summary breakdown -->
+        <div class="col-span-12 md:col-span-5 border-l hair pl-6 divide-hair mono text-sm">
+          <div class="py-3 flex justify-between"><span class="text-zinc-500">native tokens</span><span class="tabular-nums">9,679</span></div>
+          <div class="py-3 flex justify-between"><span class="text-zinc-500">fastedit tokens</span><span class="tabular-nums">5,091</span></div>
+          <div class="py-3 flex justify-between"><span class="text-zinc-500">saved</span><span class="accent-text tabular-nums">4,588</span></div>
+          <div class="py-3 flex justify-between"><span class="text-zinc-500">ratio</span><span class="tabular-nums">1.90×</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ======================================================================= -->
+<!-- Section 2 — WHAT IT DOES -->
+<!-- ======================================================================= -->
+<section class="border-b hair">
+  <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-20">
+    <div class="grid grid-cols-12 gap-8 mb-12">
+      <div class="col-span-12 md:col-span-4">
+        <div class="mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 flex items-center gap-3">
+          <span class="mono text-zinc-700">02</span>
+          <span class="inline-block w-6 h-px bg-zinc-700"></span>
+          what it does
+        </div>
+        <h2 class="mt-6 text-3xl md:text-4xl tracking-tight font-medium leading-tight">
+          The calling agent writes the change — <span class="text-zinc-500">not the old code around it.</span>
+        </h2>
+      </div>
+      <div class="col-span-12 md:col-span-7 md:col-start-6 text-zinc-400 leading-relaxed text-base max-w-[60ch]">
+        Three representative fixtures. Each one compares the payload the native <span class="mono text-zinc-300">edit</span> tool
+        must emit (with a two-line anchor context) against the FastEdit snippet that performs the same change.
+        Token counts use the <span class="mono text-zinc-300">o200k_base</span> tokenizer.
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div id="example-tabs" class="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-thin"></div>
+
+    <!-- Example comparison -->
+    <div id="example-panel" class="grid grid-cols-12 gap-4 items-stretch"></div>
+
+    <div class="mt-6 mono text-[11px] text-zinc-600 uppercase tracking-[0.18em]">
+      tap a label to cycle
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================= -->
+<!-- Section 3 — WHY IT'S BETTER -->
+<!-- ======================================================================= -->
+<section class="border-b hair">
+  <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-20">
+    <div class="mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 flex items-center gap-3 mb-10">
+      <span class="mono text-zinc-700">03</span>
+      <span class="inline-block w-6 h-px bg-zinc-700"></span>
+      why it's better
+    </div>
+
+    <div class="grid grid-cols-12 gap-6 md:gap-10 stagger">
+      <!-- Point 1 -->
+      <div style="--i:0" class="col-span-12 md:col-span-4 md:pr-6 md:border-r hair">
+        <div class="mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">01</div>
+        <h3 class="mt-3 text-xl font-medium tracking-tight text-zinc-100">Symbol targeting, not string matching.</h3>
+        <p class="mt-2 text-sm text-zinc-400 max-w-[36ch]">
+          The calling model writes <span class="mono text-zinc-200">replace=name</span>. FastEdit resolves the target via
+          tree-sitter AST — no anchor prose required.
+        </p>
+        <div class="mt-6 border hair rounded-sm overflow-hidden divide-y divide-[var(--hair)]">
+          <div class="p-4">
+            <div class="mono text-[10px] uppercase tracking-[0.16em] text-zinc-600 mb-2">native</div>
+            <div class="code" style="white-space: pre-wrap; overflow-wrap: anywhere;"><span class="tok-punc">{</span>
+  <span class="tok-key">"old_string"</span>: <span class="tok-del">"def retry_batch(client, records, max_attempts=3):\n    attempt = 0\n..."</span>
+<span class="tok-punc">}</span></div>
+            <div class="mt-3 mono text-[11px] text-zinc-500">~48 tokens to identify the target</div>
+          </div>
+          <div class="p-4">
+            <div class="mono text-[10px] uppercase tracking-[0.16em] text-zinc-600 mb-2">fastedit</div>
+            <div class="code" style="white-space: pre-wrap; overflow-wrap: anywhere;"><span class="tok-fn">replace</span>=<span class="tok-str">'retry_batch'</span></div>
+            <div class="mt-3 mono text-[11px] accent-text">5 tokens</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Point 2 -->
+      <div style="--i:1" class="col-span-12 md:col-span-4 md:px-6 md:border-r hair">
+        <div class="mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">02</div>
+        <h3 class="mt-3 text-xl font-medium tracking-tight text-zinc-100">77% of edits skip the merge model.</h3>
+        <p class="mt-2 text-sm text-zinc-400 max-w-[36ch]">
+          Deletes, whole-function replaces, and moves resolve in pure AST. No merge-model invocation for 3 out of 4 edits —
+          instant latency, 0 merge-model tokens spent.
+        </p>
+
+        <div class="mt-6">
+          <div class="flex items-center mono text-[11px] text-zinc-500 mb-2">
+            <span class="tabular-nums text-zinc-200">77%</span>
+            <span class="ml-auto">23%</span>
+          </div>
+          <div class="relative h-3 w-full rounded-sm overflow-hidden border hair">
+            <div class="absolute inset-y-0 left-0 accent-bg" style="width:77%"></div>
+            <div class="absolute inset-y-0 right-0" style="width:23%; background: rgba(255,255,255,0.06);"></div>
+          </div>
+          <div class="mt-2 flex mono text-[10px] uppercase tracking-[0.14em] text-zinc-500">
+            <span>AST route</span>
+            <span class="ml-auto">merge model</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Point 3 -->
+      <div style="--i:2" class="col-span-12 md:col-span-4 md:pl-6">
+        <div class="mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">03</div>
+        <h3 class="mt-3 text-xl font-medium tracking-tight text-zinc-100">Savings hold across languages.</h3>
+        <p class="mt-2 text-sm text-zinc-400 max-w-[36ch]">
+          Every language clusters in the 40–56% band. FastEdit's advantage comes from dropping the old-code echo —
+          proportional to unchanged context, not to syntax family.
+        </p>
+
+        <div id="lang-mini-chart" class="mt-6 grid gap-1 items-end h-[110px]"></div>
+        <div id="lang-mini-legend" class="mt-3 mono text-[10px] text-zinc-500 min-h-[1.2em]">
+          <span>hover a bar</span>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between mono text-[10px] uppercase tracking-[0.14em] text-zinc-600">
+          <span>40%</span>
+          <span>mean 47.4%</span>
+          <span>56%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================= -->
+<!-- Section 4 — THE TABLE -->
+<!-- ======================================================================= -->
+<section class="border-b hair">
+  <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-20">
+    <div class="grid grid-cols-12 gap-8 mb-10">
+      <div class="col-span-12 md:col-span-5">
+        <div class="mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 flex items-center gap-3">
+          <span class="mono text-zinc-700">04</span>
+          <span class="inline-block w-6 h-px bg-zinc-700"></span>
+          token efficiency
+        </div>
+        <h2 class="mt-6 text-3xl md:text-4xl tracking-tight font-medium leading-tight">
+          Where the savings hold.
+        </h2>
+      </div>
+      <div class="col-span-12 md:col-span-6 md:col-start-7 text-zinc-400 leading-relaxed text-sm max-w-[58ch]">
+        Same edits, different cuts. Savings stay near the 47.4% headline across all 13 languages and across
+        small, medium, and large fixtures — FastEdit's advantage is structural, not tied to any one language
+        or size class.
+      </div>
+    </div>
+
+    <!-- Supplementary grids -->
+    <div class="grid grid-cols-12 gap-8">
+      <div class="col-span-12 md:col-span-7">
+        <div class="mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-4">per language · all 13 · sorted by savings</div>
+        <div class="border hair rounded-sm overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="mono text-[11px] uppercase tracking-[0.14em] text-zinc-500">
+              <tr class="border-b hair">
+                <th class="text-left py-3 px-4 font-normal">lang</th>
+                <th class="text-right py-3 px-4 font-normal">n</th>
+                <th class="text-right py-3 px-4 font-normal">native</th>
+                <th class="text-right py-3 px-4 font-normal">fastedit</th>
+                <th class="text-right py-3 px-4 font-normal">savings %</th>
+              </tr>
+            </thead>
+            <tbody id="lang-tbody" class="mono tabular-nums"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-5">
+        <div class="mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 mb-4">size-stratified</div>
+        <div class="border hair rounded-sm overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="mono text-[11px] uppercase tracking-[0.14em] text-zinc-500">
+              <tr class="border-b hair">
+                <th class="text-left py-3 px-4 font-normal">bucket</th>
+                <th class="text-right py-3 px-4 font-normal">n</th>
+                <th class="text-right py-3 px-4 font-normal">savings %</th>
+              </tr>
+            </thead>
+            <tbody id="size-tbody" class="mono tabular-nums"></tbody>
+          </table>
+        </div>
+        <p class="mt-3 text-xs text-zinc-500 max-w-[40ch] leading-relaxed">
+          Savings are consistent across small, medium, and large edits — with medium-size fixtures (80–160 tokens of native payload)
+          peaking slightly. FastEdit's advantage comes from dropping the old-code echo, proportional to unchanged context
+          rather than to absolute function size.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================= -->
+<!-- Section 6 — FOOTER -->
+<!-- ======================================================================= -->
+<footer class="border-t hair">
+  <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-12">
+    <div class="grid grid-cols-12 gap-6 items-start mono text-[11px] uppercase tracking-[0.14em] text-zinc-500">
+      <div class="col-span-6 md:col-span-3">
+        <div class="text-zinc-600">date</div>
+        <div class="mt-1 text-zinc-200 normal-case tracking-normal">2026-04-23</div>
+      </div>
+      <div class="col-span-6 md:col-span-3">
+        <div class="text-zinc-600">fastedit</div>
+        <div class="mt-1 normal-case tracking-normal">
+          <a class="u" href="https://github.com/parcadei/fastedit">github.com/parcadei/fastedit</a>
+          <span class="text-zinc-600">· v0.2.5</span>
+        </div>
+      </div>
+      <div class="col-span-6 md:col-span-3">
+        <div class="text-zinc-600">tokenizer</div>
+        <div class="mt-1 text-zinc-200 normal-case tracking-normal">tiktoken o200k_base</div>
+      </div>
+      <div class="col-span-6 md:col-span-3">
+        <div class="text-zinc-600">raw data</div>
+        <div class="mt-1 text-zinc-200 normal-case tracking-normal">results/tax_per_operation/20260423-015951</div>
+      </div>
+    </div>
+    <div class="mt-8 border-t hair pt-6 flex flex-wrap items-center gap-3 text-[11px] mono text-zinc-600">
+      <span>bench-02 · pitch build</span>
+      <span class="text-zinc-800">/</span>
+      <span>open locally for full interactivity</span>
+      <span class="ml-auto">continuous claude v4.7</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ======================================================================= -->
+<!-- Scripts — vanilla, no framework -->
+<!-- ======================================================================= -->
+<script>
+(function(){
+  const data = JSON.parse(document.getElementById('bench-data').textContent);
+
+  function escHtml(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+  function tint(s, lang){
+    let out = escHtml(s);
+    if (lang === 'json' || lang === 'native') {
+      out = out.split('\n').map(line => {
+        if (line.includes('"old_string"')) {
+          const c = line.indexOf(':');
+          if (c >= 0) return line.slice(0, c+1) + '<span class="tok-del">' + line.slice(c+1) + '</span>';
+        }
+        if (line.includes('"new_string"')) {
+          const c = line.indexOf(':');
+          if (c >= 0) return line.slice(0, c+1) + '<span class="tok-add">' + line.slice(c+1) + '</span>';
+        }
+        return line;
+      }).join('\n');
+    } else {
+      out = out.replace(/('([^'\\]|\\.)*')/g, m => '<span class="tok-str">' + m + '</span>');
+      out = out.replace(/\b(replace|snippet|after|fast_edit|fast_delete|fast_batch_edit|fast_move|fast_rename)\b/g,
+        m => '<span class="tok-fn">' + m + '</span>');
+      out = out.replace(/(#[^\n]*)/g, m => '<span class="tok-com">' + m + '</span>');
+      out = out.replace(/[()]/g, m => '<span class="tok-punc">' + m + '</span>');
+    }
+    return out;
+  }
+
+  // ---- Section 2: examples
+  const tabsEl = document.getElementById('example-tabs');
+  const panelEl = document.getElementById('example-panel');
+  let activeIdx = 0;
+
+  function renderTabs(){
+    tabsEl.innerHTML = '';
+    data.examples.forEach((ex, i) => {
+      const b = document.createElement('button');
+      b.className = 'mono text-[11px] uppercase tracking-[0.16em] px-4 py-2.5 border rounded-sm transition ' +
+        (i === activeIdx
+          ? 'border-transparent text-[var(--accent)]'
+          : 'hair text-zinc-400 hover:text-zinc-200 hover:border-[var(--hair-strong)]');
+      if (i === activeIdx) b.style.background = 'rgba(14,165,233,0.12)';
+      b.innerHTML = '<span class="text-zinc-600 mr-2">' + String(i+1).padStart(2,'0') + '</span>' + ex.label;
+      b.addEventListener('click', () => { activeIdx = i; renderTabs(); renderPanel(); });
+      tabsEl.appendChild(b);
+    });
+  }
+
+  function renderPanel(){
+    const ex = data.examples[activeIdx];
+    const saved = ex.native_tokens - ex.fastedit_tokens;
+    const pct = (saved / ex.native_tokens * 100).toFixed(1);
+    panelEl.innerHTML = `
+      <div class="col-span-12 md:col-span-5 border hair rounded-sm overflow-hidden stagger">
+        <div style="--i:0" class="flex items-center justify-between px-4 py-3 border-b hair">
+          <div class="mono text-[11px] uppercase tracking-[0.14em] text-zinc-500">native edit payload</div>
+          <div class="mono text-xs tabular-nums text-zinc-300">${ex.native_tokens} tok</div>
+        </div>
+        <pre style="--i:1; white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere;" class="p-4 code"><code>${tint(ex.native_payload, 'json')}</code></pre>
+        <div style="--i:2" class="px-4 py-2.5 border-t hair mono text-[10px] uppercase tracking-[0.14em] text-zinc-600">
+          ${ex.id} <span class="text-zinc-700">·</span> ${ex.op}
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-2 flex md:flex-col items-center justify-center gap-3 stagger py-6 md:py-0">
+        <div style="--i:3" class="mono text-[10px] uppercase tracking-[0.14em] text-zinc-600">saved</div>
+        <div style="--i:4" class="mono text-3xl md:text-4xl tabular-nums accent-text">${saved}</div>
+        <div style="--i:5" class="mono text-xs tabular-nums text-zinc-400">${pct}%</div>
+        <div style="--i:6" aria-hidden="true" class="text-zinc-700 text-xl md:rotate-90">&rarr;</div>
+      </div>
+
+      <div class="col-span-12 md:col-span-5 border rounded-sm overflow-hidden stagger" style="border-color: rgba(14,165,233,0.35); box-shadow: inset 0 1px 0 rgba(14,165,233,0.08);">
+        <div style="--i:0" class="flex items-center justify-between px-4 py-3 border-b" style="border-color: rgba(14,165,233,0.22);">
+          <div class="mono text-[11px] uppercase tracking-[0.14em] accent-text">fastedit payload</div>
+          <div class="mono text-xs tabular-nums text-zinc-100">${ex.fastedit_tokens} tok</div>
+        </div>
+        <pre style="--i:1; white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere;" class="p-4 code"><code>${tint(ex.fastedit_payload, 'py')}</code></pre>
+        <div style="--i:2" class="px-4 py-2.5 border-t mono text-[10px] uppercase tracking-[0.14em] text-zinc-600" style="border-color: rgba(14,165,233,0.22);">
+          v0.2.5 <span class="text-zinc-700">·</span> ${ex.op}
+        </div>
+      </div>
+    `;
+  }
+
+  renderTabs();
+  renderPanel();
+
+  // ---- Section 3: language mini-chart
+  const chart = document.getElementById('lang-mini-chart');
+  const legend = document.getElementById('lang-mini-legend');
+  const langs = data.per_language.slice().sort((a,b) => a.pct - b.pct);
+  chart.style.gridTemplateColumns = `repeat(${langs.length}, minmax(0, 1fr))`;
+  langs.forEach((l, i) => {
+    const h = 12 + (l.pct - 35) * 2.4;
+    const bar = document.createElement('div');
+    bar.className = 'bar-lang';
+    bar.style.height = Math.max(10, h) + '%';
+    bar.style.background = 'rgba(14, 165, 233, 0.45)';
+    bar.style.borderRadius = '1px';
+    bar.style.animation = `rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both`;
+    bar.style.animationDelay = (i * 55) + 'ms';
+    bar.title = `${l.lang} — ${l.pct.toFixed(1)}%`;
+    bar.addEventListener('mouseenter', () => {
+      legend.innerHTML = `<span class="text-zinc-200">${l.lang}</span> <span class="text-zinc-600">&middot;</span> <span class="tabular-nums accent-text">${l.pct.toFixed(1)}%</span> <span class="text-zinc-600">(n=${l.n})</span>`;
+    });
+    bar.addEventListener('mouseleave', () => {
+      legend.innerHTML = '<span>hover a bar</span>';
+    });
+    chart.appendChild(bar);
+  });
+
+  function fmt(n){ return n.toLocaleString('en-US'); }
+
+  // ---- Lang supplementary (all 13)
+  const lbody = document.getElementById('lang-tbody');
+  const allLangs = data.per_language.slice().sort((a,b) => b.pct - a.pct);
+  lbody.innerHTML = allLangs.map(l => `
+    <tr class="border-b hair last:border-b-0">
+      <td class="py-3 px-4 font-sans text-zinc-200">${l.lang}</td>
+      <td class="py-3 px-4 text-right">${l.n}</td>
+      <td class="py-3 px-4 text-right text-zinc-400">${fmt(l.native)}</td>
+      <td class="py-3 px-4 text-right text-zinc-400">${fmt(l.fastedit)}</td>
+      <td class="py-3 px-4 text-right accent-text">${l.pct.toFixed(1)}%</td>
+    </tr>
+  `).join('');
+
+  // ---- Size supplementary
+  const sbody = document.getElementById('size-tbody');
+  sbody.innerHTML = data.size_buckets.map(s => `
+    <tr class="border-b hair last:border-b-0">
+      <td class="py-3 px-4 font-sans text-zinc-200">
+        ${s.bucket}
+        <span class="mono text-[10px] text-zinc-600 ml-2">${s.range}</span>
+      </td>
+      <td class="py-3 px-4 text-right">${s.n}</td>
+      <td class="py-3 px-4 text-right accent-text">${s.pct.toFixed(1)}%</td>
+    </tr>
+  `).join('');
+})();
+</script>
+</body>
+</html>

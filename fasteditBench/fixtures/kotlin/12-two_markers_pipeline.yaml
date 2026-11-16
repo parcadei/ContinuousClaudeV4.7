@@ -1,0 +1,39 @@
+name: two_markers_pipeline
+pattern: two_markers
+language: kotlin
+original_code: |
+  fun pipeline(xs: List<Int>): List<Int> {
+      val a = step1(xs)
+      val b = step2(a)
+      val c = step3(b)
+      val d = step4(c)
+      return d
+  }
+snippet: |
+  fun pipeline(xs: List<Int>): List<Int> {
+      val a = step1(xs)
+      val b = step2V2(a)
+      val c = step3V2(b)
+      val d = step4(c)
+      return d
+  }
+expected_output: |
+  fun pipeline(xs: List<Int>): List<Int> {
+      val a = step1(xs)
+      val b = step2V2(a)
+      val c = step3V2(b)
+      val d = step4(c)
+      return d
+  }
+target_kind: replace
+target_name: pipeline
+authoring_notes: |
+  Classic two-marker edit: preserve the top (step1) and bottom (step4
+  + return) while swapping two middle steps for their `*_V2` variants.
+
+  Style A (full replacement) under replace=pipeline: the deterministic
+  text-match algorithm has a known bracketing-markers bug — when the
+  snippet has markers on BOTH sides of the new lines, the new lines
+  get emitted AFTER the preserved gap rather than in their bracketed
+  position. Style A sidesteps this by giving text_match the whole new
+  body with no markers.

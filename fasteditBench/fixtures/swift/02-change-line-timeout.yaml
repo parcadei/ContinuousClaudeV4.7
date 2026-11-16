@@ -1,0 +1,27 @@
+name: change_line_urlsession_timeout
+pattern: change_line
+language: swift
+original_code: |
+  func makeSession() -> URLSession {
+      let config = URLSessionConfiguration.default
+      config.timeoutIntervalForRequest = 5
+      return URLSession(configuration: config)
+  }
+snippet: |
+  func makeSession() -> URLSession {
+      let config = URLSessionConfiguration.default
+      config.timeoutIntervalForRequest = 30
+      return URLSession(configuration: config)
+  }
+expected_output: |
+  func makeSession() -> URLSession {
+      let config = URLSessionConfiguration.default
+      config.timeoutIntervalForRequest = 30
+      return URLSession(configuration: config)
+  }
+target_kind: none
+target_name: null
+authoring_notes: |
+  Single-line value change (5 -> 30) on a URLSessionConfiguration
+  property assignment. Surrounding lines are byte-identical to the
+  original; only the literal changes. Idiomatic Swift networking setup.

@@ -1,0 +1,38 @@
+name: full_replace_max_element
+pattern: full_replace
+language: cpp
+original_code: |
+  #include <vector>
+  #include <algorithm>
+
+  int largest(const std::vector<int>& items) {
+      int best = items[0];
+      for (std::size_t i = 1; i < items.size(); ++i) {
+          if (items[i] > best) {
+              best = items[i];
+          }
+      }
+      return best;
+  }
+snippet: |
+  int largest(const std::vector<int>& items) {
+      return *std::max_element(items.begin(), items.end());
+  }
+expected_output: |
+  #include <vector>
+  #include <algorithm>
+
+  int largest(const std::vector<int>& items) {
+      return *std::max_element(items.begin(), items.end());
+  }
+target_kind: replace
+target_name: largest
+authoring_notes: |
+  Replace a hand-rolled max loop with std::max_element. Style A (full
+  body replacement) under replace=largest.
+
+  Note: original_code now includes `<algorithm>` so the expected TU
+  parses without the replace= call needing to add a top-level include
+  alongside the body rewrite. Real agents emit the include via a
+  separate fast_edit call (or one fast_batch_edit round-trip); our
+  single-call harness can't splice both atomically.

@@ -1,0 +1,41 @@
+name: add_guard_null_check
+pattern: add_guard
+language: java
+original_code: |
+  public class Averager {
+      public double average(java.util.List<Integer> nums) {
+          int total = 0;
+          for (int n : nums) {
+              total += n;
+          }
+          return (double) total / nums.size();
+      }
+  }
+snippet: |
+  public double average(java.util.List<Integer> nums) {
+      if (nums == null || nums.isEmpty()) {
+          return 0.0;
+      }
+      int total = 0;
+      // ... existing code ...
+  }
+expected_output: |
+  public class Averager {
+      public double average(java.util.List<Integer> nums) {
+          if (nums == null || nums.isEmpty()) {
+              return 0.0;
+          }
+          int total = 0;
+          for (int n : nums) {
+              total += n;
+          }
+          return (double) total / nums.size();
+      }
+  }
+target_kind: replace
+target_name: average
+authoring_notes: |
+  Classic Java guard-clause insertion: check null/empty before the body.
+  Snippet uses a `// ... existing code ...` marker to preserve the for-loop
+  and the return. A correct adapter keeps the loop and return untouched
+  and only inserts the 3-line guard.
